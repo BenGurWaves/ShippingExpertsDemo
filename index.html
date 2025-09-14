@@ -184,7 +184,65 @@
       text-decoration: none;
       margin: 0 0.5rem;
     }
-  </style>
+
+  /* Modal Background */
+  .modal {
+    display: none; 
+    position: fixed; 
+    z-index: 1000; 
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.7);
+  }
+
+  /* Modal Box */
+  .modal-content {
+    background: white;
+    margin: 5% auto;
+    padding: 2rem;
+    border-radius: 8px;
+    width: 80%;
+    max-width: 700px;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  /* Close Button */
+  .close {
+    float: right;
+    font-size: 1.5rem;
+    cursor: pointer;
+  }
+
+  /* Inputs styling */
+  .modal-content input, 
+  .modal-content textarea {
+    width: 100%;
+    margin: 0.5rem 0;
+    padding: 0.6rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+
+  .modal-content button {
+    margin: 0.5rem 0.5rem 0 0;
+    padding: 0.7rem 1.2rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .modal-content button[type="submit"] {
+    background: #ff7a00;
+    color: white;
+  }
+
+  .modal-content button[type="reset"] {
+    background: #333;
+    color: white;
+  }
+</style>
+
 </head>
 <body>
   <header>
@@ -197,7 +255,41 @@
         <li><a href="contactus.html" class="brand-link" >Contact Us</a></li>
       </ul>
     </nav>
-    <button class="cta-btn">Get Quote</button>
+    <!-- HEADER BUTTON -->
+<button class="cta-btn" onclick="openForm()">Get Quote</button>
+
+<!-- POPUP FORM (hidden by default) -->
+<div id="quoteModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeForm()">&times;</span>
+    <h2>Shipping Experts Form</h2>
+    <form>
+      <input type="text" placeholder="VIN">
+      <input type="text" placeholder="Vehicle Year/Make/Model">
+      <input type="text" placeholder="Vehicle Color">
+      <input type="text" placeholder="Vehicle Type">
+      <input type="text" placeholder="Inoperable Vehicle">
+      <input type="text" placeholder="Additional Vehicle(s)">
+      <input type="text" placeholder="Pickup Name - Residence, Business, Auction">
+      <input type="text" placeholder="Pickup Address">
+      <input type="text" placeholder="Pickup Contact Name(s)">
+      <input type="text" placeholder="Pickup Contact Phone(s)">
+      <input type="text" placeholder="Scheduled Pickup Dates">
+      <textarea placeholder="Pickup Notes"></textarea>
+      <input type="text" placeholder="Delivery Name - Residence, Business, Auction">
+      <input type="text" placeholder="Delivery Address">
+      <input type="text" placeholder="Delivery Contact Name(s)">
+      <input type="text" placeholder="Delivery Contact Phone(s)">
+      <input type="text" placeholder="Scheduled Delivery Dates">
+      <textarea placeholder="Delivery Notes"></textarea>
+      <label><input type="checkbox"> I agree to and authorize transport...</label>
+      <div>
+        <button type="submit">Submit Form</button>
+        <button type="reset">Clear Form</button>
+      </div>
+    </form>
+  </div>
+</div>
   </header>
 
   <section class="hero">
@@ -304,5 +396,24 @@
       <a href="#">Terms and Conditions</a>
     </p>
   </footer>
+
+  <script>
+  function openForm() {
+    document.getElementById("quoteModal").style.display = "block";
+  }
+
+  function closeForm() {
+    document.getElementById("quoteModal").style.display = "none";
+  }
+
+  // Optional: close when clicking outside
+  window.onclick = function(event) {
+    let modal = document.getElementById("quoteModal");
+    if (event.target == modal) {
+      modal.style.display = "none";
+    }
+  }
+</script>
+
 </body>
 </html> 
