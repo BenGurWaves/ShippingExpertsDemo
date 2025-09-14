@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shipping Experts | Auto Transport</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #fff;
+      color: #333;
+    }
+
+    header {
+      background: linear-gradient(90deg, white 0%, #ff7a00 100%);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 2rem;
+    }
+
+    header img {
+      height: 50px;
+    }
+
+    nav ul {
+      list-style: none;
+      display: flex;
+      gap: 1.5rem;
+      margin: 0;
+      padding: 0;
+    }
+
+    nav ul li {
+      display: inline;
+    }
+
+    nav a {
+      text-decoration: none;
+      color: #333;
+      font-weight: bold;
+    }
+
+    .cta-btn {
+      background: #ff7a00;
+      color: white;
+      padding: 0.6rem 1.2rem;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .hero {
+      display: flex;
+      gap: 1rem;
+      padding: 2rem;
+      justify-content: center;
+      background: #f7f7f7;
+    }
+
+    .hero img {
+      max-width: 30%;
+      border-radius: 8px;
+    }
+
+    .call-to-action {
+      text-align: center;
+      padding: 2rem;
+      background: linear-gradient(180deg, #fff, #ffe0cc);
+    }
+
+    .call-to-action h2 {
+      color: #ff7a00;
+    }
+
+    .call-to-action .stats {
+      display: flex;
+      justify-content: center;
+      gap: 3rem;
+      margin: 1.5rem 0;
+    }
+
+    .call-to-action .stats div {
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+
+    .call-to-action button {
+      margin: 0.5rem;
+      padding: 0.7rem 1.4rem;
+      border: none;
+      border-radius: 4px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    .call-btn {
+      background: #ff7a00;
+      color: white;
+    }
+
+    .quote-btn {
+      background: #333;
+      color: white;
+    }
+
+    .reviews {
+      padding: 2rem;
+      text-align: center;
+    }
+
+    .services {
+      padding: 2rem;
+      background: #f7f7f7;
+    }
+
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .services-grid div {
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      text-align: center;
+      padding: 1rem;
+      font-weight: bold;
+    }
+
+    .about, .vision-mission, .contact, .form-section, .faq {
+      padding: 2rem;
+    }
+
+    .vision-mission-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+    }
+
+    .vision-mission-grid div {
+      background: #fff5eb;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 1rem;
+    }
+
+    .form-section form {
+      display: grid;
+      gap: 1rem;
+      max-width: 600px;
+      margin: auto;
+    }
+
+    .form-section input, .form-section textarea {
+      padding: 0.6rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    .form-section button {
+      background: #ff7a00;
+      color: white;
+      border: none;
+      padding: 0.8rem;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+
+    footer {
+      background: #333;
+      color: white;
+      text-align: center;
+      padding: 2rem;
+      font-size: 0.9rem;
+    }
+
+    footer a {
+      color: #ff7a00;
+      text-decoration: none;
+      margin: 0 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="logo.png" alt="Shipping Experts Logo" />
+    <nav>
+      <ul>
+        <li><a href="#">Home</a></li>
+        <li><a href="#">About</a></li>
+        <li><a href="#">Contact Us</a></li>
+      </ul>
+    </nav>
+    <button class="cta-btn">Get Quote</button>
+  </header>
+
+  <section class="hero">
+    <img src="semi.jpg" alt="Semi Truck">
+    <img src="semi.png" alt="Semi Truck">
+    <img src="semi3.jpg" alt="Semi Truck">
+  </section>
+
+  <section class="call-to-action">
+    <h2>Trust in the Experts!</h2>
+    <div class="stats">
+      <div>Vehicles Shipped Monthly: 1250</div>
+      <div>Customers Helped: 982,370</div>
+      <div>Company Rating: 4.7</div>
+    </div>
+    <p>Get Your Free Quote Now!</p>
+    <button class="call-btn">Call: (916)760-7202</button>
+    <button class="quote-btn">Request A Quote</button>
+  </section>
+
+  <section class="reviews">
+    <h2>Reviews</h2>
+    <p>[Google and Yelp embeds will go here]</p>
+  </section>
+
+  <section class="services">
+    <h2>Services</h2>
+    <div class="services-grid">
+      <div>Open Auto Shipping</div>
+      <div>Enclosed Auto Shipping</div>
+      <div>Exotic Auto Shipping</div>
+      <div>Dealer Auto Shipping</div>
+      <div>Boats Shipping</div>
+      <div>Motorcycles Shipping</div>
+      <div>RV Shipping</div>
+      <div>Inoperable Vehicle Shipping</div>
+    </div>
+  </section>
+
+  <section class="about">
+    <h2>About Us</h2>
+    <p>We are a team of shipping experts with years of experience...</p>
+    <p>[Full about text inserted here]</p>
+  </section>
+
+  <section class="vision-mission">
+    <div class="vision-mission-grid">
+      <div><h3>VISION</h3><p>At Shipping Experts, our vision is to...</p></div>
+      <div><h3>MISSION</h3><p>Our mission at Shipping Experts is...</p></div>
+      <div><h3>HOW</h3><p>At Shipping Experts, we believe that...</p></div>
+      <div><h3>FUTURE</h3><p>The future of Shipping Experts is...</p></div>
+    </div>
+  </section>
+
+  <section class="contact">
+    <h2>Contact Us</h2>
+    <p>Get in touch with our amazing team...</p>
+    <button class="call-btn">Call: (916)760-7202</button>
+    <button class="quote-btn">Email: dispatch@autoshippingexperts.com</button>
+  </section>
+
+  <section class="form-section">
+    <h2>Shipping Experts Form</h2>
+    <form>
+      <input type="text" placeholder="VIN">
+      <input type="text" placeholder="Vehicle Year/Make/Model">
+      <input type="text" placeholder="Vehicle Color">
+      <input type="text" placeholder="Vehicle Type">
+      <input type="text" placeholder="Inoperable Vehicle">
+      <input type="text" placeholder="Additional Vehicle(s)">
+      <input type="text" placeholder="Pickup Name - Residence, Business, Auction">
+      <input type="text" placeholder="Pickup Address">
+      <input type="text" placeholder="Pickup Contact Name(s)">
+      <input type="text" placeholder="Pickup Contact Phone(s)">
+      <input type="text" placeholder="Scheduled Pickup Dates">
+      <textarea placeholder="Pickup Notes"></textarea>
+      <input type="text" placeholder="Delivery Name - Residence, Business, Auction">
+      <input type="text" placeholder="Delivery Address">
+      <input type="text" placeholder="Delivery Contact Name(s)">
+      <input type="text" placeholder="Delivery Contact Phone(s)">
+      <input type="text" placeholder="Scheduled Delivery Dates">
+      <textarea placeholder="Delivery Notes"></textarea>
+      <label><input type="checkbox"> I agree to and authorize transport...</label>
+      <div>
+        <button type="submit">Submit Form</button>
+        <button type="reset">Clear Form</button>
+      </div>
+    </form>
+  </section>
+
+  <section class="faq">
+    <h2>Frequently Asked Questions</h2>
+    <p>[FAQ content will be added later]</p>
+  </section>
+
+  <footer>
+    <p>
+      Home | About Us | Services | Contact Us <br>
+      7551 14th Ave Suit A, Sacramento, USA 95820 <br>
+      Phone: (916) 760-7202 | Email: dispatch@autoshippingexperts.com <br>
+      © 2023 Shipping Experts INC. | All Rights Reserved <br>
+      <a href="#">Privacy Policy</a> | 
+      <a href="#">Copyright and Trademark</a> | 
+      <a href="#">Terms and Conditions</a>
+    </p>
+  </footer>
+</body>
+</html>
