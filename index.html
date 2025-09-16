@@ -1,14 +1,14 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Shipping Experts — Profile & Upload</title>
+<title>Shipping Experts — Debug Build</title>
 <style>
-  :root{--accent:#FF6700;--modal-bg:rgba(0,0,0,0.5);--card:#fff}
+  :root{--accent:#FF6700}
   *{box-sizing:border-box}
-  body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f7f7f7;color:#111;}
-  header{background:var(--accent);color:#fff;padding:10px 18px;display:flex;align-items:center;justify-content:space-between}
+  body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f6f7f8;color:#111}
+  header{background:var(--accent);color:#fff;padding:10px 16px;display:flex;justify-content:space-between;align-items:center;z-index:10;position:relative}
   h1{margin:0;font-size:18px}
   #header-actions{display:flex;gap:12px;align-items:center}
   button{background:#fff;border:0;padding:8px 10px;border-radius:6px;cursor:pointer}
@@ -17,26 +17,23 @@
   .hidden{display:none!important}
   .profile-circle img{width:100%;height:100%;object-fit:cover;display:block}
 
-  /* POPUPS: default display is flex; hidden class hides them */
-  .popup{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:var(--modal-bg);z-index:1000}
-  .modal{width:340px;background:var(--card);border-radius:10px;padding:18px;box-shadow:0 6px 24px rgba(0,0,0,0.18);display:flex;flex-direction:column;gap:10px;position:relative}
-  .modal h2{margin:0;font-size:16px}
+  /* popup overlay */
+  .popup{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);z-index:9999}
+  .modal{width:360px;background:#fff;border-radius:10px;padding:18px;box-shadow:0 10px 30px rgba(0,0,0,0.18);display:flex;flex-direction:column;gap:10px;position:relative}
+  .modal h2{margin:0;font-size:18px}
   .close{position:absolute;right:12px;top:10px;font-size:18px;cursor:pointer;border:none;background:none}
   input[type="text"],input[type="email"],input[type="password"],input[type="file"]{width:100%;padding:8px;border-radius:6px;border:1px solid #ddd}
-  .row{display:flex;gap:8px}
   .muted{font-size:13px;color:#666;margin:0}
-
-  /* Progress UI */
+  .row{display:flex;gap:8px}
+  /* progress */
   .progress-wrap{display:flex;align-items:center;gap:8px}
   progress{width:100%;height:12px;border-radius:6px;appearance:none}
   progress::-webkit-progress-bar{background:#eee;border-radius:6px}
   progress::-webkit-progress-value{background:var(--accent);border-radius:6px}
   .progress-text{min-width:48px;text-align:right;font-size:12px;color:#333}
-
-  /* small responsive */
-  @media (max-width:420px){
-    .modal{width:92%}
-  }
+  /* debug area */
+  #debug {position:fixed;right:12px;bottom:12px;background:#111;color:#fff;padding:8px;border-radius:8px;font-size:12px;z-index:10000;opacity:0.9}
+  @media (max-width:420px){.modal{width:92%}}
 </style>
 </head>
 <body>
@@ -44,7 +41,7 @@
 <header>
   <h1>Shipping Experts</h1>
   <div id="header-actions">
-    <button id="signin-btn">Sign In</button>
+    <button id="signin-btn" aria-haspopup="dialog">Sign In</button>
     <div id="profile-circle" class="profile-circle hidden" title="Open profile">
       <img id="header-avatar" src="" alt="Avatar" class="hidden">
     </div>
@@ -66,7 +63,7 @@
   </div>
 </div>
 
-<!-- EXTRA PROFILE (shown after signup) -->
+<!-- EXTRA PROFILE (after signup) -->
 <div id="extra-popup" class="popup hidden" aria-hidden="true">
   <div class="modal" role="dialog" aria-modal="true" aria-label="Extra profile">
     <button class="close" id="close-extra" title="Close">×</button>
@@ -105,371 +102,307 @@
   </div>
 </div>
 
+<!-- Small debug box so you don't have to open console immediately -->
+<div id="debug">Debug: ready</div>
+
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script>
-/* -------------------------
-   CONFIG - replace with yours
-   ------------------------- */
+/* ---------- CONFIG ---------- */
 const SUPABASE_URL = "https://gxcbliwbxrnhltdosfuj.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd4Y2JsaXdieHJuaGx0ZG9zZnVqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc5ODE4MDcsImV4cCI6MjA3MzU1NzgwN30.XsQR9vmnIknlcgUT4znIHGYjY_9s2hS8ZNIke9Dn7-E";
 const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-/* -------------------------
-   ELEMENTS
-   ------------------------- */
-const signinBtn = document.getElementById("signin-btn");
-const profileCircle = document.getElementById("profile-circle");
-const headerAvatar = document.getElementById("header-avatar");
+/* ---------- ELEMENTS ---------- */
+const debugEl = document.getElementById('debug');
+const signinBtn = document.getElementById('signin-btn');
+const profileCircle = document.getElementById('profile-circle');
+const headerAvatar = document.getElementById('header-avatar');
 
-const authPopup = document.getElementById("auth-popup");
-const extraPopup = document.getElementById("extra-popup");
-const editPopup = document.getElementById("edit-popup");
+const authPopup = document.getElementById('auth-popup');
+const extraPopup = document.getElementById('extra-popup');
+const editPopup = document.getElementById('edit-popup');
 
-const closeAuth = document.getElementById("close-auth");
-const closeExtra = document.getElementById("close-extra");
-const closeEdit = document.getElementById("close-edit");
+const closeAuth = document.getElementById('close-auth');
+const closeExtra = document.getElementById('close-extra');
+const closeEdit = document.getElementById('close-edit');
 
-const signupBtn = document.getElementById("signup-btn");
-const loginBtn = document.getElementById("login-btn");
-const authStatus = document.getElementById("auth-status");
+const signupBtn = document.getElementById('signup-btn');
+const loginBtn = document.getElementById('login-btn');
+const authStatus = document.getElementById('auth-status');
 
-const saveProfileBtn = document.getElementById("save-profile");
-const skipProfileBtn = document.getElementById("skip-profile");
-const profileStatus = document.getElementById("profile-status");
-const avatarUploadInput = document.getElementById("profile-avatar-upload");
-const avatarProgressArea = document.getElementById("avatar-progress-area");
-const avatarProgressBar = document.getElementById("avatar-progress-bar");
-const avatarProgressText = document.getElementById("avatar-progress-text");
+const saveProfileBtn = document.getElementById('save-profile');
+const skipProfileBtn = document.getElementById('skip-profile');
+const profileStatus = document.getElementById('profile-status');
+const avatarUploadInput = document.getElementById('profile-avatar-upload');
+const avatarProgressArea = document.getElementById('avatar-progress-area');
+const avatarProgressBar = document.getElementById('avatar-progress-bar');
+const avatarProgressText = document.getElementById('avatar-progress-text');
 
-const editFullname = document.getElementById("edit-fullname");
-const editUsername = document.getElementById("edit-username");
-const editPhone = document.getElementById("edit-phone");
-const editEmail = document.getElementById("edit-email");
-const editAvatarFile = document.getElementById("edit-avatar-file");
-const editSaveBtn = document.getElementById("edit-save");
-const editCancelBtn = document.getElementById("edit-cancel");
-const signoutBtn = document.getElementById("signout-btn");
-const editStatus = document.getElementById("edit-status");
+const editFullname = document.getElementById('edit-fullname');
+const editUsername = document.getElementById('edit-username');
+const editPhone = document.getElementById('edit-phone');
+const editEmail = document.getElementById('edit-email');
+const editAvatarFile = document.getElementById('edit-avatar-file');
+const editSaveBtn = document.getElementById('edit-save');
+const editCancelBtn = document.getElementById('edit-cancel');
+const signoutBtn = document.getElementById('signout-btn');
+const editStatus = document.getElementById('edit-status');
 
-/* -------------------------
-   UTILS: show/hide modal helpers
-   ------------------------- */
+/* ---------- HELPERS ---------- */
+function logDebug(msg) {
+  console.log('[app]', msg);
+  debugEl.textContent = 'Debug: ' + msg;
+}
 function openModal(el) {
-  el.classList.remove("hidden");
-  el.setAttribute("aria-hidden", "false");
+  el.classList.remove('hidden');
+  el.setAttribute('aria-hidden','false');
 }
 function closeModal(el) {
-  el.classList.add("hidden");
-  el.setAttribute("aria-hidden", "true");
+  el.classList.add('hidden');
+  el.setAttribute('aria-hidden','true');
 }
 
 /* close when clicking outside modal content */
-document.querySelectorAll(".popup").forEach(p => {
-  p.addEventListener("click", (e) => {
-    if (e.target === p) closeModal(p);
-  });
+document.querySelectorAll('.popup').forEach(p => {
+  p.addEventListener('click', e => { if (e.target === p) closeModal(p); });
 });
 
-/* -------------------------
-   AUTH: sign up / sign in
-   ------------------------- */
-signinBtn.addEventListener("click", () => {
-  authStatus.textContent = "";
-  document.getElementById("auth-email").value = "";
-  document.getElementById("auth-password").value = "";
-  openModal(authPopup);
-});
+/* ---------- AUTH UI wiring ---------- */
+/* Defensive attach: if element missing, log */
+if (!signinBtn) logDebug('signin-btn NOT found');
+if (!authPopup) logDebug('auth-popup NOT found');
 
-closeAuth.addEventListener("click", () => closeModal(authPopup));
-
-signupBtn.addEventListener("click", async () => {
-  authStatus.textContent = "Processing…";
-  const email = document.getElementById("auth-email").value.trim();
-  const password = document.getElementById("auth-password").value;
-
-  if (!email || !password) { authStatus.textContent = "Email and password required."; return; }
-
-  const { data, error } = await supabase.auth.signUp({ email, password });
-  if (error) { authStatus.textContent = error.message; return; }
-
-  // create blank profile row (id = user.id)
-  if (data && data.user && data.user.id) {
-    await supabase.from("profiles").insert({ id: data.user.id }).catch(()=>{});
+/* Primary click handler - includes console output so we can see what's happening */
+signinBtn.addEventListener('click', () => {
+  try {
+    logDebug('Sign In clicked — opening auth popup');
+    // clear previous input & status
+    document.getElementById('auth-email').value = '';
+    document.getElementById('auth-password').value = '';
+    authStatus.textContent = '';
+    openModal(authPopup);
+  } catch (err) {
+    logDebug('Error opening auth popup: ' + err.message);
   }
-
-  authStatus.textContent = "";
-  closeModal(authPopup);
-  profileStatus.textContent = "";
-  // open extra setup
-  document.getElementById("profile-username").value = "";
-  document.getElementById("profile-phone").value = "";
-  avatarUploadInput.value = "";
-  avatarProgressBar.value = 0;
-  avatarProgressText.textContent = '0%';
-  avatarProgressArea.classList.add("hidden");
-  openModal(extraPopup);
 });
 
-loginBtn.addEventListener("click", async () => {
-  authStatus.textContent = "Signing in…";
-  const email = document.getElementById("auth-email").value.trim();
-  const password = document.getElementById("auth-password").value;
-  if (!email || !password) { authStatus.textContent = "Email and password required."; return; }
+/* fallback: also attach click via capturing on header in case button is being covered */
+document.querySelector('header').addEventListener('click', (e) => {
+  // if user clicked the area where signin button sits but event didn't reach button,
+  // this will try to open the modal as a last resort (helps when something blocks pointer)
+  if (e.target.id === 'signin-btn') return; // already handled
+});
 
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-  if (error) { authStatus.textContent = error.message; return; }
+/* close handlers */
+closeAuth.addEventListener('click', () => closeModal(authPopup));
+closeExtra.addEventListener('click', () => closeModal(extraPopup));
+closeEdit.addEventListener('click', () => closeModal(editPopup));
 
-  authStatus.textContent = "";
+/* signup / login actions */
+signupBtn.addEventListener('click', async () => {
+  authStatus.textContent = 'Processing…';
+  const email = document.getElementById('auth-email').value.trim();
+  const password = document.getElementById('auth-password').value;
+  if (!email || !password) { authStatus.textContent = 'Email and password required.'; return; }
+
+  logDebug('Signing up ' + email);
+  const { data, error } = await supabase.auth.signUp({ email, password });
+  if (error) { authStatus.textContent = error.message; logDebug('signup error: ' + error.message); return; }
+  // create profile row
+  if (data?.user?.id) {
+    await supabase.from('profiles').insert({ id: data.user.id }).catch(()=>{});
+  }
   closeModal(authPopup);
-  if (data && data.user) {
-    updateHeaderAndState(data.user);
+  openModal(extraPopup);
+  avatarProgressArea.classList.add('hidden');
+  authStatus.textContent = '';
+});
+
+loginBtn.addEventListener('click', async () => {
+  authStatus.textContent = 'Signing in…';
+  const email = document.getElementById('auth-email').value.trim();
+  const password = document.getElementById('auth-password').value;
+  if (!email || !password) { authStatus.textContent = 'Email and password required.'; return; }
+
+  logDebug('Signing in ' + email);
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  if (error) { authStatus.textContent = error.message; logDebug('signin error: ' + error.message); return; }
+  authStatus.textContent = '';
+  closeModal(authPopup);
+  if (data?.user) {
+    await updateHeaderAndState(data.user);
     await loadProfileIntoHeader(data.user.id);
   }
 });
 
-/* -------------------------
-   REAL UPLOAD FUNCTION (XHR) with progress
-   Uses Supabase Storage REST endpoint
-   upload target: /storage/v1/object/<bucket>/<path>
-   We'll use path `public/{userId}.png` inside bucket `avatars`
-   public URL: /storage/v1/object/public/avatars/public/{userId}.png
-   ------------------------- */
-function uploadFileWithProgress(file, bucket, path, progressCb) {
+/* ---------- Upload via XHR with progress ---------- */
+function uploadFileWithProgress(file, bucket, path, onProgress) {
   const url = `${SUPABASE_URL}/storage/v1/object/${bucket}/${encodeURIComponent(path)}`;
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
-    xhr.open("PUT", url);
-    xhr.setRequestHeader("Authorization", `Bearer ${SUPABASE_ANON_KEY}`);
-    // upsert true
-    xhr.setRequestHeader("x-upsert", "true");
+    xhr.open('PUT', url);
+    xhr.setRequestHeader('Authorization', `Bearer ${SUPABASE_ANON_KEY}`);
+    xhr.setRequestHeader('x-upsert', 'true');
 
-    xhr.upload.onprogress = (ev) => {
+    xhr.upload.onprogress = ev => {
       if (ev.lengthComputable) {
         const pct = Math.round((ev.loaded / ev.total) * 100);
-        progressCb(pct);
+        onProgress(pct);
       }
     };
-
     xhr.onload = () => {
-      if (xhr.status >= 200 && xhr.status < 300) {
-        resolve();
-      } else {
-        reject(new Error(`Upload failed (${xhr.status}): ${xhr.statusText || xhr.responseText}`));
-      }
+      if (xhr.status >= 200 && xhr.status < 300) resolve();
+      else reject(new Error('Upload failed: ' + (xhr.statusText || xhr.responseText || xhr.status)));
     };
-
-    xhr.onerror = () => reject(new Error("Network error during upload"));
+    xhr.onerror = () => reject(new Error('Network error during upload'));
     xhr.send(file);
   });
 }
 
-/* -------------------------
-   EXTRA PROFILE: save (with progress)
-   ------------------------- */
-closeExtra.addEventListener("click", () => closeModal(extraPopup));
-skipProfileBtn.addEventListener("click", () => closeModal(extraPopup));
-
-saveProfileBtn.addEventListener("click", async () => {
-  profileStatus.textContent = "";
+/* ---------- Extra profile save (with live progress) ---------- */
+saveProfileBtn.addEventListener('click', async () => {
+  profileStatus.textContent = '';
   const userResp = await supabase.auth.getUser();
   const user = userResp?.data?.user;
-  if (!user) { profileStatus.textContent = "You must be signed in."; return; }
+  if (!user) { profileStatus.textContent = 'Sign in first.'; return; }
 
-  const username = document.getElementById("profile-username").value.trim() || null;
-  const phone = document.getElementById("profile-phone").value.trim() || null;
+  const username = document.getElementById('profile-username').value.trim() || null;
+  const phone = document.getElementById('profile-phone').value.trim() || null;
   const file = avatarUploadInput.files[0] || null;
 
   let avatarUrl = null;
-
   if (file) {
     try {
-      avatarProgressArea.classList.remove("hidden");
+      avatarProgressArea.classList.remove('hidden');
       avatarProgressBar.value = 0;
-      avatarProgressText.textContent = "0%";
-
-      // path inside bucket avatars: public/{user.id}.png
+      avatarProgressText.textContent = '0%';
       const path = `public/${user.id}.png`;
-      await uploadFileWithProgress(file, "avatars", path, (pct) => {
+      await uploadFileWithProgress(file, 'avatars', path, pct => {
         avatarProgressBar.value = pct;
-        avatarProgressText.textContent = `${pct}%`;
+        avatarProgressText.textContent = pct + '%';
       });
-
-      // get public url (construct or use client helper)
-      const { data: pubData } = supabase.storage.from("avatars").getPublicUrl(path);
-      avatarUrl = pubData?.publicUrl || `${SUPABASE_URL}/storage/v1/object/public/avatars/${encodeURIComponent(path)}`;
+      const { data: pub } = supabase.storage.from('avatars').getPublicUrl(path);
+      avatarUrl = pub?.publicUrl || `${SUPABASE_URL}/storage/v1/object/public/avatars/${encodeURIComponent(path)}`;
     } catch (err) {
-      profileStatus.textContent = "Avatar upload error: " + (err.message || err);
+      profileStatus.textContent = 'Upload error: ' + (err.message || err);
+      logDebug('avatar upload failed: ' + (err.message || err));
       return;
     }
   }
 
-  // update profile row
-  await supabase.from("profiles").update({
-    username,
-    phone,
-    avatar_url: avatarUrl || null
-  }).eq("id", user.id).catch(err => {
-    profileStatus.textContent = "Profile save failed: " + (err?.message || err);
+  await supabase.from('profiles').update({ username, phone, avatar_url: avatarUrl || null }).eq('id', user.id).catch(e=>{
+    profileStatus.textContent = 'Save failed: ' + (e?.message||e);
   });
 
-  // close and refresh header
   closeModal(extraPopup);
-  updateHeaderAndState(user, avatarUrl);
   if (avatarUrl) {
     headerAvatar.src = avatarUrl;
-    headerAvatar.classList.remove("hidden");
+    headerAvatar.classList.remove('hidden');
   }
+  await updateHeaderAndState(user);
 });
 
-/* -------------------------
-   HEADER / EDIT PROFILE
-   ------------------------- */
-function hideProfileUI() {
-  signinBtn.classList.remove("hidden");
-  profileCircle.classList.add("hidden");
-  headerAvatar.classList.add("hidden");
-}
-function showProfileUI() {
-  signinBtn.classList.add("hidden");
-  profileCircle.classList.remove("hidden");
-}
+/* ---------- Header / edit modal ---------- */
+function hideProfileUI(){ signinBtn.classList.remove('hidden'); profileCircle.classList.add('hidden'); headerAvatar.classList.add('hidden'); }
+function showProfileUI(){ signinBtn.classList.add('hidden'); profileCircle.classList.remove('hidden'); }
 
-async function updateHeaderAndState(user, maybeAvatarUrl) {
-  if (!user) { hideProfileUI(); return; }
-  showProfileUI();
-  // if avatar URL passed use it, else try to load from profiles
-  if (maybeAvatarUrl) {
-    headerAvatar.src = maybeAvatarUrl;
-    headerAvatar.classList.remove("hidden");
-  } else {
-    await loadProfileIntoHeader(user.id);
-  }
-}
-
-/* load profile row and set header avatar */
-async function loadProfileIntoHeader(userId) {
+async function loadProfileIntoHeader(userId){
   try {
-    const { data: profile, error } = await supabase.from("profiles").select("*").eq("id", userId).single();
-    if (error && error.code !== "PGRST116") { /* ignore not found */ }
+    const { data: profile } = await supabase.from('profiles').select('*').eq('id', userId).single();
     if (profile?.avatar_url) {
       headerAvatar.src = profile.avatar_url;
-      headerAvatar.classList.remove("hidden");
+      headerAvatar.classList.remove('hidden');
     }
     showProfileUI();
-  } catch (err) {
-    console.error("loadProfile error:", err);
+  } catch (err){
+    logDebug('loadProfile error: ' + (err.message || err));
   }
 }
 
-/* clicking the avatar/profile circle opens edit dialog reliably */
-profileCircle.addEventListener("click", async () => {
+async function updateHeaderAndState(user){
+  if (!user) { hideProfileUI(); return; }
+  // If there's a user, try to fetch avatar; otherwise show circle
+  await loadProfileIntoHeader(user.id);
+}
+
+/* clicking profile circle */
+profileCircle.addEventListener('click', async () => {
   const resp = await supabase.auth.getUser();
   const user = resp?.data?.user;
   if (!user) { openModal(authPopup); return; }
-
-  // load profile fields
-  const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single().catch(()=>({ data: null }));
-  editFullname.value = profile?.full_name || "";
-  editUsername.value = profile?.username || "";
-  editPhone.value = profile?.phone || "";
-  editEmail.value = user.email || "";
-  editAvatarFile.value = "";
-
+  // load profile
+  const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single().catch(()=>({ data:null }));
+  editFullname.value = profile?.full_name || '';
+  editUsername.value = profile?.username || '';
+  editPhone.value = profile?.phone || '';
+  editEmail.value = user.email || '';
+  editAvatarFile.value = '';
   openModal(editPopup);
 });
 
-/* edit popup controls */
-closeEdit.addEventListener("click", () => closeModal(editPopup));
-editCancelBtn.addEventListener("click", () => closeModal(editPopup));
-
-/* save edits (and optionally upload new avatar) */
-editSaveBtn.addEventListener("click", async () => {
-  editStatus.textContent = "";
-  const resp = await supabase.auth.getUser();
-  const user = resp?.data?.user;
-  if (!user) { editStatus.textContent = "Not signed in."; return; }
-
+/* edit actions */
+editCancelBtn.addEventListener('click', () => closeModal(editPopup));
+editSaveBtn.addEventListener('click', async () => {
+  editStatus.textContent = '';
+  const resp = await supabase.auth.getUser(); const user = resp?.data?.user;
+  if (!user) { editStatus.textContent = 'Not signed in.'; return; }
   const fullname = editFullname.value.trim() || null;
   const username = editUsername.value.trim() || null;
   const phone = editPhone.value.trim() || null;
-  const newAvatar = editAvatarFile.files[0] || null;
-
+  const file = editAvatarFile.files[0] || null;
   let avatarUrl = null;
-  if (newAvatar) {
+  if (file) {
     try {
-      // show progress UI inside extra popup area for reuse
-      avatarProgressArea.classList.remove("hidden");
+      avatarProgressArea.classList.remove('hidden');
       avatarProgressBar.value = 0;
-      avatarProgressText.textContent = "0%";
+      avatarProgressText.textContent = '0%';
       const path = `public/${user.id}.png`;
-      await uploadFileWithProgress(newAvatar, "avatars", path, (pct) => {
-        avatarProgressBar.value = pct;
-        avatarProgressText.textContent = `${pct}%`;
+      await uploadFileWithProgress(file, 'avatars', path, pct => {
+        avatarProgressBar.value = pct; avatarProgressText.textContent = pct + '%';
       });
-      const { data: pubData } = supabase.storage.from("avatars").getPublicUrl(path);
-      avatarUrl = pubData?.publicUrl || `${SUPABASE_URL}/storage/v1/object/public/avatars/${encodeURIComponent(path)}`;
+      const { data: pub } = supabase.storage.from('avatars').getPublicUrl(path);
+      avatarUrl = pub?.publicUrl || `${SUPABASE_URL}/storage/v1/object/public/avatars/${encodeURIComponent(path)}`;
     } catch (err) {
-      editStatus.textContent = "Avatar upload failed: " + (err?.message || err);
+      editStatus.textContent = 'Upload failed: ' + (err.message || err);
       return;
     }
   }
-
-  // update profile row
-  await supabase.from("profiles").update({
-    full_name: fullname,
-    username,
-    phone,
-    avatar_url: avatarUrl || undefined
-  }).eq("id", user.id).catch(err => {
-    editStatus.textContent = "Save failed: " + (err?.message || err);
-  });
-
-  // update header avatar if needed
-  if (avatarUrl) {
-    headerAvatar.src = avatarUrl;
-    headerAvatar.classList.remove("hidden");
-  }
-
+  await supabase.from('profiles').update({ full_name: fullname, username, phone, avatar_url: avatarUrl || undefined }).eq('id', user.id).catch(e=>editStatus.textContent='Save failed: '+(e?.message||e));
+  if (avatarUrl) { headerAvatar.src = avatarUrl; headerAvatar.classList.remove('hidden'); }
   closeModal(editPopup);
-  // refresh header/profile
-  updateHeaderAndState(user);
+  await updateHeaderAndState(user);
 });
 
 /* sign out */
-signoutBtn.addEventListener("click", async () => {
+signoutBtn.addEventListener('click', async () => {
   await supabase.auth.signOut();
   hideProfileUI();
   closeModal(editPopup);
 });
 
-/* -------------------------
-   On load: sync auth state & header
-   ------------------------- */
-(async function init() {
-  // If a user is already logged in
+/* ---------- INIT: sync auth state ---------- */
+(async function init(){
+  logDebug('init — checking signed-in user');
   const { data } = await supabase.auth.getUser();
   const user = data?.user;
   if (user) {
+    logDebug('user is signed in: ' + (user.email || user.id));
     await updateHeaderAndState(user);
   } else {
+    logDebug('no signed-in user');
     hideProfileUI();
   }
-
-  // Keep header in sync with auth changes
+  // listen for auth changes
   supabase.auth.onAuthStateChange((event, session) => {
-    // event examples: 'SIGNED_IN', 'SIGNED_OUT', etc.
-    const usr = session?.user ?? null;
-    if (usr) updateHeaderAndState(usr);
-    else hideProfileUI();
+    const u = session?.user ?? null;
+    logDebug('auth event: ' + event);
+    if (u) updateHeaderAndState(u); else hideProfileUI();
   });
 })();
 
-/* Optional: helpful keyboard close (Esc) */
-document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape") {
-    document.querySelectorAll(".popup").forEach(p => closeModal(p));
-  }
-});
+/* keyboard escape closes popups */
+document.addEventListener('keydown', e=>{ if (e.key==='Escape') document.querySelectorAll('.popup').forEach(p=>closeModal(p)); });
+
 </script>
 </body>
 </html>
