@@ -261,17 +261,13 @@ html {
   87.5% { background-image: url('Truck8.png'); }
   100% { background-image: url('Truck1.png'); }
 }
-
-
-    
-</style>
-
+  </style>
 </head>
 <body>
    <!-- 1) Load Supabase client -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<!-- 2) Small Auth modal & a "Sign In" button (paste into your header or where you want it) -->
+<!-- 2) Auth modal & Sign In button -->
 <button class="cta-btn" onclick="openAuthModal()">Sign In</button>
 
 <div id="authModal" class="modal" aria-hidden="true">
@@ -281,6 +277,8 @@ html {
     <form id="authForm" onsubmit="return false;">
       <input id="auth-email" type="email" placeholder="Email" required />
       <input id="auth-password" type="password" placeholder="Password" required />
+      <input id="username" type="text" placeholder="Username" required />
+      <input id="phone" type="text" placeholder="Phone Number" required />
       <div style="margin-top:0.6rem;">
         <button type="button" onclick="signUp()">Sign Up</button>
         <button type="button" onclick="signIn()">Sign In</button>
@@ -291,49 +289,41 @@ html {
   </div>
 </div>
 
-<!-- 3) Replace your modal quote form inputs with IDs, or keep the modal but add IDs so this JS can read them.
-     Example: give your quote modal inputs ids like q-vin, q-pickup-address, etc. -->
+<header>
+  <img src="Logo.png" alt="Shipping Experts Logo" />
+  <nav>
+    <ul>
+      <li><a href="index.html" class="brand-link" >Home</a></li>
+      <li><a href="about.html" class="brand-link" >About</a></li>
+      <li><a href="services.html " class="brand-link" >Services</a></li>
+      <li><a href="contactus.html" class="brand-link" >Contact Us</a></li>
+    </ul>
+  </nav>
+  <button class="cta-btn" onclick="openForm()">Get Quote</button>
+</header>
 
-  <input id="username" type="text" placeholder="Username" />
-<input id="phone" type="text" placeholder="Phone Number" />
-
-  <header>
-    <img src="Logo.png" alt="Shipping Experts Logo" />
-    <nav>
-      <ul>
-        <li><a href="index.html" class="brand-link" >Home</a></li>
-        <li><a href="about.html" class="brand-link" >About</a></li>
-        <li><a href="services.html " class="brand-link" >Services</a></li>
-        <li><a href="contactus.html" class="brand-link" >Contact Us</a></li>
-      </ul>
-    </nav>
-    <!-- HEADER BUTTON -->
-<button class="cta-btn" onclick="openForm()">Get Quote</button>
-
-<!-- POPUP FORM (hidden by default) -->
+<!-- QUOTE FORM MODAL -->
 <div id="quoteModal" class="modal">
   <div class="modal-content">
     <span class="close" onclick="closeForm()">&times;</span>
     <h2>Shipping Experts Form</h2>
-    <form>
-      <input type="text" placeholder="VIN">
-      <input type="text" placeholder="Vehicle Year/Make/Model">
-      <input type="text" placeholder="Vehicle Color">
-      <input type="text" placeholder="Vehicle Type">
-      <input type="text" placeholder="Inoperable Vehicle">
-      <input type="text" placeholder="Additional Vehicle(s)">
-      <input type="text" placeholder="Pickup Name - Residence, Business, Auction">
-      <input type="text" placeholder="Pickup Address">
-      <input type="text" placeholder="Pickup Contact Name(s)">
-      <input type="text" placeholder="Pickup Contact Phone(s)">
-      <input type="text" placeholder="Scheduled Pickup Dates">
-      <textarea placeholder="Pickup Notes"></textarea>
-      <input type="text" placeholder="Delivery Name - Residence, Business, Auction">
-      <input type="text" placeholder="Delivery Address">
-      <input type="text" placeholder="Delivery Contact Name(s)">
-      <input type="text" placeholder="Delivery Contact Phone(s)">
-      <input type="text" placeholder="Scheduled Delivery Dates">
-      <textarea placeholder="Delivery Notes"></textarea>
+    <form id="quoteForm">
+      <input id="q-vin" type="text" placeholder="VIN" name="vin">
+      <input id="q-yearmake" type="text" placeholder="Vehicle Year/Make/Model" name="vehicle_year_make_model">
+      <input id="q-color" type="text" placeholder="Vehicle Color" name="vehicle_color">
+      <input id="q-type" type="text" placeholder="Vehicle Type" name="vehicle_type">
+      <input type="text" placeholder="Inoperable Vehicle" name="inoperable">
+      <input type="text" placeholder="Additional Vehicle(s)" name="additional_vehicles">
+      <input type="text" placeholder="Pickup Name - Residence, Business, Auction" name="pickup_name">
+      <input id="q-pickup-address" type="text" placeholder="Pickup Address" name="pickup_address">
+      <input type="text" placeholder="Pickup Contact Name(s)" name="pickup_contacts">
+      <input type="text" placeholder="Scheduled Pickup Dates" name="pickup_dates">
+      <textarea id="q-pickup-notes" placeholder="Pickup Notes" name="pickup_notes"></textarea>
+      <input type="text" placeholder="Delivery Name - Residence, Business, Auction" name="delivery_name">
+      <input id="q-delivery-address" type="text" placeholder="Delivery Address" name="delivery_address">
+      <input type="text" placeholder="Delivery Contact Name(s)" name="delivery_contacts">
+      <input type="text" placeholder="Scheduled Delivery Dates" name="delivery_dates">
+      <textarea id="q-delivery-notes" placeholder="Delivery Notes" name="delivery_notes"></textarea>
       <label><input type="checkbox"> I agree to and authorize transport...</label>
       <div>
         <button type="submit">Submit Form</button>
@@ -342,171 +332,128 @@ html {
     </form>
   </div>
 </div>
-  </header>
 
-  <section class="hero">
-    <div class="slideshow">
-      <div class="slides">
-        <img src="Truck1.png" alt="">
-        <img src="Truck2.png" alt="">
-        <img src="Truck3.png" alt="">
-        <img src="Truck4.png" alt="">
-        <img src="Truck5.png" alt="">
-        <img src="Truck6.png" alt="">
-        <img src="Truck7.png" alt="">
-        <img src="Truck8.png" alt="">
-      </div>
+<section class="hero">
+  <div class="slideshow">
+    <div class="slides">
+      <img src="Truck1.png" alt="">
+      <img src="Truck2.png" alt="">
+      <img src="Truck3.png" alt="">
+      <img src="Truck4.png" alt="">
+      <img src="Truck5.png" alt="">
+      <img src="Truck6.png" alt="">
+      <img src="Truck7.png" alt="">
+      <img src="Truck8.png" alt="">
     </div>
-  </section>
+  </div>
+</section>
 
-  <section class="call-to-action">
-    <h2>Trust in the Experts!</h2>
-    <div class="stats">
-      <div>Vehicles Shipped Monthly: 1250</div>
-      <div>Customers Helped: 982,370</div>
-      <div>Company Rating: 4.7</div>
-    </div>
-    <p>Get Your Free Quote Now!</p>
-    <button class="call-btn">Call: (916)760-7202</button>
-    <button class="quote-btn">Request A Quote</button>
-  </section>
+<section class="call-to-action">
+  <h2>Trust in the Experts!</h2>
+  <div class="stats">
+    <div>Vehicles Shipped Monthly: 1250</div>
+    <div>Customers Helped: 982,370</div>
+    <div>Company Rating: 4.7</div>
+  </div>
+  <p>Get Your Free Quote Now!</p>
+  <button class="call-btn">Call: (916)760-7202</button>
+  <button class="quote-btn" onclick="openForm()">Request A Quote</button>
+</section>
 
-  <section class="reviews">
-    <h2>Reviews</h2>
-    <p>[Google and Yelp embeds will go here]</p>
-  </section>
+<section class="reviews">
+  <h2>Reviews</h2>
+  <p>[Google and Yelp embeds will go here]</p>
+</section>
 
-  <section class="services">
-    <h2>Services</h2>
-    <div class="services-grid">
-      <div>Open Auto Shipping</div>
-      <div>Enclosed Auto Shipping</div>
-      <div>Exotic Auto Shipping</div>
-      <div>Dealer Auto Shipping</div>
-      <div>Boats Shipping</div>
-      <div>Motorcycles Shipping</div>
-      <div>RV Shipping</div>
-      <div>Inoperable Vehicle Shipping</div>
-    </div>
-  </section>
+<section class="services">
+  <h2>Services</h2>
+  <div class="services-grid">
+    <div>Open Auto Shipping</div>
+    <div>Enclosed Auto Shipping</div>
+    <div>Exotic Auto Shipping</div>
+    <div>Dealer Auto Shipping</div>
+    <div>Boats Shipping</div>
+    <div>Motorcycles Shipping</div>
+    <div>RV Shipping</div>
+    <div>Inoperable Vehicle Shipping</div>
+  </div>
+</section>
 
-  <section class="about">
-    <h2>About Us</h2>
-    <p>We are a team of shipping experts with years of experience...</p>
-    <p>[Full about text inserted here]</p>
-  </section>
+<section class="about">
+  <h2>About Us</h2>
+  <p>We are a team of shipping experts with years of experience...</p>
+  <p>[Full about text inserted here]</p>
+</section>
 
-  <section class="vision-mission">
-    <div class="vision-mission-grid">
-      <div><h3>VISION</h3><p>At Shipping Experts, our vision is to...</p></div>
-      <div><h3>MISSION</h3><p>Our mission at Shipping Experts is...</p></div>
-      <div><h3>HOW</h3><p>At Shipping Experts, we believe that...</p></div>
-      <div><h3>FUTURE</h3><p>The future of Shipping Experts is...</p></div>
-    </div>
-  </section>
+<section class="vision-mission">
+  <div class="vision-mission-grid">
+    <div><h3>VISION</h3><p>At Shipping Experts, our vision is to...</p></div>
+    <div><h3>MISSION</h3><p>Our mission at Shipping Experts is...</p></div>
+    <div><h3>HOW</h3><p>At Shipping Experts, we believe that...</p></div>
+    <div><h3>FUTURE</h3><p>The future of Shipping Experts is...</p></div>
+  </div>
+</section>
 
-  <section class="contact">
-    <h2>Contact Us</h2>
-    <p>Get in touch with our amazing team...</p>
-    <button class="call-btn">Call: (916)760-7202</button>
-    <button class="quote-btn">Email: dispatch@autoshippingexperts.com</button>
-  </section>
+<section class="contact">
+  <h2>Contact Us</h2>
+  <p>Get in touch with our amazing team...</p>
+  <button class="call-btn">Call: (916)760-7202</button>
+  <button class="quote-btn">Email: dispatch@autoshippingexperts.com</button>
+</section>
 
-  <section class="form-section">
-    <h2>Shipping Experts Form</h2>
-    <form>
-      <input type="text" placeholder="VIN" name="vin">
-      <input type="text" placeholder="Vehicle Year/Make/Model" name="vehicle_year_make_model">
-      <input type="text" placeholder="Vehicle Color" name="vehicle_color">
-      <input type="text" placeholder="Vehicle Type" name="vehicle_type">
-      <input type="text" placeholder="Inoperable Vehicle" name="inoperable">
-      <input type="text" placeholder="Additional Vehicle(s)" name="additional_vehicles">
-      <input type="text" placeholder="Pickup Name - Residence, Business, Auction" name="pickup_name">
-      <input type="text" placeholder="Pickup Address" name="pickup_address">
-      <input type="text" placeholder="Pickup Contact Name(s)" name="pickup_contacts">
-      <input type="text" placeholder="Scheduled Pickup Dates" name="pickup_dates">
-      <textarea placeholder="Pickup Notes" name="pickup_notes"></textarea>
-      <input type="text" placeholder="Delivery Name - Residence, Business, Auction" name="delivery_name">
-      <input type="text" placeholder="Delivery Address" name="delivery_address">
-      <input type="text" placeholder="Delivery Contact Name(s)" name="delivery_contacts">
-      <input type="text" placeholder="Scheduled Delivery Dates" name="delivery_dates">
-      <textarea placeholder="Delivery Notes" name="delivery_notes"></textarea>
-      <label><input type="checkbox"> I agree to and authorize transport...</label>
-      <div>
-        <button type="submit">Submit Form</button>
-        <button type="reset">Clear Form</button>
-      </div>
-    </form>
-  </section>
+<section class="faq">
+  <h2>Frequently Asked Questions</h2>
+  <p>[FAQ content will be added later]</p>
+</section>
 
-  <section class="faq">
-    <h2>Frequently Asked Questions</h2>
-    <p>[FAQ content will be added later]</p>
-  </section>
+<footer>
+  <p>
+    Home | About Us | Services | Contact Us <br>
+    7551 14th Ave Suit A, Sacramento, USA 95820 <br>
+    Phone: (916) 760-7202 | Email: dispatch@autoshippingexperts.com <br>
+    © 2023 Shipping Experts INC. | All Rights Reserved <br>
+    <a href="#">Privacy Policy</a> | 
+    <a href="#">Copyright and Trademark</a> | 
+    <a href="#">Terms and Conditions</a>
+  </p>
+</footer>
 
-  <footer>
-    <p>
-      Home | About Us | Services | Contact Us <br>
-      7551 14th Ave Suit A, Sacramento, USA 95820 <br>
-      Phone: (916) 760-7202 | Email: dispatch@autoshippingexperts.com <br>
-      © 2023 Shipping Experts INC. | All Rights Reserved <br>
-      <a href="#">Privacy Policy</a> | 
-      <a href="#">Copyright and Trademark</a> | 
-      <a href="#">Terms and Conditions</a>
-    </p>
-  </footer>
-  
 <script>
-  // ---------- CONFIG: paste your values here ----------
-  const SUPABASE_URL = 'https://gxcbliwbxrnhltdosfuj.supabase.co'   // <-- replace
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd4Y2JsaXdieHJuaGx0ZG9zZnVqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc5ODE4MDcsImV4cCI6MjA3MzU1NzgwN30.XsQR9vmnIknlcgUT4znIHGYjY_9s2hS8ZNIke9Dn7-E'            // <-- replace
-  // ----------------------------------------------------
+  // ---------- CONFIG ----------
+  const SUPABASE_URL = 'https://gxcbliwbxrnhltdosfuj.supabase.co'  
+  const SUPABASE_ANON_KEY = 'YOUR_ANON_KEY_HERE'                     
+  // ----------------------------
 
-  // create the client
   const { createClient } = supabase
   const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
 
-  // Modal helpers (re-uses your .modal CSS)
-  function openAuthModal() {
-    const m = document.getElementById('authModal'); m.style.display = 'block'; m.setAttribute('aria-hidden','false')
-  }
-  function closeAuthModal() {
-    const m = document.getElementById('authModal'); m.style.display = 'none'; m.setAttribute('aria-hidden','true')
-  }
+  // Auth modal helpers
+  function openAuthModal() { const m = document.getElementById('authModal'); m.style.display='block'; m.setAttribute('aria-hidden','false'); }
+  function closeAuthModal() { const m = document.getElementById('authModal'); m.style.display='none'; m.setAttribute('aria-hidden','true'); }
+  function openForm() { document.getElementById('quoteModal').style.display='block'; }
+  function closeForm() { document.getElementById('quoteModal').style.display='none'; }
 
   async function signUp() {
-  const email = document.getElementById('email').value
-  const password = document.getElementById('password').value
-  const username = document.getElementById('username').value
-  const phone = document.getElementById('phone').value
-
-  const { data: authData, error: authError } = await supabase.auth.signUp({ email, password })
-  
-  if (authError) {
-    document.getElementById('auth-status').textContent = authError.message
-    return
-  }
-
-  // insert extra info into profiles table
-  if (authData.user) {
-    const { error: profileError } = await supabase.from('profiles').insert([
-      { id: authData.user.id, username, phone }
-    ])
-    document.getElementById('auth-status').textContent = profileError ? profileError.message : 'Check your email to confirm signup'
-  }
-}
-
+    const email = document.getElementById('auth-email').value.trim()
+    const password = document.getElementById('auth-password').value
+    const username = document.getElementById('username').value.trim()
+    const phone = document.getElementById('phone').value.trim()
+    if (!email || !password || !username || !phone) { document.getElementById('auth-status').textContent='All fields are required!'; return; }
+    const { data: authData, error: authError } = await supabaseClient.auth.signUp({ email, password })
+    if (authError) { document.getElementById('auth-status').textContent=authError.message; return; }
+    if (authData.user) {
+      const { error: profileError } = await supabaseClient.from('profiles').insert([{ id: authData.user.id, username, phone }])
+      document.getElementById('auth-status').textContent = profileError ? profileError.message : 'Signup successful! Check your email.'
+    }
   }
 
   async function signIn() {
     const email = document.getElementById('auth-email').value.trim()
     const password = document.getElementById('auth-password').value
+    if (!email || !password) { document.getElementById('auth-status').textContent='Enter email and password!'; return; }
     const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password })
-    if (error) document.getElementById('auth-status').textContent = error.message
-    else {
-      document.getElementById('auth-status').textContent = `Signed in as ${data.user.email}`
-      closeAuthModal()
-    }
+    document.getElementById('auth-status').textContent = error ? error.message : `Signed in as ${data.user.email}`
+    if (!error) closeAuthModal()
   }
 
   async function signOut() {
@@ -514,94 +461,32 @@ html {
     document.getElementById('auth-status').textContent = 'Signed out'
   }
 
-  // Keep UI in sync with auth state
   supabaseClient.auth.onAuthStateChange((event, session) => {
-    if (event === 'SIGNED_IN') {
-      // you could fetch a profile or update the header here
-      console.log('SIGNED_IN', session)
-    } else if (event === 'SIGNED_OUT') {
-      console.log('SIGNED_OUT')
-    }
+    console.log(event, session)
   })
 
-  // EXAMPLE: submit the quote form into a "quotes" table
-  // Make sure your quote <form> uses id="quoteForm" and inputs have the ids shown below.
-  async function submitQuote(e) {
-    e && e.preventDefault && e.preventDefault()
-    const { data: userData } = await supabaseClient.auth.getUser()
-    const user = userData?.user ?? null
-    if (!user) { alert('Please sign in first'); return }
-
-    const payload = {
-      user_id: user.id,
-      vin: document.getElementById('q-vin')?.value || null,
-      vehicle_year_make_model: document.getElementById('q-yearmake')?.value || null,
-      vehicle_color: document.getElementById('q-color')?.value || null,
-      vehicle_type: document.getElementById('q-type')?.value || null,
-      pickup_address: document.getElementById('q-pickup-address')?.value || null,
-      delivery_address: document.getElementById('q-delivery-address')?.value || null,
-      pickup_notes: document.getElementById('q-pickup-notes')?.value || null,
-      delivery_notes: document.getElementById('q-delivery-notes')?.value || null,
-      created_at: new Date().toISOString()
+  // Quote form submission
+  document.getElementById('quoteForm').addEventListener('submit', async function(e){
+    e.preventDefault()
+    const user = supabaseClient.auth.getUser()
+    const { data: sessionData } = await supabaseClient.auth.getSession()
+    if (!sessionData?.session?.user?.id) { alert('Please sign in first.'); return; }
+    const values = {
+      user_id: sessionData.session.user.id,
+      vin: document.getElementById('q-vin').value,
+      yearmake: document.getElementById('q-yearmake').value,
+      color: document.getElementById('q-color').value,
+      type: document.getElementById('q-type').value,
+      pickup_address: document.getElementById('q-pickup-address').value,
+      pickup_notes: document.getElementById('q-pickup-notes').value,
+      delivery_address: document.getElementById('q-delivery-address').value,
+      delivery_notes: document.getElementById('q-delivery-notes').value
     }
-
-    const { data, error } = await supabaseClient.from('quotes').insert([payload])
-    if (error) return alert('Error: ' + error.message)
-    alert('Quote saved — nice!')
-    document.getElementById('quoteForm')?.reset()
-  }
-
-  // Hook the form submit (if you name your form "quoteForm")
-  document.addEventListener('DOMContentLoaded', () => {
-    const f = document.getElementById('quoteForm')
-    if (f) f.addEventListener('submit', submitQuote)
+    const { error } = await supabaseClient.from('quotes').insert([values])
+    if (error) alert(error.message)
+    else { alert('Quote submitted successfully!'); document.getElementById('quoteForm').reset(); closeForm(); }
   })
-
-  const quoteForm = document.querySelector('#quoteModal form')
-
-quoteForm.addEventListener('submit', async (e) => {
-  e.preventDefault()
-
-  const { data: userData } = await supabase.auth.getUser()
-  if (!userData.user) {
-    alert('Please sign in first')
-    return
-  }
-
-  const formData = new FormData(quoteForm)
-  const data = {
-    user_id: userData.user.id,
-    vin: formData.get('vin'),
-    vehicle_year_make_model: formData.get('vehicle_year_make_model'),
-    vehicle_color: formData.get('vehicle_color'),
-    vehicle_type: formData.get('vehicle_type'),
-    inoperable: formData.get('inoperable'),
-    additional_vehicles: formData.get('additional_vehicles'),
-    pickup_name: formData.get('pickup_name'),
-    pickup_address: formData.get('pickup_address'),
-    pickup_contacts: formData.get('pickup_contacts'),
-    pickup_dates: formData.get('pickup_dates'),
-    pickup_notes: formData.get('pickup_notes'),
-    delivery_name: formData.get('delivery_name'),
-    delivery_address: formData.get('delivery_address'),
-    delivery_contacts: formData.get('delivery_contacts'),
-    delivery_dates: formData.get('delivery_dates'),
-    delivery_notes: formData.get('delivery_notes')
-  }
-
-  const { error } = await supabase.from('quotes').insert([data])
-  if (error) {
-    alert('Error saving quote: ' + error.message)
-  } else {
-    alert('Quote submitted successfully!')
-    quoteForm.reset()
-    closeForm()
-  }
-})
-
 </script>
 
-  
-  
 </body>
-</html> 
+</html>
