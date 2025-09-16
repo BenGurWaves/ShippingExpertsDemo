@@ -3,8 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Shipping Experts — Account</title>
-<link rel="stylesheet" href="" />
+<title>Shipping Experts — Account (Scrollable, Header/Footer)</title>
 <style>
   :root{
     --accent:#FF6700;
@@ -14,7 +13,7 @@
     --max-w:980px;
   }
   *{box-sizing:border-box}
-  body{margin:0;font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;padding:0;background:var(--bg);color:#111}
+  body{margin:0;font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;background:var(--bg);color:#111}
   header{background:var(--accent);color:#fff;padding:12px 20px;display:flex;align-items:center;justify-content:space-between}
   h1{margin:0;font-weight:600;font-size:18px}
   #header-actions{display:flex;gap:12px;align-items:center}
@@ -30,15 +29,41 @@
   #account-page {
     position:fixed; inset:0; display:none; align-items:center; justify-content:center;
     background: rgba(6,9,12,0.55); z-index:99990; padding:24px;
+    -webkit-overflow-scrolling: touch;
   }
   .account-shell {
     width:100%; max-width:var(--max-w); background:var(--card); border-radius:12px; box-shadow:0 20px 60px rgba(2,6,23,0.25);
-    padding:26px; display:flex; flex-direction:column; gap:20px; align-items:center; position:relative;
+    /* allow vertical scrolling inside the shell */
+    max-height: calc(100vh - 80px);
+    display:flex; flex-direction:column; gap:12px; position:relative; overflow:hidden;
   }
+
+  /* SMALL ORANGE HEADER (sticky) */
+  .account-mini-header {
+    background:var(--accent);
+    color:#fff;
+    padding:8px 14px;
+    border-top-left-radius:12px;
+    border-top-right-radius:12px;
+    font-weight:700;
+    text-align:center;
+    position:sticky;
+    top:0;
+    z-index:5;
+  }
+
+  /* shell content wrapper is scrollable */
+  .account-content {
+    overflow:auto;
+    padding:20px;
+    /* make room at bottom for sticky footer */
+    padding-bottom:84px; 
+  }
+
   .account-shell .close-full {
-    position:absolute; right:18px; top:16px; background:none; border:0; font-size:20px; cursor:pointer;
+    position:absolute; right:18px; top:10px; background:none; border:0; font-size:20px; cursor:pointer; z-index:6;
   }
-  .account-title { font-size:22px; font-weight:700; margin:0; text-align:center; }
+  .account-title { font-size:20px; font-weight:700; margin:0; text-align:center; }
   .sections { width:100%; display:flex; flex-direction:column; gap:18px; align-items:center; }
 
   .section {
@@ -77,20 +102,23 @@
   .tab { padding:8px 12px; background:#fff; border-radius:999px; border:1px solid rgba(0,0,0,0.04); cursor:pointer; font-weight:600; }
   .tab.active { background:var(--accent); color:#fff; }
 
-  /* bottom-right Save */
-  #save-btn { position:fixed; right:28px; bottom:28px; z-index:99999; padding:12px 18px; background:var(--accent); color:#fff; border-radius:12px; border:0; font-weight:700; box-shadow:0 8px 22px rgba(255,103,0,0.18); cursor:pointer; }
+  /* Sticky black footer inside shell */
+  .account-footer {
+    position:sticky; bottom:0; width:100%;
+    background:#000; color:#fff; padding:10px 16px; display:flex; justify-content:center; gap:12px; align-items:center;
+    border-bottom-left-radius:12px; border-bottom-right-radius:12px; z-index:6;
+  }
+  .account-footer button { background:transparent; color:#fff; border:1px solid rgba(255,255,255,0.12); padding:8px 12px; border-radius:8px }
 
-  /* small edit modal (kept) */
+  /* mini edit modal */
   .mini-popup { position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,0.45); z-index:100000; }
   .mini-modal { width:340px; background:#fff; border-radius:10px; padding:18px; box-shadow:0 10px 60px rgba(2,6,23,0.25); display:flex; flex-direction:column; gap:10px; }
 
   /* responsive */
   @media (max-width:880px) {
     .field-grid { grid-template-columns: 1fr; }
-    .account-shell { padding:16px; }
-    #save-btn{ right:12px; bottom:12px }
+    .account-shell { max-width:calc(100% - 24px); }
   }
-
 </style>
 </head>
 <body>
@@ -110,159 +138,172 @@
 <!-- FULL ACCOUNT PAGE (overlay, centered) -->
 <div id="account-page" aria-hidden="true">
   <div class="account-shell" role="dialog" aria-modal="true" aria-label="Account page">
+    <!-- small orange header (sticky) -->
+    <div class="account-mini-header">Your Account</div>
+
+    <!-- close button sits above header (absolute) -->
     <button class="close-full" id="close-account">✕</button>
-    <div class="account-title">Account</div>
 
-    <div class="sections">
+    <!-- CONTENT (scrollable) -->
+    <div class="account-content">
+      <div class="account-title" style="text-align:center">Account Settings</div>
 
-      <!-- ACCOUNT SECTION -->
-      <section class="section" id="section-account" style="max-width:880px">
-        <h3>ACCOUNT</h3>
-        <div class="field-grid">
-          <div class="field">
-            <label>Full Name</label>
-            <input id="acc-fullname" type="text" placeholder="Full name">
-          </div>
-          <div class="field">
-            <label>Username</label>
-            <input id="acc-username" type="text" placeholder="Username">
-          </div>
+      <div class="sections">
+        <!-- ACCOUNT SECTION -->
+        <section class="section" id="section-account" style="max-width:880px">
+          <h3>ACCOUNT</h3>
+          <div class="field-grid">
+            <div class="field">
+              <label>Full Name</label>
+              <input id="acc-fullname" type="text" placeholder="Full name">
+            </div>
+            <div class="field">
+              <label>Username</label>
+              <input id="acc-username" type="text" placeholder="Username">
+            </div>
 
-          <div class="field">
-            <label>Email</label>
-            <input id="acc-email" type="email" placeholder="Email">
-          </div>
-          <div class="field">
-            <label>Phone</label>
-            <input id="acc-phone" type="tel" placeholder="Phone">
-          </div>
+            <div class="field">
+              <label>Email</label>
+              <input id="acc-email" type="email" placeholder="Email">
+            </div>
+            <div class="field">
+              <label>Phone</label>
+              <input id="acc-phone" type="tel" placeholder="Phone">
+            </div>
 
-          <div class="field">
-            <label>Password</label>
-            <input id="acc-password" type="password" placeholder="••••••••">
-          </div>
-          <div class="field">
-            <label>Profile Image</label>
-            <div class="avatar-wrap">
-              <div class="avatar-preview" id="acc-avatar-preview"><img id="acc-avatar-img" src="" alt="" style="display:none"></div>
-              <div style="display:flex;flex-direction:column;gap:8px">
-                <input id="acc-avatar-input" type="file" accept="image/*">
-                <div style="display:flex;gap:8px">
-                  <button id="open-edit-mini" style="background:#111;color:#fff">EDIT</button>
-                  <button id="signout-page" class="ghost" style="background:transparent">Sign out</button>
+            <div class="field">
+              <label>Password</label>
+              <input id="acc-password" type="password" placeholder="••••••••">
+            </div>
+            <div class="field">
+              <label>Profile Image</label>
+              <div class="avatar-wrap">
+                <div class="avatar-preview" id="acc-avatar-preview"><img id="acc-avatar-img" src="" alt="" style="display:none"></div>
+                <div style="display:flex;flex-direction:column;gap:8px">
+                  <input id="acc-avatar-input" type="file" accept="image/*">
+                  <div style="display:flex;gap:8px">
+                    <button id="open-edit-mini" style="background:#111;color:#fff">EDIT</button>
+                    <button id="signout-page" class="ghost" style="background:transparent">Sign out</button>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <!-- ACTIVITY & HISTORY -->
-      <section class="section" id="section-history" style="max-width:880px">
-        <h3>ACTIVITY &amp; HISTORY</h3>
-        <div style="width:100%; display:flex; gap:16px; flex-direction:column; align-items:center;">
-          <div style="width:100%; display:flex; gap:12px; flex-wrap:wrap; justify-content:center;">
-            <div style="min-width:200px; padding:12px; border-radius:8px; background:#fff; text-align:center; border:1px solid rgba(0,0,0,0.03)">
-              <div style="font-weight:700">Order History</div>
-              <div class="muted-small">Past bookings & statuses</div>
-            </div>
-            <div style="min-width:200px; padding:12px; border-radius:8px; background:#fff; text-align:center; border:1px solid rgba(0,0,0,0.03)">
-              <div style="font-weight:700">Tracking</div>
-              <div class="muted-small">Active shipments snapshot</div>
-            </div>
-            <div style="min-width:200px; padding:12px; border-radius:8px; background:#fff; text-align:center; border:1px solid rgba(0,0,0,0.03)">
-              <div style="font-weight:700">Invoices</div>
-              <div class="muted-small">PDF receipts</div>
-            </div>
-          </div>
-
-          <div style="width:100%; display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
-            <div style="flex:1; min-width:260px">
-              <div style="font-weight:700; margin-bottom:8px">Order/Shipment History</div>
-              <div class="history-list" id="history-list">
-                <!-- placeholder items -->
-                <div class="history-item"><div><strong>#A1234</strong><div class="muted-small">Delivered</div></div><div class="muted-small">Oct 1</div></div>
-                <div class="history-item"><div><strong>#B897</strong><div class="muted-small">In transit</div></div><div class="muted-small">Oct 7</div></div>
-                <div class="history-item"><div><strong>#C551</strong><div class="muted-small">Pickup scheduled</div></div><div class="muted-small">Oct 10</div></div>
+        <!-- ACTIVITY & HISTORY -->
+        <section class="section" id="section-history" style="max-width:880px">
+          <h3>ACTIVITY &amp; HISTORY</h3>
+          <div style="width:100%; display:flex; gap:12px; flex-direction:column; align-items:center;">
+            <div style="width:100%; display:flex; gap:12px; flex-wrap:wrap; justify-content:center;">
+              <div style="min-width:200px; padding:12px; border-radius:8px; background:#fff; text-align:center; border:1px solid rgba(0,0,0,0.03)">
+                <div style="font-weight:700">Order History</div>
+                <div class="muted-small">Past bookings & statuses</div>
+              </div>
+              <div style="min-width:200px; padding:12px; border-radius:8px; background:#fff; text-align:center; border:1px solid rgba(0,0,0,0.03)">
+                <div style="font-weight:700">Tracking</div>
+                <div class="muted-small">Active shipments snapshot</div>
+              </div>
+              <div style="min-width:200px; padding:12px; border-radius:8px; background:#fff; text-align:center; border:1px solid rgba(0,0,0,0.03)">
+                <div style="font-weight:700">Invoices</div>
+                <div class="muted-small">PDF receipts</div>
               </div>
             </div>
 
-            <div style="flex:1; min-width:260px">
-              <div style="font-weight:700; margin-bottom:8px">Invoices / Billing</div>
-              <div class="history-list">
-                <div class="history-item"><div>#INV-001</div><div><button class="ghost" onclick="alert('Download placeholder')">Download PDF</button></div></div>
-                <div class="history-item"><div>#INV-002</div><div><button class="ghost" onclick="alert('Download placeholder')">Download PDF</button></div></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- NOTIFICATIONS & SECURITY -->
-      <section class="section" id="section-security" style="max-width:880px">
-        <h3>NOTIFICATIONS &amp; SECURITY</h3>
-
-        <div style="width:100%;display:flex;gap:12px;flex-direction:column;align-items:center;">
-          <div style="width:100%;display:flex;justify-content:center;">
-            <div style="width:640px;display:flex;flex-direction:column;gap:12px;">
-              <div style="display:flex;justify-content:space-between;align-items:center;padding:10px;background:#fff;border-radius:8px;border:1px solid rgba(0,0,0,0.03)">
-                <div>
-                  <div style="font-weight:700">Password & Login</div>
-                  <div class="muted-small">Change password and setup 2FA</div>
-                </div>
-                <div>
-                  <button class="ghost" onclick="document.getElementById('acc-password').focus()">Change</button>
+            <div style="width:100%; display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+              <div style="flex:1; min-width:260px">
+                <div style="font-weight:700; margin-bottom:8px">Order/Shipment History</div>
+                <div class="history-list" id="history-list">
+                  <div class="history-item"><div><strong>#A1234</strong><div class="muted-small">Delivered</div></div><div class="muted-small">Oct 1</div></div>
+                  <div class="history-item"><div><strong>#B897</strong><div class="muted-small">In transit</div></div><div class="muted-small">Oct 7</div></div>
+                  <div class="history-item"><div><strong>#C551</strong><div class="muted-small">Pickup scheduled</div></div><div class="muted-small">Oct 10</div></div>
                 </div>
               </div>
 
-              <div style="display:flex;justify-content:space-between;align-items:center;padding:10px;background:#fff;border-radius:8px;border:1px solid rgba(0,0,0,0.03)">
-                <div>
-                  <div style="font-weight:700">Communication Preferences</div>
-                  <div class="muted-small">Email / SMS notifications</div>
-                </div>
-                <div class="toggle">
-                  <div id="pref-toggle" class="switch"><div class="dot"></div></div>
+              <div style="flex:1; min-width:260px">
+                <div style="font-weight:700; margin-bottom:8px">Invoices / Billing</div>
+                <div class="history-list">
+                  <div class="history-item"><div>#INV-001</div><div><button class="ghost" onclick="alert('Download placeholder')">Download PDF</button></div></div>
+                  <div class="history-item"><div>#INV-002</div><div><button class="ghost" onclick="alert('Download placeholder')">Download PDF</button></div></div>
                 </div>
               </div>
-
-              <div style="display:flex;justify-content:space-between;align-items:center;padding:10px;background:#fff;border-radius:8px;border:1px solid rgba(0,0,0,0.03)">
-                <div>
-                  <div style="font-weight:700">Login Activity / Devices</div>
-                  <div class="muted-small">Recent devices & locations</div>
-                </div>
-                <div><button class="ghost" onclick="alert('Showing login activity (placeholder)')">View</button></div>
-              </div>
-
-              <div style="padding:8px; display:flex; gap:8px; align-items:center; justify-content:center; flex-wrap:wrap;">
-                <div class="tabs" id="tabs">
-                  <div class="tab active" data-filter="all">All</div>
-                  <div class="tab" data-filter="shipments">Shipments</div>
-                  <div class="tab" data-filter="messages">Messages</div>
-                  <div class="tab" data-filter="promos">Promos</div>
-                  <div class="tab" data-filter="system">System</div>
-                </div>
-              </div>
-
-              <div style="background:#fff;border-radius:8px;border:1px solid rgba(0,0,0,0.03);padding:12px;">
-                <div style="font-weight:700">Inbox (Unread at top)</div>
-                <div id="inbox-list" style="margin-top:8px;display:flex;flex-direction:column;gap:8px;">
-                  <div style="padding:8px;border-radius:8px;background:#fff;border:1px solid rgba(0,0,0,0.03)"><strong>New tracking update</strong><div class="muted-small">Shipment #B897 — Arriving tomorrow</div></div>
-                  <div style="padding:8px;border-radius:8px;background:#fff;border:1px solid rgba(0,0,0,0.03)"><div class="muted-small">Promo: Save 10% on your next booking</div></div>
-                </div>
-              </div>
-
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
+        <!-- NOTIFICATIONS & SECURITY -->
+        <section class="section" id="section-security" style="max-width:880px">
+          <h3>NOTIFICATIONS &amp; SECURITY</h3>
+
+          <div style="width:100%;display:flex;gap:12px;flex-direction:column;align-items:center;">
+            <div style="width:100%;display:flex;justify-content:center;">
+              <div style="width:640px;display:flex;flex-direction:column;gap:12px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:10px;background:#fff;border-radius:8px;border:1px solid rgba(0,0,0,0.03)">
+                  <div>
+                    <div style="font-weight:700">Password & Login</div>
+                    <div class="muted-small">Change password and setup 2FA</div>
+                  </div>
+                  <div>
+                    <button class="ghost" onclick="document.getElementById('acc-password').focus()">Change</button>
+                  </div>
+                </div>
+
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:10px;background:#fff;border-radius:8px;border:1px solid rgba(0,0,0,0.03)">
+                  <div>
+                    <div style="font-weight:700">Communication Preferences</div>
+                    <div class="muted-small">Email / SMS notifications</div>
+                  </div>
+                  <div class="toggle">
+                    <div id="pref-toggle" class="switch"><div class="dot"></div></div>
+                  </div>
+                </div>
+
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:10px;background:#fff;border-radius:8px;border:1px solid rgba(0,0,0,0.03)">
+                  <div>
+                    <div style="font-weight:700">Login Activity / Devices</div>
+                    <div class="muted-small">Recent devices & locations</div>
+                  </div>
+                  <div><button class="ghost" onclick="alert('Showing login activity (placeholder)')">View</button></div>
+                </div>
+
+                <div style="padding:8px; display:flex; gap:8px; align-items:center; justify-content:center; flex-wrap:wrap;">
+                  <div class="tabs" id="tabs">
+                    <div class="tab active" data-filter="all">All</div>
+                    <div class="tab" data-filter="shipments">Shipments</div>
+                    <div class="tab" data-filter="messages">Messages</div>
+                    <div class="tab" data-filter="promos">Promos</div>
+                    <div class="tab" data-filter="system">System</div>
+                  </div>
+                </div>
+
+                <div style="background:#fff;border-radius:8px;border:1px solid rgba(0,0,0,0.03);padding:12px;">
+                  <div style="font-weight:700">Inbox (Unread at top)</div>
+                  <div id="inbox-list" style="margin-top:8px;display:flex;flex-direction:column;gap:8px;">
+                    <div style="padding:8px;border-radius:8px;background:#fff;border:1px solid rgba(0,0,0,0.03)"><strong>New tracking update</strong><div class="muted-small">Shipment #B897 — Arriving tomorrow</div></div>
+                    <div style="padding:8px;border-radius:8px;background:#fff;border:1px solid rgba(0,0,0,0.03)"><div class="muted-small">Promo: Save 10% on your next booking</div></div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div> <!-- /sections -->
+    </div> <!-- /account-content -->
+
+    <!-- sticky black footer inside panel -->
+    <div class="account-footer">
+      <div style="display:flex;gap:10px;align-items:center">
+        <button id="cancel-save" onclick="document.getElementById('close-account').click()">Cancel</button>
+        <button id="confirm-save" style="background:var(--accent); border:none; color:#fff; padding:8px 14px; border-radius:8px">Save</button>
+      </div>
     </div>
 
-    <button id="save-btn">Save</button>
   </div>
 </div>
 
-<!-- small edit modal (opens on top of full page if desired) -->
+<!-- small edit modal (mini) -->
 <div id="mini-edit" class="mini-popup" style="display:none" aria-hidden="true">
   <div class="mini-modal">
     <button class="close" id="mini-close">✕</button>
@@ -310,7 +351,8 @@ const headerAvatar = document.getElementById('header-avatar');
 
 const accountPage = document.getElementById('account-page');
 const closeAccount = document.getElementById('close-account');
-const saveBtn = document.getElementById('save-btn');
+const confirmSaveBtn = document.getElementById('confirm-save');
+const cancelSaveBtn = document.getElementById('cancel-save');
 
 const accFullname = document.getElementById('acc-fullname');
 const accUsername = document.getElementById('acc-username');
@@ -319,7 +361,6 @@ const accPhone = document.getElementById('acc-phone');
 const accPassword = document.getElementById('acc-password');
 const accAvatarInput = document.getElementById('acc-avatar-input');
 const accAvatarImg = document.getElementById('acc-avatar-img');
-const accAvatarPreview = document.getElementById('acc-avatar-preview');
 
 const openEditMiniBtn = document.getElementById('open-edit-mini');
 const miniPopup = document.getElementById('mini-edit');
@@ -338,50 +379,57 @@ const signoutPageBtn = document.getElementById('signout-page');
 
 /* Helpers */
 function debug(msg){ console.log('[app]', msg); if (debugEl) debugEl.textContent = 'Debug: ' + msg; }
-function showAccountPage(){ accountPage.style.display = 'flex'; accountPage.setAttribute('aria-hidden','false'); }
-function hideAccountPage(){ accountPage.style.display = 'none'; accountPage.setAttribute('aria-hidden','true'); }
-function showMini(){ miniPopup.style.display = 'flex'; miniPopup.setAttribute('aria-hidden','false'); }
-function hideMini(){ miniPopup.style.display = 'none'; miniPopup.setAttribute('aria-hidden','true'); }
 
-/* UI-first handlers (Sign in opens auth UI below) */
-signinBtn.addEventListener('click', () => {
-  showAuthUI();
-  debug('Sign In clicked — opening auth UI');
-});
+/* Open/close account page; lock background scroll and ensure internal scrolling */
+function showAccountPage(){
+  accountPage.style.display = 'flex';
+  accountPage.setAttribute('aria-hidden','false');
+  // prevent background scroll
+  document.body.style.overflow = 'hidden';
+  // make sure account content starts at top
+  const content = accountPage.querySelector('.account-content');
+  if (content) content.scrollTop = 0;
+}
+function hideAccountPage(){
+  accountPage.style.display = 'none';
+  accountPage.setAttribute('aria-hidden','true');
+  document.body.style.overflow = '';
+}
+
+/* UI-first handlers */
+signinBtn.addEventListener('click', () => { showAuthUI(); debug('Sign In clicked — opening auth UI'); });
+
 profileCircle.addEventListener('click', async () => {
   debug('Profile circle clicked — opening account page');
-  // When clicked, open full account page; populate fields
   if (!supabaseClient) {
     debug('Supabase client missing — showing account UI anyway');
-    showAccountPage();
-    return;
+    showAccountPage(); return;
   }
   try {
     const { data: userData } = await supabaseClient.auth.getUser();
     const user = userData?.user;
     if (!user) { debug('No signed-in user — opening sign-in'); showAuthUI(); return; }
-    // load profile row safely with try/catch
+
+    // safe load profile
     try {
       const res = await supabaseClient.from('profiles').select('*').eq('id', user.id).single();
       if (res.error) {
         debug('load profile returned error: ' + (res.error.message || res.error));
       }
       const profile = res.data || {};
-      // populate fields
       accFullname.value = profile.full_name || '';
       accUsername.value = profile.username || '';
       accEmail.value = user.email || '';
       accPhone.value = profile.phone || '';
       if (profile.avatar_url) {
-        accAvatarImg.src = profile.avatar_url;
-        accAvatarImg.style.display = 'block';
+        accAvatarImg.src = profile.avatar_url; accAvatarImg.style.display = 'block';
       } else {
         accAvatarImg.style.display = 'none';
       }
     } catch (qerr) {
       debug('profile query error: ' + (qerr.message || qerr));
-      // still open page
     }
+
     showAccountPage();
   } catch (err) {
     debug('profile click handler error: ' + (err?.message || err));
@@ -389,226 +437,147 @@ profileCircle.addEventListener('click', async () => {
   }
 });
 
-/* Close account page */
+/* close actions */
 closeAccount.addEventListener('click', () => { hideAccountPage(); debug('Account closed'); });
+window.addEventListener('keydown', e => { if (e.key === 'Escape') { if (accountPage.style.display === 'flex') { hideAccountPage(); } } });
 
-/* Avatar preview handling (account page) */
+/* avatar preview handling */
 accAvatarInput.addEventListener('change', (e) => {
   const f = e.target.files[0];
   if (!f) return;
   const url = URL.createObjectURL(f);
-  accAvatarImg.src = url;
-  accAvatarImg.style.display = 'block';
-  // keep the preview object URL until upload/save clears it
+  accAvatarImg.src = url; accAvatarImg.style.display = 'block';
 });
 
-/* OPEN mini edit modal from the account page */
-openEditMiniBtn.addEventListener('click', async () => {
-  // populate mini fields from account inputs
+/* open mini editor */
+openEditMiniBtn.addEventListener('click', () => {
   miniFull.value = accFullname.value || '';
   miniUser.value = accUsername.value || '';
   miniPhone.value = accPhone.value || '';
   miniEmail.value = accEmail.value || '';
   miniStatus.textContent = '';
-  showMini();
+  miniPopup.style.display = 'flex';
 });
-miniClose.addEventListener('click', () => hideMini());
-miniCancel.addEventListener('click', () => hideMini());
+miniClose.addEventListener('click', () => miniPopup.style.display = 'none');
+miniCancel.addEventListener('click', () => miniPopup.style.display = 'none');
 
-/* Mini save: writes to profiles (like the small edit modal did before) */
+/* mini save (uploads & update) */
 miniSave.addEventListener('click', async () => {
   miniStatus.textContent = '';
   if (!supabaseClient) { miniStatus.textContent = 'Auth client not ready'; return; }
-
   const { data: userData } = await supabaseClient.auth.getUser();
   const user = userData?.user;
   if (!user) { miniStatus.textContent = 'Not signed in'; return; }
-
   const fullname = miniFull.value.trim() || null;
   const username = miniUser.value.trim() || null;
   const phone = miniPhone.value.trim() || null;
-  // handle avatar upload if chosen in mini
   const file = miniAvatarFile.files[0] || null;
-
   let avatarUrl = null;
   if (file) {
     miniStatus.textContent = 'Uploading avatar…';
     try {
       const path = `public/${user.id}.png`;
-      await uploadFileWithProgress(file, 'avatars', path, pct => {
-        miniStatus.textContent = 'Uploading: ' + pct + '%';
-      });
+      await uploadFileWithProgress(file, 'avatars', path, pct => { miniStatus.textContent = 'Uploading: ' + pct + '%'; });
       const { data: pub } = await supabaseClient.storage.from('avatars').getPublicUrl(path);
       avatarUrl = pub?.publicUrl || `${SUPABASE_URL}/storage/v1/object/public/avatars/${encodeURIComponent(path)}`;
     } catch (err) {
       miniStatus.textContent = 'Upload failed: ' + (err?.message || err);
-      debug('mini avatar upload failed: ' + (err?.message || err));
-      return;
+      debug('mini avatar upload failed: ' + (err?.message || err)); return;
     }
   }
-
-  // Update profile row
   try {
     const updateRes = await supabaseClient.from('profiles').update({
-      full_name: fullname,
-      username,
-      phone,
-      avatar_url: avatarUrl || undefined
+      full_name: fullname, username, phone, avatar_url: avatarUrl || undefined
     }).eq('id', user.id);
-
     if (updateRes.error) {
-      // Attach clear RLS hint if present
       miniStatus.textContent = 'Save failed: ' + updateRes.error.message;
       debug('mini profile update error: ' + updateRes.error.message);
       if ((updateRes.error.message || '').toLowerCase().includes('row-level')) {
-        miniStatus.textContent += ' — row-level security prevented update. Ensure your table policy allows authenticated users to update their row (auth.uid() = id).';
+        miniStatus.textContent += ' — row-level security prevented update. Ensure policy auth.uid() = id.';
       }
       return;
     }
   } catch (e) {
-    miniStatus.textContent = 'Save failed: ' + (e?.message || e);
-    debug('mini profile update thrown: ' + (e?.message || e));
-    return;
+    miniStatus.textContent = 'Save failed: ' + (e?.message || e); debug('mini profile update thrown: ' + (e?.message || e)); return;
   }
-
   miniStatus.textContent = 'Saved';
-  hideMini();
-  // refresh header/profile
+  miniPopup.style.display = 'none';
   await postInitLoadUser();
 });
 
-/* SAVE button on full account page: updates profile & uploads if needed */
-saveBtn.addEventListener('click', async () => {
+/* full page save: uses same upload + profile update flow */
+confirmSaveBtn.addEventListener('click', async () => {
   if (!supabaseClient) { alert('Auth client not ready'); return; }
   const { data: userData } = await supabaseClient.auth.getUser();
   const user = userData?.user;
   if (!user) { alert('Please sign in first'); return; }
-
-  saveBtn.disabled = true;
-  saveBtn.textContent = 'Saving…';
-
+  confirmSaveBtn.disabled = true; confirmSaveBtn.textContent = 'Saving…';
   const fullname = accFullname.value.trim() || null;
   const username = accUsername.value.trim() || null;
   const phone = accPhone.value.trim() || null;
   const file = accAvatarInput.files[0] || null;
-
   let avatarUrl = null;
   if (file) {
-    // show small progress in debug (you can wire a visible progress UI)
     debug('Uploading avatar (full page)');
     try {
       const path = `public/${user.id}.png`;
-      await uploadFileWithProgress(file, 'avatars', path, pct => {
-        debug('Upload: ' + pct + '%');
-      });
+      await uploadFileWithProgress(file, 'avatars', path, pct => { debug('Upload: ' + pct + '%'); });
       const { data: pub } = await supabaseClient.storage.from('avatars').getPublicUrl(path);
       avatarUrl = pub?.publicUrl || `${SUPABASE_URL}/storage/v1/object/public/avatars/${encodeURIComponent(path)}`;
     } catch (err) {
       alert('Upload failed: ' + (err?.message || err));
-      saveBtn.disabled = false;
-      saveBtn.textContent = 'Save';
-      return;
+      confirmSaveBtn.disabled = false; confirmSaveBtn.textContent = 'Save'; return;
     }
   }
-
-  // update profile row (with clear error handling for RLS)
   try {
     const updateRes = await supabaseClient.from('profiles').update({
-      full_name: fullname,
-      username,
-      phone,
-      avatar_url: avatarUrl || undefined
+      full_name: fullname, username, phone, avatar_url: avatarUrl || undefined
     }).eq('id', user.id);
-
     if (updateRes.error) {
       let msg = updateRes.error.message || JSON.stringify(updateRes.error);
       if (msg.toLowerCase().includes('row-level') || msg.toLowerCase().includes('violates row-level')) {
-        alert('Profile update failed due to row-level security policy: update blocked. Fix: allow authenticated users to update their profile row (policy: auth.uid() = id). See Supabase policies.');
+        alert('Profile update failed due to row-level security policy: update blocked. Fix: allow authenticated users to update their profile row (policy: auth.uid() = id).');
       } else {
         alert('Profile update failed: ' + msg);
       }
       debug('Profile update error: ' + msg);
-      saveBtn.disabled = false;
-      saveBtn.textContent = 'Save';
-      return;
+      confirmSaveBtn.disabled = false; confirmSaveBtn.textContent = 'Save'; return;
     }
   } catch (e) {
     alert('Profile update failed: ' + (e?.message || e));
     debug('Profile update thrown: ' + (e?.message || e));
-    saveBtn.disabled = false;
-    saveBtn.textContent = 'Save';
-    return;
+    confirmSaveBtn.disabled = false; confirmSaveBtn.textContent = 'Save'; return;
   }
-
-  // success
-  saveBtn.disabled = false;
-  saveBtn.textContent = 'Save';
-  hideAccountPage();
-  await postInitLoadUser();
-  debug('Profile saved');
+  confirmSaveBtn.disabled = false; confirmSaveBtn.textContent = 'Save';
+  hideAccountPage(); await postInitLoadUser(); debug('Profile saved (full page)');
 });
 
-/* Sign out button on account page: sign out and redirect to index.html (refresh home) */
+/* sign out from page: sign out and refresh to index.html */
 signoutPageBtn.addEventListener('click', async () => {
-  if (supabaseClient) {
-    await supabaseClient.auth.signOut();
-  }
+  if (supabaseClient) await supabaseClient.auth.signOut();
   window.location.href = 'index.html';
 });
 
-/* small helper upload function: keeps slashes, sets content-type, supports progress */
-function encodePathAllowSlashes(path){
-  return path.split('/').map(seg => encodeURIComponent(seg)).join('/');
-}
+/* upload helper (keep slashes, set content-type, progress) */
+function encodePathAllowSlashes(path){ return path.split('/').map(seg => encodeURIComponent(seg)).join('/'); }
 function uploadFileWithProgress(file, bucket, path, onProgress){
   const encodedPath = encodePathAllowSlashes(path);
   const url = `${SUPABASE_URL}/storage/v1/object/${bucket}/${encodedPath}`;
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
     xhr.open('PUT', url);
-    try {
-      xhr.setRequestHeader('Authorization', `Bearer ${SUPABASE_ANON_KEY}`);
-      if (file && file.type) xhr.setRequestHeader('Content-Type', file.type);
-      xhr.setRequestHeader('x-upsert', 'true');
-    } catch(e){}
-    xhr.upload.onprogress = ev => {
-      if (ev.lengthComputable && typeof onProgress === 'function') {
-        const pct = Math.round((ev.loaded / ev.total) * 100);
-        onProgress(pct);
-      }
-    };
-    xhr.onload = () => {
-      const body = xhr.responseText || '';
-      if (xhr.status >= 200 && xhr.status < 300) resolve({ status: xhr.status, body });
-      else reject(new Error(`Upload failed (${xhr.status}): ${body || xhr.statusText}`));
-    };
+    try { xhr.setRequestHeader('Authorization', `Bearer ${SUPABASE_ANON_KEY}`); if (file && file.type) xhr.setRequestHeader('Content-Type', file.type); xhr.setRequestHeader('x-upsert','true'); } catch(e){}
+    xhr.upload.onprogress = ev => { if (ev.lengthComputable && typeof onProgress === 'function') onProgress(Math.round((ev.loaded/ev.total)*100)); };
+    xhr.onload = () => { const body = xhr.responseText || ''; if (xhr.status>=200 && xhr.status<300) resolve({ status: xhr.status, body }); else reject(new Error(`Upload failed (${xhr.status}): ${body || xhr.statusText}`)); };
     xhr.onerror = () => reject(new Error('Network error during upload'));
     xhr.send(file);
   });
 }
 
-/* MINI edit modal open from header (legacy) */
-function showAuthUI(){
-  // simple prompt-based fallback if supabase missing (keeps UI-first)
-  if (!supabaseClient) {
-    alert('Sign in: supabase not yet initialized. Please wait a moment and try again.');
-    return;
-  }
-  // Use Supabase magic link or sign in popup — here we show a simple prompt for quick testing.
-  const email = prompt('Enter email to sign in / sign up (quick test):');
-  if (!email) return;
-  alert('Quick test: create/login via Supabase UI in your project. Use the Sign Up / Login buttons in debug builds.');
-}
+/* Auth shim & post-init */
+function showAuthUI(){ alert('Open your Sign In UI (debug). Use the Sign In control in header if present.'); }
+function bindAuthHandlers(){ /* placeholder - sign-in flows are handled elsewhere in your app */ }
 
-/* Auth binding once client exists */
-function bindAuthHandlers(){
-  if (!supabaseClient) return;
-  // Sign up & Sign in flows - simple: we'll rely on the small UI fallback (or you can hook your existing popup handlers)
-  // For the purposes of this overlay, we assume you use the existing sign in flow you already had.
-  // postInitLoadUser will populate header when signed in
-}
-
-/* On load, sync user to header */
 async function postInitLoadUser(){
   if (!supabaseClient) return;
   try {
@@ -616,32 +585,20 @@ async function postInitLoadUser(){
     const user = data?.user;
     if (user) {
       debug('Signed in as ' + (user.email || user.id));
-      // load profile row
       const res = await supabaseClient.from('profiles').select('avatar_url').eq('id', user.id).single();
       if (!res.error && res.data?.avatar_url) {
-        headerAvatar.src = res.data.avatar_url;
-        headerAvatar.style.display = 'block';
-        profileCircle.style.display = 'flex';
+        headerAvatar.src = res.data.avatar_url; headerAvatar.style.display = 'block'; profileCircle.style.display = 'flex';
       } else {
-        profileCircle.style.display = 'flex';
-        headerAvatar.style.display = 'none';
+        profileCircle.style.display = 'flex'; headerAvatar.style.display = 'none';
       }
       signinBtn.style.display = 'none';
     } else {
-      debug('No signed-in user');
-      signinBtn.style.display = 'inline-block';
-      profileCircle.style.display = 'none';
-      headerAvatar.style.display = 'none';
+      debug('No signed-in user'); signinBtn.style.display = 'inline-block'; profileCircle.style.display = 'none'; headerAvatar.style.display = 'none';
     }
-  } catch (e) {
-    debug('postInitLoadUser error: ' + (e?.message || e));
-  }
+  } catch (e) { debug('postInitLoadUser error: ' + (e?.message || e)); }
 }
 
-/* Helper: open mini editor via small button in header (if you want that later) */
-openEditMiniBtn.addEventListener('keydown', e => { if (e.key === 'Enter') openEditMiniBtn.click(); });
-
-/* Init try after a short delay (in case external script still loading) */
+/* init attempt */
 setTimeout(initSupabase, 800);
 </script>
 </body>
