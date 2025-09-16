@@ -2,211 +2,268 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Shipping Experts | Auto Transport</title>
   <style>
-    :root {
-      --brand: #FF6700; /* updated orange */
-      --bg: #fff;
-      --text: #333;
-      --max-width: 1100px;
-    }
-
-    /* Basic layout */
-    *{box-sizing:border-box}
-    body {
+    /* ------------------- GENERAL STYLES ------------------- */
+    body, html {
       margin: 0;
+      padding: 0;
       font-family: Arial, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      -webkit-font-smoothing:antialiased;
-      -moz-osx-font-smoothing:grayscale;
-    }
-
-    /* Top header row (includes auth area on right) */
-    .top-strip {
-      background: #fff;
-      border-bottom: 1px solid #eee;
-      display:flex;
-      justify-content:center;
-    }
-
-    header {
-      width:100%;
-      max-width: var(--max-width);
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      padding: 14px 16px;
-      margin: 0 auto;
-      gap: 12px;
-    }
-
-    header img { height: 48px; }
-
-    nav ul {
-      list-style:none;
-      display:flex;
-      gap:1rem;
-      margin:0;
-      padding:0;
-      align-items:center;
-    }
-    nav a { text-decoration:none; color:var(--text); font-weight:700; }
-
-    .cta-btn {
-      background: var(--brand);
-      color: #fff;
-      padding: .55rem 1rem;
-      border-radius:6px;
-      border: none;
-      cursor:pointer;
-      font-weight:700;
-    }
-
-    /* account area on header */
-    #accountArea { display:flex; align-items:center; gap:10px; }
-    #accountName { font-weight:700; margin-right:8px; }
-    .account-action { background:transparent; border:1px solid #ddd; padding:6px 8px; border-radius:6px; cursor:pointer; }
-
-    /* hero: thin background slideshow */
-    .hero {
-      height: 260px;
-      width:100%;
+      color: #333;
+      background-color: black;
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
-      animation: heroSlide 32s infinite;
-      display:block;
+      animation: slideshow 32s infinite;
     }
 
-    @keyframes heroSlide {
-      0%   { background-image: url('Truck1.png'); }
+    a { text-decoration: none; color: inherit; }
+
+    button { cursor: pointer; }
+
+    input, textarea { padding: 0.6rem; border-radius: 4px; border: 1px solid #ccc; }
+
+    /* ------------------- HEADER ------------------- */
+    header {
+      background: linear-gradient(90deg, white 0%, #FF6700 100%);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      position: relative;
+      z-index: 10;
+    }
+
+    header img { height: 50px; }
+
+    nav ul {
+      display: flex;
+      gap: 1.5rem;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    nav li { display: inline; }
+
+    nav a { font-weight: bold; color: #333; }
+
+    .cta-btn {
+      background: #FF6700;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 0.6rem 1.2rem;
+      font-weight: bold;
+    }
+
+    /* ------------------- HERO SLIDESHOW ------------------- */
+    @keyframes slideshow {
+      0% { background-image: url('Truck1.png'); }
       12.5% { background-image: url('Truck2.png'); }
-      25%  { background-image: url('Truck3.png'); }
+      25% { background-image: url('Truck3.png'); }
       37.5% { background-image: url('Truck4.png'); }
-      50%  { background-image: url('Truck5.png'); }
+      50% { background-image: url('Truck5.png'); }
       62.5% { background-image: url('Truck6.png'); }
-      75%  { background-image: url('Truck7.png'); }
+      75% { background-image: url('Truck7.png'); }
       87.5% { background-image: url('Truck8.png'); }
       100% { background-image: url('Truck1.png'); }
     }
 
-    /* center page sections */
-    section, .call-to-action, .services, .about, .vision-mission, .reviews, .contact, .form-section {
-      max-width: var(--max-width);
-      margin: 0 auto;
-      padding: 28px 16px;
-    }
-
-    .call-to-action { text-align:center; background: linear-gradient(180deg,#fff,#fff7f0); }
-    .call-to-action h2 { color: var(--brand); }
-
-    .services-grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(180px,1fr)); gap:14px; margin-top:12px; }
-
+    /* ------------------- MODAL ------------------- */
     .modal {
-      display:none;
-      position:fixed;
-      z-index:1000;
-      left:0; top:0;
-      width:100%; height:100%;
-      background-color: rgba(0,0,0,0.6);
-      align-items:center;
-      justify-content:center;
-      padding: 20px;
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+      background-color: rgba(0,0,0,0.7);
+      justify-content: center;
+      align-items: center;
     }
-
-    .modal.open { display:flex; }
 
     .modal-content {
-      background:#fff;
-      width:100%;
-      max-width:720px;
-      border-radius:10px;
-      padding:20px;
-      max-height:90vh;
-      overflow:auto;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+      background: white;
+      border-radius: 8px;
+      width: 90%;
+      max-width: 700px;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 2rem;
+      position: relative;
     }
 
+    .close {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    /* ------------------- FORMS ------------------- */
     .modal-content input, .modal-content textarea {
-      width:100%; padding:10px; margin:8px 0; border:1px solid #ddd; border-radius:6px;
+      width: 100%;
+      margin: 0.5rem 0;
+      padding: 0.6rem;
     }
 
-    .modal-content .row { display:flex; gap:8px; }
-    .modal-content .row > * { flex:1; }
-
-    .close-btn { float:right; font-size:20px; cursor:pointer; border:none; background:transparent; }
-
-    /* small utilities */
-    .muted { color:#666; font-size:0.95rem; }
-    .small { font-size:0.9rem; }
-    footer { background:#222; color:#fff; padding:28px 16px; text-align:center; margin-top:18px; }
-    a.brand-link { color:var(--text); }
-    .center { text-align:center; }
-
-    /* hide any leftover inline images from old grid */
-    .slides { display:none; }
-
-    /* responsive tweaks */
-    @media (max-width:720px) {
-      header { padding:12px; }
-      .hero { height:180px; }
+    .modal-content button[type="submit"] {
+      background: #FF6700;
+      color: white;
+      border: none;
+      padding: 0.7rem 1.2rem;
+      margin-top: 0.5rem;
     }
+
+    .modal-content button[type="reset"] {
+      background: #333;
+      color: white;
+      border: none;
+      padding: 0.7rem 1.2rem;
+      margin-top: 0.5rem;
+    }
+
+    /* ------------------- CALL TO ACTION ------------------- */
+    .call-to-action {
+      text-align: center;
+      padding: 2rem;
+      background: linear-gradient(180deg, #fff, #ffe0cc);
+    }
+
+    .call-to-action h2 { color: #FF6700; }
+
+    .call-to-action .stats {
+      display: flex;
+      justify-content: center;
+      gap: 3rem;
+      margin: 1.5rem 0;
+    }
+
+    .call-to-action .stats div { font-weight: bold; }
+
+    .call-btn { background: #FF6700; color: white; }
+    .quote-btn { background: #333; color: white; }
+
+    /* ------------------- SECTIONS ------------------- */
+    section { padding: 2rem; }
+
+    .services-grid, .vision-mission-grid {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .services-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
+    .vision-mission-grid { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+
+    .services-grid div, .vision-mission-grid div {
+      background: #fff5eb;
+      border-radius: 6px;
+      padding: 1rem;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    footer {
+      background: #333;
+      color: white;
+      text-align: center;
+      padding: 2rem;
+      font-size: 0.9rem;
+    }
+
+    footer a { color: #FF6700; margin: 0 0.5rem; }
   </style>
 </head>
 <body>
-  <!-- top strip to help center header on wide screens -->
-  <div class="top-strip" aria-hidden="true"></div>
-
-  <!-- header with account area on right -->
+  <!-- ------------------- HEADER ------------------- -->
   <header>
-    <div style="display:flex;align-items:center;gap:14px;">
-      <img src="Logo.png" alt="Shipping Experts Logo" />
-      <nav>
-        <ul>
-          <li><a class="brand-link" href="index.html">Home</a></li>
-          <li><a class="brand-link" href="about.html">About</a></li>
-          <li><a class="brand-link" href="services.html">Services</a></li>
-          <li><a class="brand-link" href="contactus.html">Contact</a></li>
-        </ul>
-      </nav>
-    </div>
-
-    <div id="accountArea">
-      <!-- visible when signed out -->
-      <button id="headerSignBtn" class="cta-btn">Sign In / Sign Up</button>
-
-      <!-- visible when signed in (JS toggles display) -->
-      <div id="signedInArea" style="display:none; align-items:center;">
-        <span id="accountName" class="small">Welcome, <strong id="accountUsername">User</strong></span>
-        <button id="editProfileBtn" class="account-action">Edit Account</button>
-        <button id="signOutBtn" class="account-action">Sign Out</button>
-      </div>
-
-      <button class="cta-btn" onclick="openForm()">Get Quote</button>
-    </div>
+    <img src="Logo.png" alt="Shipping Experts Logo" />
+    <nav>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="services.html">Services</a></li>
+        <li><a href="contactus.html">Contact Us</a></li>
+      </ul>
+    </nav>
+    <!-- Sign-in/Sign-up in header -->
+    <button class="cta-btn" onclick="openAuthModal()">Sign In / Sign Up</button>
   </header>
 
-  <!-- hero thin slideshow background -->
-  <div class="hero" role="img" aria-label="Truck slideshow"></div>
-
-  <!-- quick CTA -->
-  <section class="call-to-action">
-    <h2>Trust in the Experts!</h2>
-    <div style="display:flex;gap:18px;justify-content:center;align-items:center;flex-wrap:wrap;margin-top:12px;">
-      <div class="muted"><strong>Vehicles Shipped Monthly:</strong> 1250</div>
-      <div class="muted"><strong>Customers Helped:</strong> 982,370</div>
-      <div class="muted"><strong>Company Rating:</strong> 4.7</div>
+  <!-- ------------------- AUTH MODAL ------------------- -->
+  <div id="authModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeAuthModal()">&times;</span>
+      <h2>Account</h2>
+      <form id="authForm" onsubmit="return false;">
+        <input id="auth-email" type="email" placeholder="Email" required />
+        <input id="auth-password" type="password" placeholder="Password" required />
+        <input id="auth-username" type="text" placeholder="Username" required />
+        <input id="auth-phone" type="text" placeholder="Phone Number" required />
+        <div>
+          <button type="button" onclick="signUp()">Sign Up</button>
+          <button type="button" onclick="signIn()">Sign In</button>
+          <button type="button" onclick="signOut()">Sign Out</button>
+        </div>
+        <div id="auth-status" style="margin-top:0.6rem;color:#333;font-weight:600"></div>
+      </form>
     </div>
-    <p class="center" style="margin-top:14px;">Get Your Free Quote Now!</p>
-    <div style="display:flex; gap:8px; justify-content:center; margin-top:12px;">
-      <button class="call-btn cta-btn" style="background:var(--brand);">Call: (916) 760-7202</button>
-      <button class="quote-btn cta-btn" style="background:#333;">Request A Quote</button>
+  </div>
+
+  <!-- ------------------- HERO SLIDESHOW (background) ------------------- -->
+  <section class="hero">
+    <div class="overlay">
+      <h1 style="color:white;text-align:center;margin-top:200px;font-size:3rem;">Shipping Experts Auto Transport</h1>
     </div>
   </section>
 
-  <!-- services, about, etc (kept small) -->
+  <!-- ------------------- CALL TO ACTION ------------------- -->
+  <section class="call-to-action">
+    <h2>Trust in the Experts!</h2>
+    <div class="stats">
+      <div>Vehicles Shipped Monthly: 1250</div>
+      <div>Customers Helped: 982,370</div>
+      <div>Company Rating: 4.7</div>
+    </div>
+    <p>Get Your Free Quote Now!</p>
+    <button class="call-btn">Call: (916)760-7202</button>
+    <button class="quote-btn" onclick="openQuoteModal()">Request A Quote</button>
+  </section>
+
+  <!-- ------------------- QUOTE FORM MODAL ------------------- -->
+  <div id="quoteModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeQuoteModal()">&times;</span>
+      <h2>Shipping Experts Form</h2>
+      <form id="quoteForm">
+        <input id="q-vin" type="text" placeholder="VIN" required />
+        <input id="q-yearmake" type="text" placeholder="Vehicle Year/Make/Model" required />
+        <input id="q-color" type="text" placeholder="Vehicle Color" required />
+        <input id="q-type" type="text" placeholder="Vehicle Type" required />
+        <input id="q-inoperable" type="text" placeholder="Inoperable Vehicle" />
+        <input id="q-additional" type="text" placeholder="Additional Vehicle(s)" />
+        <input id="q-pickup-name" type="text" placeholder="Pickup Name" />
+        <input id="q-pickup-address" type="text" placeholder="Pickup Address" />
+        <input id="q-pickup-contacts" type="text" placeholder="Pickup Contact Name(s)" />
+        <input id="q-pickup-dates" type="text" placeholder="Scheduled Pickup Dates" />
+        <textarea id="q-pickup-notes" placeholder="Pickup Notes"></textarea>
+        <input id="q-delivery-name" type="text" placeholder="Delivery Name" />
+        <input id="q-delivery-address" type="text" placeholder="Delivery Address" />
+        <input id="q-delivery-contacts" type="text" placeholder="Delivery Contact Name(s)" />
+        <input id="q-delivery-dates" type="text" placeholder="Scheduled Delivery Dates" />
+        <textarea id="q-delivery-notes" placeholder="Delivery Notes"></textarea>
+        <label><input type="checkbox" required> I agree to and authorize transport...</label>
+        <div>
+          <button type="submit">Submit Form</button>
+          <button type="reset">Clear Form</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ------------------- SERVICES ------------------- -->
   <section class="services">
     <h2>Services</h2>
     <div class="services-grid">
@@ -221,405 +278,133 @@
     </div>
   </section>
 
+  <!-- ------------------- ABOUT ------------------- -->
   <section class="about">
     <h2>About Us</h2>
     <p>We are a team of shipping experts with years of experience...</p>
+    <p>[Full about text inserted here]</p>
   </section>
 
-  <!-- Quote form modal (user must be signed in to submit) -->
-  <div id="quoteModal" class="modal" aria-hidden="true">
-    <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="quoteTitle">
-      <button class="close-btn" onclick="closeForm()">&times;</button>
-      <h3 id="quoteTitle">Shipping Quote</h3>
-      <form id="quoteForm">
-        <input id="q-vin" name="vin" placeholder="VIN" />
-        <input id="q-yearmake" name="vehicle_year_make_model" placeholder="Vehicle Year / Make / Model" />
-        <input id="q-color" name="vehicle_color" placeholder="Vehicle Color" />
-        <input id="q-type" name="vehicle_type" placeholder="Vehicle Type" />
-        <input name="inoperable" placeholder="Inoperable Vehicle (yes/no)" />
-        <input name="additional_vehicles" placeholder="Additional vehicle(s)" />
-        <input name="pickup_name" placeholder="Pickup Name — Residence, Business, Auction" />
-        <input id="q-pickup-address" name="pickup_address" placeholder="Pickup Address" />
-        <input name="pickup_contacts" placeholder="Pickup Contact Name(s)" />
-        <input name="pickup_dates" placeholder="Scheduled Pickup Dates" />
-        <textarea id="q-pickup-notes" name="pickup_notes" placeholder="Pickup Notes"></textarea>
-        <input name="delivery_name" placeholder="Delivery Name — Residence, Business, Auction" />
-        <input id="q-delivery-address" name="delivery_address" placeholder="Delivery Address" />
-        <input name="delivery_contacts" placeholder="Delivery Contact Name(s)" />
-        <input name="delivery_dates" placeholder="Scheduled Delivery Dates" />
-        <textarea id="q-delivery-notes" name="delivery_notes" placeholder="Delivery Notes"></textarea>
-
-        <label style="display:block;margin:10px 0;">
-          <input type="checkbox" id="q-agree" /> I agree to and authorize transport...
-        </label>
-
-        <div style="display:flex;gap:8px;margin-top:8px;">
-          <button type="submit" class="cta-btn">Submit Form</button>
-          <button type="button" onclick="document.getElementById('quoteForm').reset()">Clear</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- Auth modal (Sign in / Sign up). Placed as modal, triggered from header sign button -->
-  <div id="authModal" class="modal" aria-hidden="true">
-    <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="authTitle">
-      <button class="close-btn" onclick="closeAuthModal()">&times;</button>
-      <h3 id="authTitle">Account</h3>
-
-      <form id="authForm" onsubmit="return false;">
-        <input id="auth-email" type="email" placeholder="Email" />
-        <input id="auth-password" type="password" placeholder="Password" />
-
-        <div style="display:flex;gap:8px;margin-top:6px;">
-          <button type="button" id="switchToSignup" class="account-action">Create account</button>
-          <button type="button" id="switchToSignin" class="account-action" style="display:none;">Use existing</button>
-        </div>
-
-        <div id="signupFields" style="margin-top:10px;">
-          <!-- these are only required for signup -->
-          <input id="auth-username" placeholder="Username" />
-          <input id="auth-phone" placeholder="Phone (optional)" />
-        </div>
-
-        <div style="display:flex;gap:8px;margin-top:10px;">
-          <button id="doSignUp" type="button" class="cta-btn">Sign Up</button>
-          <button id="doSignIn" type="button" class="cta-btn" style="background:#444;">Sign In</button>
-        </div>
-
-        <div id="auth-status" class="muted" style="margin-top:10px;"></div>
-      </form>
-    </div>
-  </div>
-
-  <!-- Edit profile modal -->
-  <div id="editProfileModal" class="modal" aria-hidden="true">
-    <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="editProfileTitle">
-      <button class="close-btn" onclick="closeEditProfile()">&times;</button>
-      <h3 id="editProfileTitle">Edit Account</h3>
-      <form id="editProfileForm">
-        <input id="edit-username" placeholder="Username" />
-        <input id="edit-phone" placeholder="Phone" />
-        <div style="display:flex;gap:8px;margin-top:10px;">
-          <button type="button" class="cta-btn" id="saveProfileBtn">Save</button>
-          <button type="button" onclick="closeEditProfile()">Cancel</button>
-        </div>
-        <div id="edit-status" class="muted" style="margin-top:8px;"></div>
-      </form>
-    </div>
-  </div>
-
-  <!-- Other content left unchanged but centered by CSS above -->
-  <section class="reviews">
-    <h2>Reviews</h2>
-    <p>[Google and Yelp embeds will go here]</p>
-  </section>
-
+  <!-- ------------------- VISION & MISSION ------------------- -->
   <section class="vision-mission">
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;">
-      <div style="background:#fff5eb;padding:12px;border-radius:8px"><h4>VISION</h4><p>At Shipping Experts, our vision is to...</p></div>
-      <div style="background:#fff5eb;padding:12px;border-radius:8px"><h4>MISSION</h4><p>Our mission at Shipping Experts is...</p></div>
-      <div style="background:#fff5eb;padding:12px;border-radius:8px"><h4>HOW</h4><p>At Shipping Experts, we believe that...</p></div>
-      <div style="background:#fff5eb;padding:12px;border-radius:8px"><h4>FUTURE</h4><p>The future of Shipping Experts is...</p></div>
+    <div class="vision-mission-grid">
+      <div><h3>VISION</h3><p>At Shipping Experts, our vision is to...</p></div>
+      <div><h3>MISSION</h3><p>Our mission at Shipping Experts is...</p></div>
+      <div><h3>HOW</h3><p>At Shipping Experts, we believe that...</p></div>
+      <div><h3>FUTURE</h3><p>The future of Shipping Experts is...</p></div>
     </div>
   </section>
 
+  <!-- ------------------- CONTACT ------------------- -->
   <section class="contact">
     <h2>Contact Us</h2>
-    <p>Phone: (916) 760-7202 | Email: dispatch@autoshippingexperts.com</p>
+    <p>Get in touch with our amazing team...</p>
+    <button class="call-btn">Call: (916)760-7202</button>
+    <button class="quote-btn">Email: dispatch@autoshippingexperts.com</button>
   </section>
 
+  <!-- ------------------- FAQ ------------------- -->
+  <section class="faq">
+    <h2>Frequently Asked Questions</h2>
+    <p>[FAQ content will be added later]</p>
+  </section>
+
+  <!-- ------------------- FOOTER ------------------- -->
   <footer>
     <p>
       Home | About Us | Services | Contact Us <br>
-      7551 14th Ave Suite A, Sacramento, USA 95820 <br>
+      7551 14th Ave Suit A, Sacramento, USA 95820 <br>
       Phone: (916) 760-7202 | Email: dispatch@autoshippingexperts.com <br>
-      © 2025 Shipping Experts INC. | All Rights Reserved
+      © 2023 Shipping Experts INC. | All Rights Reserved <br>
+      <a href="#">Privacy Policy</a> | 
+      <a href="#">Copyright and Trademark</a> | 
+      <a href="#">Terms and Conditions</a>
     </p>
   </footer>
 
-  <!-- supabase client (module import) and app logic -->
-  <script type="module">
-    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+  <!-- ------------------- SUPABASE SCRIPT ------------------- -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const SUPABASE_URL = 'https://gxcbliwbxrnhltdosfuj.supabase.co'
+    const SUPABASE_ANON_KEY = 'YOUR_ANON_KEY_HERE'
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
 
-    // ---------- CONFIG: put your values here ----------
-    const SUPABASE_URL = 'https://gxcbliwbxrnhltdosfuj.supabase.co'   // <- keep yours
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd4Y2JsaXdieHJuaGx0ZG9zZnVqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc5ODE4MDcsImV4cCI6MjA3MzU1NzgwN30.XsQR9vmnIknlcgUT4znIHGYjY_9s2hS8ZNIke9Dn7-E'                   // <- REPLACE with anon/public key
-    // --------------------------------------------------
+    // Modal open/close
+    function openAuthModal() { document.getElementById('authModal').style.display='flex'; }
+    function closeAuthModal() { document.getElementById('authModal').style.display='none'; }
+    function openQuoteModal() { document.getElementById('quoteModal').style.display='flex'; }
+    function closeQuoteModal() { document.getElementById('quoteModal').style.display='none'; }
 
-    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+    // Sign-up
+    async function signUp() {
+      const email = document.getElementById('auth-email').value.trim()
+      const password = document.getElementById('auth-password').value
+      const username = document.getElementById('auth-username').value.trim()
+      const phone = document.getElementById('auth-phone').value.trim()
 
-    // short helpers to open/close modals
-    const authModal = document.getElementById('authModal')
-    const quoteModal = document.getElementById('quoteModal')
-    const editModal = document.getElementById('editProfileModal')
-
-    function openAuthModal(){ authModal.classList.add('open'); authModal.setAttribute('aria-hidden','false') }
-    function closeAuthModal(){ authModal.classList.remove('open'); authModal.setAttribute('aria-hidden','true') }
-    function openForm(){ quoteModal.classList.add('open'); quoteModal.setAttribute('aria-hidden','false') }
-    function closeForm(){ quoteModal.classList.remove('open'); quoteModal.setAttribute('aria-hidden','true') }
-    function openEditProfile(){ editModal.classList.add('open'); editModal.setAttribute('aria-hidden','false') }
-    function closeEditProfile(){ editModal.classList.remove('open'); editModal.setAttribute('aria-hidden','true') }
-
-    // header buttons
-    const headerSignBtn = document.getElementById('headerSignBtn')
-    const signedInArea = document.getElementById('signedInArea')
-    const accountUsernameEl = document.getElementById('accountUsername')
-    const signOutBtn = document.getElementById('signOutBtn')
-    const editProfileBtn = document.getElementById('editProfileBtn')
-
-    headerSignBtn.addEventListener('click', () => {
-      // show signin modal in "sign in" mode by default
-      showSignInMode()
-      openAuthModal()
-    })
-
-    signOutBtn.addEventListener('click', async () => {
-      await supabase.auth.signOut()
-      updateUI(null)
-    })
-
-    editProfileBtn.addEventListener('click', async () => {
-      openEditProfile()
-      populateEditForm()
-    })
-
-    // auth UI toggles
-    const switchToSignup = document.getElementById('switchToSignup')
-    const switchToSignin = document.getElementById('switchToSignin')
-    const signupFields = document.getElementById('signupFields')
-    const doSignUp = document.getElementById('doSignUp')
-    const doSignIn = document.getElementById('doSignIn')
-
-    function showSignUpMode(){
-      signupFields.style.display = 'block'
-      switchToSignup.style.display = 'none'
-      switchToSignin.style.display = 'inline-block'
-    }
-    function showSignInMode(){
-      signupFields.style.display = 'none'
-      switchToSignup.style.display = 'inline-block'
-      switchToSignin.style.display = 'none'
-    }
-    // initial mode:
-    showSignInMode()
-    switchToSignup.addEventListener('click', showSignUpMode)
-    switchToSignin.addEventListener('click', showSignInMode)
-
-    async function signIn() {
-  const email = document.getElementById('auth-email').value.trim()
-  const password = document.getElementById('auth-password').value
-
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password })
-  if (error) {
-    document.getElementById('auth-status').textContent = error.message
-  } else {
-    document.getElementById('auth-status').textContent = `Signed in as ${data.user.email}`
-    await ensureProfile(data.user) // <-- insert profile if missing
-    closeAuthModal()
-  }
-}
-
-
-      // create auth user
-      const { data: signData, error: signError } = await supabase.auth.signUp({ email, password })
-
-      if (signError) {
-        document.getElementById('auth-status').textContent = 'Signup error: ' + signError.message
+      if(!email||!password||!username||!phone){
+        document.getElementById('auth-status').textContent='All fields are required'
         return
       }
 
-      // If user object exists immediately (depends on email confirmations settings),
-      // insert profile now. Otherwise ask user to confirm email and sign in later.
-      if (signData?.user) {
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .upsert([{ id: signData.user.id, username, phone }], { returning: 'minimal' })
-        if (profileError) {
-          document.getElementById('auth-status').textContent = 'Profile save error: ' + profileError.message
-          return
-        }
-        document.getElementById('auth-status').textContent = 'Signup OK. You are signed in.'
-        // update UI
-        updateUI(signData.session ?? { user: signData.user })
-        closeAuthModal()
-      } else {
-        // No immediate user object: likely email confirmation flow
-        document.getElementById('auth-status').textContent = 'Check your email to confirm signup. After confirming, sign in.'
+      const { data, error } = await supabase.auth.signUp({ email, password })
+      if(error){ document.getElementById('auth-status').textContent=error.message; return }
+
+      if(data.user){
+        // Save profile
+        const { error: profileError } = await supabase.from('profiles').upsert({ id: data.user.id, username, phone })
+        document.getElementById('auth-status').textContent= profileError ? profileError.message : 'Signed up! Check email for confirmation.'
       }
     }
 
+    // Sign-in
     async function signIn() {
       const email = document.getElementById('auth-email').value.trim()
       const password = document.getElementById('auth-password').value
-      if (!email || !password) {
-        document.getElementById('auth-status').textContent = 'Enter email and password.'
-        return
-      }
-
       const { data, error } = await supabase.auth.signInWithPassword({ email, password })
-
-      if (error) {
-        document.getElementById('auth-status').textContent = 'Sign in error: ' + error.message
-        return
-      }
-
-      // success: update UI
-      document.getElementById('auth-status').textContent = 'Signed in as ' + (data?.user?.email ?? '')
-      updateUI(data.session ?? { user: data.user })
+      if(error){ document.getElementById('auth-status').textContent=error.message; return }
+      document.getElementById('auth-status').textContent=`Signed in as ${data.user.email}`
       closeAuthModal()
     }
 
-    doSignUp.addEventListener('click', signUp)
-    doSignIn.addEventListener('click', signIn)
-
-    // show current user info in header
-    async function updateUI(sessionOrNull) {
-      // If called with Supabase session object or null; normalize
-      let user = null
-      if (!sessionOrNull) {
-        // try to get current session
-        const { data } = await supabase.auth.getSession()
-        user = data?.session?.user ?? null
-      } else {
-        if (sessionOrNull.user) user = sessionOrNull.user
-        else if (sessionOrNull?.session?.user) user = sessionOrNull.session.user
-      }
-
-      if (!user) {
-        // logged out state
-        headerSignBtn.style.display = 'inline-block'
-        signedInArea.style.display = 'none'
-        accountUsernameEl.textContent = ''
-        return
-      }
-
-      // logged in: fetch profile for display
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('username,phone')
-        .eq('id', user.id)
-        .single()
-
-      const username = profile?.username ?? user.email ?? 'User'
-      accountUsernameEl.textContent = username
-      headerSignBtn.style.display = 'none'
-      signedInArea.style.display = 'flex'
+    async function signOut(){
+      await supabase.auth.signOut()
+      document.getElementById('auth-status').textContent='Signed out'
     }
-    async function ensureProfile(user, username = null, phone = null) {
-  // check if profile already exists
-  const { data, error } = await supabase
-    .from('profiles')
-    .select('id')
-    .eq('id', user.id)
-    .single()
-
-  if (!data) {
-    // create profile only if missing
-    const { error: insertError } = await supabase
-      .from('profiles')
-      .insert([{ id: user.id, username, phone }])
-
-    if (insertError) console.error('Profile insert error:', insertError.message)
-  }
-}
-
-
-    
-
-    // populate edit profile modal fields
-    async function populateEditForm(){
-      const { data: s } = await supabase.auth.getSession()
-      const user = s?.session?.user ?? null
-      if (!user) { document.getElementById('edit-status').textContent = 'Not signed in.'; return; }
-      const { data: profile } = await supabase.from('profiles').select('username,phone').eq('id', user.id).single()
-      document.getElementById('edit-username').value = profile?.username ?? ''
-      document.getElementById('edit-phone').value = profile?.phone ?? ''
-      document.getElementById('edit-status').textContent = ''
-    }
-
-    // save profile changes
-    document.getElementById('saveProfileBtn').addEventListener('click', async ()=>{
-      const { data: s } = await supabase.auth.getSession()
-      const user = s?.session?.user ?? null
-      if (!user) { document.getElementById('edit-status').textContent = 'Not signed in.'; return; }
-      const newName = document.getElementById('edit-username').value.trim()
-      const newPhone = document.getElementById('edit-phone').value.trim()
-      if (!newName) { document.getElementById('edit-status').textContent = 'Username required.'; return; }
-      const { error } = await supabase.from('profiles').upsert([{ id: user.id, username: newName, phone: newPhone }], { returning: 'minimal' })
-      if (error) {
-        document.getElementById('edit-status').textContent = 'Save error: ' + error.message
-      } else {
-        document.getElementById('edit-status').textContent = 'Saved.'
-        // refresh header display
-        updateUI({ user })
-        setTimeout(closeEditProfile, 800)
-      }
-    })
-
-    // monitor auth state
-    supabase.auth.onAuthStateChange((event, session) => {
-      // update UI whenever something changes
-      updateUI(session)
-    })
-
-    // initial UI state
-    updateUI(null)
 
     // Quote submission
-    document.getElementById('quoteForm').addEventListener('submit', async (e) => {
+    const quoteForm = document.getElementById('quoteForm')
+    quoteForm.addEventListener('submit', async (e)=>{
       e.preventDefault()
-      const { data: sess } = await supabase.auth.getSession()
-      const user = sess?.session?.user ?? null
-      if (!user) { alert('Please sign in to submit a quote.'); return; }
-
-      if (!document.getElementById('q-agree').checked) {
-        alert('You must agree to the transport authorization.')
-        return
-      }
+      const { data: userData } = await supabase.auth.getUser()
+      if(!userData.user){ alert('Please sign in first'); return }
 
       const payload = {
-        user_id: user.id,
-        vin: document.getElementById('q-vin').value || null,
-        vehicle_year_make_model: document.getElementById('q-yearmake').value || null,
-        vehicle_color: document.getElementById('q-color').value || null,
-        vehicle_type: document.getElementById('q-type').value || null,
-        inoperable: document.querySelector('input[name="inoperable"]').value || null,
-        additional_vehicles: document.querySelector('input[name="additional_vehicles"]').value || null,
-        pickup_name: document.querySelector('input[name="pickup_name"]').value || null,
-        pickup_address: document.getElementById('q-pickup-address').value || null,
-        pickup_contacts: document.querySelector('input[name="pickup_contacts"]').value || null,
-        pickup_dates: document.querySelector('input[name="pickup_dates"]').value || null,
-        pickup_notes: document.getElementById('q-pickup-notes').value || null,
-        delivery_name: document.querySelector('input[name="delivery_name"]').value || null,
-        delivery_address: document.getElementById('q-delivery-address').value || null,
-        delivery_contacts: document.querySelector('input[name="delivery_contacts"]').value || null,
-        delivery_dates: document.querySelector('input[name="delivery_dates"]').value || null,
-        delivery_notes: document.getElementById('q-delivery-notes').value || null,
+        user_id: userData.user.id,
+        vin: document.getElementById('q-vin').value,
+        vehicle_year_make_model: document.getElementById('q-yearmake').value,
+        vehicle_color: document.getElementById('q-color').value,
+        vehicle_type: document.getElementById('q-type').value,
+        inoperable: document.getElementById('q-inoperable').value,
+        additional_vehicles: document.getElementById('q-additional').value,
+        pickup_name: document.getElementById('q-pickup-name').value,
+        pickup_address: document.getElementById('q-pickup-address').value,
+        pickup_contacts: document.getElementById('q-pickup-contacts').value,
+        pickup_dates: document.getElementById('q-pickup-dates').value,
+        pickup_notes: document.getElementById('q-pickup-notes').value,
+        delivery_name: document.getElementById('q-delivery-name').value,
+        delivery_address: document.getElementById('q-delivery-address').value,
+        delivery_contacts: document.getElementById('q-delivery-contacts').value,
+        delivery_dates: document.getElementById('q-delivery-dates').value,
+        delivery_notes: document.getElementById('q-delivery-notes').value,
         created_at: new Date().toISOString()
       }
 
       const { error } = await supabase.from('quotes').insert([payload])
-      if (error) {
-        alert('Error saving quote: ' + error.message)
-      } else {
-        alert('Quote submitted. We got it.')
-        document.getElementById('quoteForm').reset()
-        closeForm()
-      }
-    })
-
-    // Edit modal population when user clicks Edit Account
-    function populateEditFormSilently(){ populateEditForm() }
-
-    // attach header elements to open modals
-    document.getElementById('editProfileBtn').addEventListener('click', () => { openEditProfile(); populateEditFormSilently(); })
-
-    // keyboard/escape close for modals (nice touch)
-    window.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        closeAuthModal(); closeForm(); closeEditProfile();
-      }
+      if(error){ alert('Error: '+error.message); return }
+      alert('Quote submitted successfully!')
+      quoteForm.reset()
+      closeQuoteModal()
     })
   </script>
 </body>
