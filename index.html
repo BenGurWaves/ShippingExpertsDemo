@@ -179,18 +179,34 @@
 <body>
   <!-- ------------------- HEADER ------------------- -->
   <header>
-    <img src="Logo.png" alt="Shipping Experts Logo" />
-    <nav>
-      <ul>
-        <li><a href="index.html">Home</a></li>
-        <li><a href="about.html">About</a></li>
-        <li><a href="services.html">Services</a></li>
-        <li><a href="contactus.html">Contact Us</a></li>
-      </ul>
-    </nav>
-    <!-- Sign-in/Sign-up in header -->
-    <button class="cta-btn" onclick="openAuthModal()">Sign In / Sign Up</button>
-  </header>
+  <img src="Logo.png" alt="Shipping Experts Logo" />
+  <nav>
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="services.html">Services</a></li>
+      <li><a href="contactus.html">Contact Us</a></li>
+    </ul>
+  </nav>
+
+  <!-- Profile / Sign In -->
+  <div id="header-profile" style="position:relative;">
+    <button id="signInBtn" class="cta-btn" onclick="openAuthModal()">Sign In</button>
+    <div id="profileCircle" style="display:none;width:40px;height:40px;border-radius:50%;background:black;cursor:pointer;"></div>
+
+    <!-- Profile dropdown/modal -->
+    <div id="profileDropdown" style="display:none;position:absolute;right:0;top:50px;background:white;border-radius:8px;padding:1rem;min-width:220px;box-shadow:0 0 10px rgba(0,0,0,0.3);z-index:100;">
+      <div style="text-align:center;margin-bottom:0.5rem;">
+        <div id="profilePic" style="width:60px;height:60px;border-radius:50%;background:black;margin:0 auto;"></div>
+        <h3 id="profileFullName" style="margin:0.5rem 0 0 0;font-size:1rem;"></h3>
+        <p id="profileUsername" style="margin:0;font-size:0.9rem;"></p>
+      </div>
+      <p id="profileEmail" style="font-size:0.85rem;margin:0.3rem 0;"></p>
+      <p id="profilePhone" style="font-size:0.85rem;margin:0.3rem 0;"></p>
+      <button style="margin-top:0.5rem;width:100%;background:#FF6700;color:white;border:none;padding:0.5rem;border-radius:4px;" onclick="signOut()">Sign Out</button>
+    </div>
+  </div>
+</header>
 
   <!-- ------------------- AUTH MODAL ------------------- -->
   <div id="authModal" class="modal">
@@ -407,5 +423,62 @@
       closeQuoteModal()
     })
   </script>
+
+  <script>
+  const signInBtn = document.getElementById('signInBtn')
+  const profileCircle = document.getElementById('profileCircle')
+  const profileDropdown = document.getElementById('profileDropdown')
+
+  // Toggle profile dropdown
+  profileCircle.addEventListener('click', () => {
+    profileDropdown.style.display = profileDropdown.style.display === 'block' ? 'none' : 'block'
+  })
+
+  async function updateHeaderProfile() {
+    const { data } = await supabase.auth.getUser()
+    const user = data.user
+
+    if(user){
+      // Hide Sign In, show profile circle
+      signInBtn.style.display='none'
+      profileCircle.style.display='block'
+
+      // Load profile info
+      const { data: profileData } = await supabase.from('profiles').select('*').eq('id', user.id).single()
+      document.getElementById('profileFullName').textContent = profileData.full_name || 'Full Name'
+      document.getElementById('profileUsername').textContent = '@' + (profileData.username || 'username')
+      document.getElementById('profileEmail').textContent = user.email
+      document.getElementById('profilePhone').textContent = profileData.phone || ''
+      // profile picture
+      // For now black placeholder
+      document.getElementById('profilePic').style.background = profileData.avatar_url || 'black'
+    } else {
+      // Show Sign In, hide profile circle
+      signInBtn.style.display='block'
+      profileCircle.style.display='none'
+      profileDropdown.style.display='none'
+    }
+  }
+
+  // Call on page load and after sign in
+  updateHeaderProfile()
+
+  // Override sign in to update header
+  async function signIn() {
+    const email = document.getElementById('auth-email').value.trim()
+    const password = document.getElementById('auth-password').value
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+    if(error){ document.getElementById('auth-status').textContent = error.message; return }
+    document.getElementById('auth-status').textContent = `Signed in as ${data.user.email}`
+    closeAuthModal()
+    updateHeaderProfile()
+  }
+
+  async function signOut() {
+    await supabase.auth.signOut()
+    document.getElementById('auth-status').textContent='Signed out'
+    updateHeaderProfile()
+  }
+</script>
 </body>
 </html>
