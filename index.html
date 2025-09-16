@@ -24,8 +24,9 @@
     <h1>Shipping Experts</h1>
     <div id="header-actions">
       <button id="signin-btn">Sign In</button>
-      <div id="profile-container" class="hidden">
-        <div id="profile-circle" class="profile-circle"></div>
+      <!-- Profile Circle -->
+      <div id="profile-circle" class="w-10 h-10 rounded-full bg-black overflow-hidden cursor-pointer hidden">
+        <img id="profile-avatar" src="" alt="Profile" class="w-full h-full object-cover hidden">
       </div>
     </div>
   </header>
@@ -174,17 +175,77 @@
     })
 
     function updateHeaderProfile(user){
-      if(user){
-        signinBtn.classList.add('hidden')
-        profileContainer.classList.remove('hidden')
-      } else {
-        signinBtn.classList.remove('hidden')
-        profileContainer.classList.add('hidden')
-      }
-    }
+  if(user){
+    signinBtn.classList.add('hidden')
+    profileCircle.classList.remove('hidden')
+  } else {
+    signinBtn.classList.remove('hidden')
+    profileCircle.classList.add('hidden')
+  }
+}
 
-    // Check on page load
-    supabase.auth.getUser().then(({ data }) => updateHeaderProfile(data.user))
+    // Sign in
+document.getElementById('signin-submit').addEventListener('click', async () => {
+  const email = document.getElementById('auth-email').value
+  const password = document.getElementById('auth-password').value
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+
+  if(error){
+    document.getElementById('auth-status').textContent = error.message
+  } else {
+    authModal.style.display = 'none'
+    updateHeaderProfile(data.user)
+
+    // 🔥 Fetch profile details and update circle
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", data.user.id)
+      .single()
+
+    if (!profileError) {
+      updateProfileCircle(profile)
+    }
+  }
+})
+
+
+   supabase.auth.getUser().then(async ({ data }) => {
+  const user = data.user
+  updateHeaderProfile(user)
+  if(user){
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", user.id)
+      .single()
+    if(profile) updateProfileCircle(profile)
+  }
+})
+
+
+    // Show profile avatar in header
+function updateProfileCircle(profile) {
+  const circle = document.getElementById("profile-circle");
+  const avatarImg = document.getElementById("profile-avatar");
+
+  if (!circle || !avatarImg) return;
+
+  if (profile && profile.avatar_url) {
+    // User has avatar uploaded
+    avatarImg.src = profile.avatar_url;
+    avatarImg.classList.remove("hidden");
+    circle.classList.remove("bg-black"); // remove placeholder
+  } else {
+    // No avatar, show black placeholder
+    avatarImg.classList.add("hidden");
+    circle.classList.add("bg-black");
+  }
+
+  circle.classList.remove("hidden");
+}
+
+    
   </script>
 </body>
 </html>
