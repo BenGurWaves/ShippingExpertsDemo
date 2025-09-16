@@ -1,486 +1,537 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Shipping Experts | Auto Transport</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  
+
   <style>
-    /* ------------------- GENERAL STYLES ------------------- */
-    body, html {
-      margin: 0;
-      padding: 0;
-      font-family: Arial, sans-serif;
-      color: #333;
-      background-color: black;
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      animation: slideshow 32s infinite;
+    :root {
+      --brand: #FF6700;
+      --max-w: 1100px;
+      --muted: #666;
+    }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: Arial, sans-serif; color:#222; background:#fff; -webkit-font-smoothing:antialiased; }
+    a { color: inherit; text-decoration:none; }
+
+    /* Header */
+    .top { background: linear-gradient(90deg,#fff 0%, var(--brand) 100%); box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+    header { max-width: var(--max-w); margin:0 auto; display:flex; align-items:center; justify-content:space-between; padding:14px; gap:12px; }
+    .brand { display:flex; align-items:center; gap:12px; }
+    .brand img { height:44px; }
+    nav ul { display:flex; gap:14px; list-style:none; margin:0; padding:0; align-items:center; }
+    nav a { font-weight:700; color:#222; }
+
+    /* header right */
+    .header-actions { display:flex; gap:10px; align-items:center; }
+    .btn { background:var(--brand); color:#fff; padding:8px 12px; border-radius:8px; border:none; cursor:pointer; font-weight:700; }
+    .ghost { background:transparent; border:1px solid #ddd; padding:8px 10px; border-radius:8px; cursor:pointer; }
+
+    /* profile circle */
+    .profile-circle { width:40px; height:40px; border-radius:50%; background:black; display:flex; align-items:center; justify-content:center; color:#fff; cursor:pointer; overflow:hidden; }
+    .profile-circle img { width:100%; height:100%; object-fit:cover; display:block; }
+
+    /* hero (thin background slideshow) */
+    .hero { height:260px; background-size:cover; background-position:center; position:relative; animation:heroSlides 32s infinite; display:flex; align-items:center; justify-content:center; color:#fff; text-shadow:0 6px 18px rgba(0,0,0,0.6); }
+    @keyframes heroSlides {
+      0%   { background-image:url('Truck1.png'); }
+      12.5%{ background-image:url('Truck2.png'); }
+      25%  { background-image:url('Truck3.png'); }
+      37.5%{ background-image:url('Truck4.png'); }
+      50%  { background-image:url('Truck5.png'); }
+      62.5%{ background-image:url('Truck6.png'); }
+      75%  { background-image:url('Truck7.png'); }
+      87.5%{ background-image:url('Truck8.png'); }
+      100% { background-image:url('Truck1.png'); }
     }
 
-    a { text-decoration: none; color: inherit; }
+    /* main sections centered */
+    main, section { max-width: var(--max-w); margin: 0 auto; padding: 22px 16px; }
+    .call { text-align:center; background: linear-gradient(180deg,#fff,#fff7f0); padding:28px 16px; border-radius:8px; }
+    .call h2 { color:var(--brand); margin:0 0 12px 0; }
 
-    button { cursor: pointer; }
+    /* modal */
+    .modal { display:none; position:fixed; inset:0; background: rgba(0,0,0,0.6); z-index:1200; align-items:center; justify-content:center; padding:20px; }
+    .modal.open { display:flex; }
+    .card { background:#fff; width:100%; max-width:760px; border-radius:10px; padding:18px; position:relative; box-shadow:0 12px 40px rgba(0,0,0,0.12); }
+    .close-x { position:absolute; right:12px; top:12px; background:transparent; border:none; font-size:20px; cursor:pointer; }
 
-    input, textarea { padding: 0.6rem; border-radius: 4px; border: 1px solid #ccc; }
+    .form-grid { display:grid; gap:10px; }
+    .form-grid.row { grid-template-columns: repeat(2, 1fr); gap:10px; }
+    input, textarea { width:100%; padding:10px; border-radius:8px; border:1px solid #ddd; font-size:1rem; }
+    textarea { min-height:90px; resize:vertical; }
 
-    /* ------------------- HEADER ------------------- */
-    header {
-      background: linear-gradient(90deg, white 0%, #FF6700 100%);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1rem 2rem;
-      position: relative;
-      z-index: 10;
+    .muted { color:var(--muted); font-size:0.95rem; }
+    .small { font-size:0.9rem; color:var(--muted); }
+
+    footer { background:#222; color:#fff; padding:24px 16px; text-align:center; margin-top:18px; }
+
+    /* responsive */
+    @media (max-width:720px){
+      .form-grid.row { grid-template-columns:1fr; }
+      header { padding:12px; gap:8px; }
+      .hero { height:180px; }
     }
-
-    header img { height: 50px; }
-
-    nav ul {
-      display: flex;
-      gap: 1.5rem;
-      list-style: none;
-      margin: 0;
-      padding: 0;
-    }
-
-    nav li { display: inline; }
-
-    nav a { font-weight: bold; color: #333; }
-
-    .cta-btn {
-      background: #FF6700;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      padding: 0.6rem 1.2rem;
-      font-weight: bold;
-    }
-
-    /* ------------------- HERO SLIDESHOW ------------------- */
-    @keyframes slideshow {
-      0% { background-image: url('Truck1.png'); }
-      12.5% { background-image: url('Truck2.png'); }
-      25% { background-image: url('Truck3.png'); }
-      37.5% { background-image: url('Truck4.png'); }
-      50% { background-image: url('Truck5.png'); }
-      62.5% { background-image: url('Truck6.png'); }
-      75% { background-image: url('Truck7.png'); }
-      87.5% { background-image: url('Truck8.png'); }
-      100% { background-image: url('Truck1.png'); }
-    }
-
-    /* ------------------- MODAL ------------------- */
-    .modal {
-      display: none;
-      position: fixed;
-      z-index: 1000;
-      left: 0; top: 0;
-      width: 100%; height: 100%;
-      background-color: rgba(0,0,0,0.7);
-      justify-content: center;
-      align-items: center;
-    }
-
-    .modal-content {
-      background: white;
-      border-radius: 8px;
-      width: 90%;
-      max-width: 700px;
-      max-height: 90vh;
-      overflow-y: auto;
-      padding: 2rem;
-      position: relative;
-    }
-
-    .close {
-      position: absolute;
-      top: 10px;
-      right: 15px;
-      font-size: 1.5rem;
-      cursor: pointer;
-    }
-
-    /* ------------------- FORMS ------------------- */
-    .modal-content input, .modal-content textarea {
-      width: 100%;
-      margin: 0.5rem 0;
-      padding: 0.6rem;
-    }
-
-    .modal-content button[type="submit"] {
-      background: #FF6700;
-      color: white;
-      border: none;
-      padding: 0.7rem 1.2rem;
-      margin-top: 0.5rem;
-    }
-
-    .modal-content button[type="reset"] {
-      background: #333;
-      color: white;
-      border: none;
-      padding: 0.7rem 1.2rem;
-      margin-top: 0.5rem;
-    }
-
-    /* ------------------- CALL TO ACTION ------------------- */
-    .call-to-action {
-      text-align: center;
-      padding: 2rem;
-      background: linear-gradient(180deg, #fff, #ffe0cc);
-    }
-
-    .call-to-action h2 { color: #FF6700; }
-
-    .call-to-action .stats {
-      display: flex;
-      justify-content: center;
-      gap: 3rem;
-      margin: 1.5rem 0;
-    }
-
-    .call-to-action .stats div { font-weight: bold; }
-
-    .call-btn { background: #FF6700; color: white; }
-    .quote-btn { background: #333; color: white; }
-
-    /* ------------------- SECTIONS ------------------- */
-    section { padding: 2rem; }
-
-    .services-grid, .vision-mission-grid {
-      display: grid;
-      gap: 1rem;
-    }
-
-    .services-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
-    .vision-mission-grid { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
-
-    .services-grid div, .vision-mission-grid div {
-      background: #fff5eb;
-      border-radius: 6px;
-      padding: 1rem;
-      text-align: center;
-      font-weight: bold;
-    }
-
-    footer {
-      background: #333;
-      color: white;
-      text-align: center;
-      padding: 2rem;
-      font-size: 0.9rem;
-    }
-
-    footer a { color: #FF6700; margin: 0 0.5rem; }
   </style>
 </head>
 <body>
-  <!-- ------------------- HEADER ------------------- -->
-  <header>
-  <img src="Logo.png" alt="Shipping Experts Logo" />
-  <nav>
-    <ul>
-      <li><a href="index.html">Home</a></li>
-      <li><a href="about.html">About</a></li>
-      <li><a href="services.html">Services</a></li>
-      <li><a href="contactus.html">Contact Us</a></li>
-    </ul>
-  </nav>
-
-  <!-- Profile / Sign In -->
-  <div id="header-profile" style="position:relative;">
-    <button id="signInBtn" class="cta-btn" onclick="openAuthModal()">Sign In</button>
-    <div id="profileCircle" style="display:none;width:40px;height:40px;border-radius:50%;background:black;cursor:pointer;"></div>
-
-    <!-- Profile dropdown/modal -->
-    <div id="profileDropdown" style="display:none;position:absolute;right:0;top:50px;background:white;border-radius:8px;padding:1rem;min-width:220px;box-shadow:0 0 10px rgba(0,0,0,0.3);z-index:100;">
-      <div style="text-align:center;margin-bottom:0.5rem;">
-        <div id="profilePic" style="width:60px;height:60px;border-radius:50%;background:black;margin:0 auto;"></div>
-        <h3 id="profileFullName" style="margin:0.5rem 0 0 0;font-size:1rem;"></h3>
-        <p id="profileUsername" style="margin:0;font-size:0.9rem;"></p>
+  <!-- HEADER -->
+  <div class="top">
+    <header>
+      <div class="brand">
+        <img src="Logo.png" alt="Shipping Experts logo" />
+        <nav>
+          <ul>
+            <li><a href="#">Home</a></li>
+            <li><a href="#">About</a></li>
+            <li><a href="#">Services</a></li>
+            <li><a href="#">Contact</a></li>
+          </ul>
+        </nav>
       </div>
-      <p id="profileEmail" style="font-size:0.85rem;margin:0.3rem 0;"></p>
-      <p id="profilePhone" style="font-size:0.85rem;margin:0.3rem 0;"></p>
-      <button style="margin-top:0.5rem;width:100%;background:#FF6700;color:white;border:none;padding:0.5rem;border-radius:4px;" onclick="signOut()">Sign Out</button>
-    </div>
-  </div>
-</header>
 
-  <!-- ------------------- AUTH MODAL ------------------- -->
-  <div id="authModal" class="modal">
-    <div class="modal-content">
-      <span class="close" onclick="closeAuthModal()">&times;</span>
-      <h2>Account</h2>
-      <form id="authForm" onsubmit="return false;">
-        <input id="auth-email" type="email" placeholder="Email" required />
-        <input id="auth-password" type="password" placeholder="Password" required />
-        <input id="auth-username" type="text" placeholder="Username" required />
-        <input id="auth-phone" type="text" placeholder="Phone Number" required />
-        <div>
-          <button type="button" onclick="signUp()">Sign Up</button>
-          <button type="button" onclick="signIn()">Sign In</button>
-          <button type="button" onclick="signOut()">Sign Out</button>
+      <div class="header-actions" id="headerActions">
+        <!-- sign-in button shown when logged out -->
+        <button id="signInBtn" class="btn">Sign In</button>
+
+        <!-- profile circle shown when logged in (hidden by default) -->
+        <div id="profileWrap" style="display:none; position:relative;">
+          <div id="profileCircle" class="profile-circle" title="Open profile"></div>
         </div>
-        <div id="auth-status" style="margin-top:0.6rem;color:#333;font-weight:600"></div>
+      </div>
+    </header>
+  </div>
+
+  <!-- HERO -->
+  <section class="hero" role="img" aria-label="Trucks slideshow">
+    <h1>Shipping Experts — Auto Transport</h1>
+  </section>
+
+  <main>
+    <!-- CTA -->
+    <section class="call">
+      <h2>Trust in the Experts!</h2>
+      <p class="muted">Vehicles Shipped Monthly: <strong>1250</strong> · Customers Helped: <strong>982,370</strong> · Rating: <strong>4.7</strong></p>
+      <div style="margin-top:12px;">
+        <button class="btn" onclick="openQuoteModal()">Request A Quote</button>
+      </div>
+    </section>
+
+    <!-- Form section (inline fallback; users can also open modal) -->
+    <section>
+      <h3>Your Quote</h3>
+      <p class="small">Fill quickly or click Request A Quote to open the full modal.</p>
+      <form id="quoteInlineForm" class="form-grid" style="margin-top:12px;">
+        <div class="form-grid row">
+          <input id="inline-vin" placeholder="VIN" />
+          <input id="inline-yearmake" placeholder="Year / Make / Model" />
+        </div>
+        <div class="form-grid row" style="margin-top:8px;">
+          <input id="inline-color" placeholder="Color" />
+          <input id="inline-type" placeholder="Vehicle Type" />
+        </div>
+        <div style="margin-top:8px;">
+          <button type="button" class="btn" id="inlineSubmit">Submit Quick Quote</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- services -->
+    <section>
+      <h3>Services</h3>
+      <div class="services-grid" style="margin-top:12px;">
+        <div>Open Auto Shipping</div>
+        <div>Enclosed Auto Shipping</div>
+        <div>Exotic Auto Shipping</div>
+        <div>Dealer Auto Shipping</div>
+        <div>Boats Shipping</div>
+        <div>Motorcycles Shipping</div>
+        <div>RV Shipping</div>
+        <div>Inoperable Vehicle Shipping</div>
+      </div>
+    </section>
+  </main>
+
+  <!-- QUOTE MODAL -->
+  <div id="quoteModal" class="modal" aria-hidden="true">
+    <div class="card" role="dialog" aria-modal="true" aria-labelledby="quoteTitle">
+      <button class="close-x" onclick="closeQuoteModal()">&times;</button>
+      <h2 id="quoteTitle">Shipping Quote</h2>
+      <form id="quoteForm" class="form-grid" onsubmit="return false;">
+        <div class="form-grid row">
+          <input id="q-vin" name="vin" placeholder="VIN" required />
+          <input id="q-yearmake" name="vehicle_year_make_model" placeholder="Year / Make / Model" required />
+        </div>
+        <div class="form-grid row">
+          <input id="q-color" name="vehicle_color" placeholder="Color" />
+          <input id="q-type" name="vehicle_type" placeholder="Vehicle Type" />
+        </div>
+
+        <input id="q-pickup-address" name="pickup_address" placeholder="Pickup Address" />
+        <textarea id="q-pickup-notes" name="pickup_notes" placeholder="Pickup notes"></textarea>
+
+        <input id="q-delivery-address" name="delivery_address" placeholder="Delivery Address" />
+        <textarea id="q-delivery-notes" name="delivery_notes" placeholder="Delivery notes"></textarea>
+
+        <label style="display:block; margin-top:6px;">
+          <input id="q-agree" type="checkbox" /> I agree to authorize transport
+        </label>
+
+        <div style="margin-top:10px; display:flex; gap:8px;">
+          <button class="btn" id="quoteSubmit" type="button">Submit Quote</button>
+          <button class="ghost" type="button" onclick="document.getElementById('quoteForm').reset()">Clear</button>
+        </div>
       </form>
     </div>
   </div>
 
-  <!-- ------------------- HERO SLIDESHOW (background) ------------------- -->
-  <section class="hero">
-    <div class="overlay">
-      <h1 style="color:white;text-align:center;margin-top:200px;font-size:3rem;">Shipping Experts Auto Transport</h1>
-    </div>
-  </section>
+  <!-- AUTH / SIGN IN MODAL -->
+  <div id="authModal" class="modal" aria-hidden="true">
+    <div class="card" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+      <button class="close-x" onclick="closeAuthModal()">&times;</button>
+      <h2 id="authTitle">Account</h2>
 
-  <!-- ------------------- CALL TO ACTION ------------------- -->
-  <section class="call-to-action">
-    <h2>Trust in the Experts!</h2>
-    <div class="stats">
-      <div>Vehicles Shipped Monthly: 1250</div>
-      <div>Customers Helped: 982,370</div>
-      <div>Company Rating: 4.7</div>
-    </div>
-    <p>Get Your Free Quote Now!</p>
-    <button class="call-btn">Call: (916)760-7202</button>
-    <button class="quote-btn" onclick="openQuoteModal()">Request A Quote</button>
-  </section>
+      <div style="margin-top:8px;">
+        <div class="muted small">If your project requires email confirmation, sign-up will ask you to confirm before signing in.</div>
+      </div>
 
-  <!-- ------------------- QUOTE FORM MODAL ------------------- -->
-  <div id="quoteModal" class="modal">
-    <div class="modal-content">
-      <span class="close" onclick="closeQuoteModal()">&times;</span>
-      <h2>Shipping Experts Form</h2>
-      <form id="quoteForm">
-        <input id="q-vin" type="text" placeholder="VIN" required />
-        <input id="q-yearmake" type="text" placeholder="Vehicle Year/Make/Model" required />
-        <input id="q-color" type="text" placeholder="Vehicle Color" required />
-        <input id="q-type" type="text" placeholder="Vehicle Type" required />
-        <input id="q-inoperable" type="text" placeholder="Inoperable Vehicle" />
-        <input id="q-additional" type="text" placeholder="Additional Vehicle(s)" />
-        <input id="q-pickup-name" type="text" placeholder="Pickup Name" />
-        <input id="q-pickup-address" type="text" placeholder="Pickup Address" />
-        <input id="q-pickup-contacts" type="text" placeholder="Pickup Contact Name(s)" />
-        <input id="q-pickup-dates" type="text" placeholder="Scheduled Pickup Dates" />
-        <textarea id="q-pickup-notes" placeholder="Pickup Notes"></textarea>
-        <input id="q-delivery-name" type="text" placeholder="Delivery Name" />
-        <input id="q-delivery-address" type="text" placeholder="Delivery Address" />
-        <input id="q-delivery-contacts" type="text" placeholder="Delivery Contact Name(s)" />
-        <input id="q-delivery-dates" type="text" placeholder="Scheduled Delivery Dates" />
-        <textarea id="q-delivery-notes" placeholder="Delivery Notes"></textarea>
-        <label><input type="checkbox" required> I agree to and authorize transport...</label>
-        <div>
-          <button type="submit">Submit Form</button>
-          <button type="reset">Clear Form</button>
+      <form id="authForm" class="form-grid" onsubmit="return false;" style="margin-top:12px;">
+        <input id="auth-fullname" placeholder="Full name (optional)" />
+        <input id="auth-username" placeholder="Username (optional)" />
+        <input id="auth-phone" placeholder="Phone (optional)" />
+        <input id="auth-email" type="email" placeholder="Email" />
+        <input id="auth-password" type="password" placeholder="Password" />
+
+        <div style="display:flex; gap:8px; margin-top:6px;">
+          <button id="doSignUp" class="btn" type="button">Sign Up</button>
+          <button id="doSignIn" class="ghost" type="button">Sign In</button>
+          <button id="doSignOut" class="ghost" type="button">Sign Out</button>
         </div>
+
+        <div id="authStatus" class="muted small" style="margin-top:8px;"></div>
       </form>
     </div>
   </div>
 
-  <!-- ------------------- SERVICES ------------------- -->
-  <section class="services">
-    <h2>Services</h2>
-    <div class="services-grid">
-      <div>Open Auto Shipping</div>
-      <div>Enclosed Auto Shipping</div>
-      <div>Exotic Auto Shipping</div>
-      <div>Dealer Auto Shipping</div>
-      <div>Boats Shipping</div>
-      <div>Motorcycles Shipping</div>
-      <div>RV Shipping</div>
-      <div>Inoperable Vehicle Shipping</div>
+  <!-- PROFILE EDIT (modal) -->
+  <div id="profileModal" class="modal" aria-hidden="true">
+    <div class="card" role="dialog" aria-modal="true" aria-labelledby="profileTitle">
+      <button class="close-x" onclick="closeProfileModal()">&times;</button>
+      <h2 id="profileTitle">Your Profile</h2>
+
+      <div style="display:flex;gap:12px;align-items:center;margin-top:8px;">
+        <div style="width:80px;height:80px;border-radius:8px;overflow:hidden;background:#111;" id="profileAvatarPreview"></div>
+        <div>
+          <div id="profileEmailDisplay" style="font-weight:700;"></div>
+          <div class="small muted" id="profileIdDisplay"></div>
+        </div>
+      </div>
+
+      <form id="profileForm" class="form-grid" onsubmit="return false;" style="margin-top:12px;">
+        <input id="profileFullName" placeholder="Full name" />
+        <input id="profileUsernameField" placeholder="Username" />
+        <input id="profilePhoneField" placeholder="Phone" />
+        <label class="small muted">Avatar (PNG/JPG). Bucket must be 'avatars' and public in Supabase.</label>
+        <input id="profileAvatarFile" type="file" accept="image/*" />
+        <div style="display:flex; gap:8px; margin-top:8px;">
+          <button id="saveProfileBtn" class="btn" type="button">Save</button>
+          <button class="ghost" type="button" onclick="closeProfileModal()">Cancel</button>
+        </div>
+        <div id="profileStatus" class="muted small" style="margin-top:8px;"></div>
+      </form>
     </div>
-  </section>
+  </div>
 
-  <!-- ------------------- ABOUT ------------------- -->
-  <section class="about">
-    <h2>About Us</h2>
-    <p>We are a team of shipping experts with years of experience...</p>
-    <p>[Full about text inserted here]</p>
-  </section>
-
-  <!-- ------------------- VISION & MISSION ------------------- -->
-  <section class="vision-mission">
-    <div class="vision-mission-grid">
-      <div><h3>VISION</h3><p>At Shipping Experts, our vision is to...</p></div>
-      <div><h3>MISSION</h3><p>Our mission at Shipping Experts is...</p></div>
-      <div><h3>HOW</h3><p>At Shipping Experts, we believe that...</p></div>
-      <div><h3>FUTURE</h3><p>The future of Shipping Experts is...</p></div>
-    </div>
-  </section>
-
-  <!-- ------------------- CONTACT ------------------- -->
-  <section class="contact">
-    <h2>Contact Us</h2>
-    <p>Get in touch with our amazing team...</p>
-    <button class="call-btn">Call: (916)760-7202</button>
-    <button class="quote-btn">Email: dispatch@autoshippingexperts.com</button>
-  </section>
-
-  <!-- ------------------- FAQ ------------------- -->
-  <section class="faq">
-    <h2>Frequently Asked Questions</h2>
-    <p>[FAQ content will be added later]</p>
-  </section>
-
-  <!-- ------------------- FOOTER ------------------- -->
   <footer>
     <p>
-      Home | About Us | Services | Contact Us <br>
-      7551 14th Ave Suit A, Sacramento, USA 95820 <br>
-      Phone: (916) 760-7202 | Email: dispatch@autoshippingexperts.com <br>
-      © 2023 Shipping Experts INC. | All Rights Reserved <br>
-      <a href="#">Privacy Policy</a> | 
-      <a href="#">Copyright and Trademark</a> | 
-      <a href="#">Terms and Conditions</a>
+      Home | About Us | Services | Contact Us <br />
+      7551 14th Ave Suite A, Sacramento, USA 95820 <br />
+      Phone: (916) 760-7202 | Email: dispatch@autoshippingexperts.com <br />
+      © 2025 Shipping Experts INC. | All Rights Reserved
     </p>
   </footer>
 
-  <!-- ------------------- SUPABASE SCRIPT ------------------- -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
-    const SUPABASE_URL = 'https://gxcbliwbxrnhltdosfuj.supabase.co'
-    const SUPABASE_ANON_KEY = 'YOUR_ANON_KEY_HERE'
-    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  <!-- SUPABASE LOGIC (module) -->
+  <script type="module">
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
-    // Modal open/close
-    function openAuthModal() { document.getElementById('authModal').style.display='flex'; }
-    function closeAuthModal() { document.getElementById('authModal').style.display='none'; }
-    function openQuoteModal() { document.getElementById('quoteModal').style.display='flex'; }
-    function closeQuoteModal() { document.getElementById('quoteModal').style.display='none'; }
+    // --------- CONFIG: replace with your values ----------
+    const SUPABASE_URL = 'https://gxcbliwbxrnhltdosfuj.supabase.co'      // your project url
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd4Y2JsaXdieHJuaGx0ZG9zZnVqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc5ODE4MDcsImV4cCI6MjA3MzU1NzgwN30.XsQR9vmnIknlcgUT4znIHGYjY_9s2hS8ZNIke9Dn7-E'                      // your anon/public key
+    // ----------------------------------------------------
 
-    // Sign-up
-    async function signUp() {
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+
+    // UI elements
+    const signInBtn = document.getElementById('signInBtn')
+    const profileWrap = document.getElementById('profileWrap')
+    const profileCircle = document.getElementById('profileCircle')
+    const profileModal = document.getElementById('profileModal')
+    const authModal = document.getElementById('authModal')
+    const quoteModal = document.getElementById('quoteModal')
+    const authStatus = document.getElementById('authStatus')
+
+    // modal helpers
+    function openAuthModal(){ authModal.classList.add('open'); authModal.style.display='flex'; authModal.setAttribute('aria-hidden','false') }
+    function closeAuthModal(){ authModal.classList.remove('open'); authModal.style.display='none'; authModal.setAttribute('aria-hidden','true') }
+
+    function openQuoteModal(){ quoteModal.classList.add('open'); quoteModal.style.display='flex'; quoteModal.setAttribute('aria-hidden','false') }
+    function closeQuoteModal(){ quoteModal.classList.remove('open'); quoteModal.style.display='none'; quoteModal.setAttribute('aria-hidden','true') }
+
+    function openProfileModal(){ profileModal.classList.add('open'); profileModal.style.display='flex'; profileModal.setAttribute('aria-hidden','false') }
+    function closeProfileModal(){ profileModal.classList.remove('open'); profileModal.style.display='none'; profileModal.setAttribute('aria-hidden','true') }
+
+    signInBtn.addEventListener('click', openAuthModal)
+    profileCircle.addEventListener('click', () => openProfileModal())
+
+    // helper: show status
+    function showAuthStatus(msg){ authStatus.textContent = msg }
+
+    // ensure profile exists after sign-in (avoids FK error)
+    async function ensureProfile(userId, { full_name=null, username=null, phone=null, avatar_url=null } = {}) {
+      if (!userId) return
+      // try to fetch existing
+      const { data: existing, error: selErr } = await supabase.from('profiles').select('*').eq('id', userId).single()
+      if (selErr && selErr.code && selErr.code !== 'PGRST116') {
+        // show nothing to user, but log
+        console.error('profile select error', selErr)
+      }
+      if (!existing) {
+        // insert
+        const insertPayload = { id: userId }
+        if (full_name) insertPayload.full_name = full_name
+        if (username) insertPayload.username = username
+        if (phone) insertPayload.phone = phone
+        if (avatar_url) insertPayload.avatar_url = avatar_url
+        const { error: insErr } = await supabase.from('profiles').insert([insertPayload])
+        if (insErr) console.error('profile insert error', insErr)
+      } else {
+        // optionally update when fields provided
+        const updatePayload = {}
+        if (full_name) updatePayload.full_name = full_name
+        if (username) updatePayload.username = username
+        if (phone) updatePayload.phone = phone
+        if (avatar_url) updatePayload.avatar_url = avatar_url
+        if (Object.keys(updatePayload).length > 0) {
+          const { error: updErr } = await supabase.from('profiles').update(updatePayload).eq('id', userId)
+          if (updErr) console.error('profile update error', updErr)
+        }
+      }
+    }
+
+    // SIGN UP
+    document.getElementById('doSignUp').addEventListener('click', async () => {
       const email = document.getElementById('auth-email').value.trim()
       const password = document.getElementById('auth-password').value
+      const full_name = document.getElementById('auth-fullname').value.trim()
       const username = document.getElementById('auth-username').value.trim()
       const phone = document.getElementById('auth-phone').value.trim()
 
-      if(!email||!password||!username||!phone){
-        document.getElementById('auth-status').textContent='All fields are required'
+      if (!email || !password) {
+        showAuthStatus('Email and password are required for sign up.')
         return
       }
 
+      showAuthStatus('Signing up...')
       const { data, error } = await supabase.auth.signUp({ email, password })
-      if(error){ document.getElementById('auth-status').textContent=error.message; return }
-
-      if(data.user){
-        // Save profile
-        const { error: profileError } = await supabase.from('profiles').upsert({ id: data.user.id, username, phone })
-        document.getElementById('auth-status').textContent= profileError ? profileError.message : 'Signed up! Check email for confirmation.'
+      if (error) {
+        showAuthStatus('Sign up error: ' + error.message)
+        return
       }
-    }
 
-    // Sign-in
-    async function signIn() {
+      // If user created immediately (no email confirm), create profile now.
+      if (data?.user) {
+        await ensureProfile(data.user.id, { full_name, username, phone })
+        showAuthStatus('Signed up and signed in as ' + (data.user.email || ''))
+        await loadAndShowUser() // update UI
+        closeAuthModal()
+      } else {
+        // Common case: email confirmation required
+        showAuthStatus('Signed up. Check your email to confirm. After confirming, sign in.')
+      }
+    })
+
+    // SIGN IN
+    document.getElementById('doSignIn').addEventListener('click', async () => {
       const email = document.getElementById('auth-email').value.trim()
       const password = document.getElementById('auth-password').value
+      if (!email || !password) { showAuthStatus('Enter email and password.'); return }
+      showAuthStatus('Signing in...')
       const { data, error } = await supabase.auth.signInWithPassword({ email, password })
-      if(error){ document.getElementById('auth-status').textContent=error.message; return }
-      document.getElementById('auth-status').textContent=`Signed in as ${data.user.email}`
+      if (error) { showAuthStatus('Sign in error: ' + error.message); return }
+      // after successful sign in: ensure profile exists (use values from fields if present)
+      const full_name = document.getElementById('auth-fullname').value.trim()
+      const username = document.getElementById('auth-username').value.trim()
+      const phone = document.getElementById('auth-phone').value.trim()
+      await ensureProfile(data.user.id, { full_name: full_name || null, username: username || null, phone: phone || null })
+      showAuthStatus('Signed in as ' + (data.user.email || ''))
+      await loadAndShowUser()
       closeAuthModal()
-    }
+    })
 
-    async function signOut(){
+    // SIGN OUT
+    document.getElementById('doSignOut').addEventListener('click', async () => {
       await supabase.auth.signOut()
-      document.getElementById('auth-status').textContent='Signed out'
+      showAuthStatus('Signed out')
+      await loadAndShowUser()
+    })
+
+    // load user & profile, update header/profile circle
+    async function loadAndShowUser() {
+      const { data: sess } = await supabase.auth.getSession()
+      const user = sess?.session?.user ?? null
+
+      if (!user) {
+        // signed out UI
+        document.getElementById('signInBtn').style.display = 'inline-block'
+        profileWrap.style.display = 'none'
+        profileCircle.innerHTML = ''
+        return
+      }
+
+      // signed in: fetch profile
+      const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).maybeSingle()
+
+      // Show profile circle
+      document.getElementById('signInBtn').style.display = 'none'
+      profileWrap.style.display = 'block'
+
+      // show avatar if available else black
+      const avatarUrl = profile?.avatar_url ?? null
+      if (avatarUrl) {
+        profileCircle.innerHTML = `<img src="${avatarUrl}" alt="avatar" />`
+      } else {
+        profileCircle.innerHTML = '' // keep black background
+      }
+
+      // store profile into dataset (for profile modal)
+      profileCircle.dataset.email = user.email ?? ''
+      profileCircle.dataset.userId = user.id
+      profileCircle.dataset.username = profile?.username ?? ''
+      profileCircle.dataset.fullName = profile?.full_name ?? ''
+      profileCircle.dataset.phone = profile?.phone ?? ''
     }
 
-    // Quote submission
-    const quoteForm = document.getElementById('quoteForm')
-    quoteForm.addEventListener('submit', async (e)=>{
-      e.preventDefault()
-      const { data: userData } = await supabase.auth.getUser()
-      if(!userData.user){ alert('Please sign in first'); return }
+    // when opening profile modal, populate fields
+    profileCircle.addEventListener('click', async () => {
+      const { data: sess } = await supabase.auth.getSession()
+      const user = sess?.session?.user ?? null
+      if (!user) return
+      // fetch profile row
+      const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).maybeSingle()
+      document.getElementById('profileEmailDisplay').textContent = user.email || ''
+      document.getElementById('profileIdDisplay').textContent = 'ID: ' + user.id
+      document.getElementById('profileFullName').value = profile?.full_name ?? ''
+      document.getElementById('profileUsernameField').value = profile?.username ?? ''
+      document.getElementById('profilePhoneField').value = profile?.phone ?? ''
+      // preview avatar
+      const preview = document.getElementById('profileAvatarPreview')
+      preview.style.background = profile?.avatar_url ? `url('${profile.avatar_url}') center/cover no-repeat` : '#111'
+      openProfileModal()
+    })
+
+    // Save profile changes + optional avatar upload
+    document.getElementById('saveProfileBtn').addEventListener('click', async () => {
+      const { data: sess } = await supabase.auth.getSession()
+      const user = sess?.session?.user ?? null
+      if (!user) { document.getElementById('profileStatus').textContent = 'Not signed in.'; return }
+
+      const full_name = document.getElementById('profileFullName').value.trim()
+      const username = document.getElementById('profileUsernameField').value.trim()
+      const phone = document.getElementById('profilePhoneField').value.trim()
+      const fileInput = document.getElementById('profileAvatarFile')
+      let avatar_url = null
+
+      // If a file is selected, upload to 'avatars' bucket
+      if (fileInput.files && fileInput.files[0]) {
+        const file = fileInput.files[0]
+        // create a path: userId/avatar-timestamp.ext
+        const ext = file.name.split('.').pop()
+        const path = `${user.id}/avatar-${Date.now()}.${ext}`
+        const { data, error: upErr } = await supabase.storage.from('avatars').upload(path, file, { cacheControl: '3600', upsert: true })
+        if (upErr) {
+          document.getElementById('profileStatus').textContent = 'Avatar upload error: ' + upErr.message
+          return
+        }
+        // get public URL (bucket must be public)
+        const { data: publicData } = supabase.storage.from('avatars').getPublicUrl(path)
+        avatar_url = publicData.publicUrl
+      }
+
+      // upsert profile row
+      const payload = { id: user.id }
+      if (full_name) payload.full_name = full_name
+      if (username) payload.username = username
+      if (phone) payload.phone = phone
+      if (avatar_url) payload.avatar_url = avatar_url
+
+      const { error: upsertErr } = await supabase.from('profiles').upsert([payload], { returning: 'minimal' })
+      if (upsertErr) {
+        document.getElementById('profileStatus').textContent = 'Save error: ' + upsertErr.message
+        return
+      }
+
+      document.getElementById('profileStatus').textContent = 'Saved.'
+      // refresh header UI
+      await loadAndShowUser()
+      setTimeout(() => { closeProfileModal(); document.getElementById('profileStatus').textContent = '' }, 900)
+    })
+
+    // QUICK QUOTE submit (inline)
+    document.getElementById('inlineSubmit').addEventListener('click', async () => {
+      const vin = document.getElementById('inline-vin').value.trim()
+      const yearmake = document.getElementById('inline-yearmake').value.trim()
+      if (!vin || !yearmake) { alert('VIN and year/make/model required'); return }
+      const { data: sess } = await supabase.auth.getSession()
+      const user = sess?.session?.user ?? null
+      if (!user) { alert('Please sign in to submit a quote'); return }
+      const { error } = await supabase.from('quotes').insert([{
+        user_id: user.id,
+        vin,
+        vehicle_year_make_model: yearmake,
+        vehicle_color: document.getElementById('inline-color').value || null,
+        vehicle_type: document.getElementById('inline-type').value || null,
+        created_at: new Date().toISOString()
+      }])
+      if (error) alert('Error saving quote: ' + error.message)
+      else { alert('Quick quote saved'); document.getElementById('quoteInlineForm').reset() }
+    })
+
+    // full quote modal submit
+    document.getElementById('quoteSubmit').addEventListener('click', async () => {
+      const agree = document.getElementById('q-agree').checked
+      if (!agree) { alert('Please authorize transport'); return }
+      const { data: sess } = await supabase.auth.getSession()
+      const user = sess?.session?.user ?? null
+      if (!user) { alert('Please sign in to submit a quote'); return }
 
       const payload = {
-        user_id: userData.user.id,
-        vin: document.getElementById('q-vin').value,
-        vehicle_year_make_model: document.getElementById('q-yearmake').value,
-        vehicle_color: document.getElementById('q-color').value,
-        vehicle_type: document.getElementById('q-type').value,
-        inoperable: document.getElementById('q-inoperable').value,
-        additional_vehicles: document.getElementById('q-additional').value,
-        pickup_name: document.getElementById('q-pickup-name').value,
-        pickup_address: document.getElementById('q-pickup-address').value,
-        pickup_contacts: document.getElementById('q-pickup-contacts').value,
-        pickup_dates: document.getElementById('q-pickup-dates').value,
-        pickup_notes: document.getElementById('q-pickup-notes').value,
-        delivery_name: document.getElementById('q-delivery-name').value,
-        delivery_address: document.getElementById('q-delivery-address').value,
-        delivery_contacts: document.getElementById('q-delivery-contacts').value,
-        delivery_dates: document.getElementById('q-delivery-dates').value,
-        delivery_notes: document.getElementById('q-delivery-notes').value,
+        user_id: user.id,
+        vin: document.getElementById('q-vin').value || null,
+        vehicle_year_make_model: document.getElementById('q-yearmake').value || null,
+        vehicle_color: document.getElementById('q-color').value || null,
+        vehicle_type: document.getElementById('q-type').value || null,
+        pickup_address: document.getElementById('q-pickup-address').value || null,
+        pickup_notes: document.getElementById('q-pickup-notes').value || null,
+        delivery_address: document.getElementById('q-delivery-address').value || null,
+        delivery_notes: document.getElementById('q-delivery-notes').value || null,
         created_at: new Date().toISOString()
       }
 
       const { error } = await supabase.from('quotes').insert([payload])
-      if(error){ alert('Error: '+error.message); return }
-      alert('Quote submitted successfully!')
-      quoteForm.reset()
-      closeQuoteModal()
+      if (error) alert('Error saving quote: ' + error.message)
+      else { alert('Quote submitted'); document.getElementById('quoteForm').reset(); closeQuoteModal() }
     })
+
+    // Monitor auth changes (update UI)
+    supabase.auth.onAuthStateChange((event, session) => {
+      // load and reflect current user
+      loadAndShowUser()
+    })
+
+    // initial UI
+    loadAndShowUser()
   </script>
-
-  <script>
-  const signInBtn = document.getElementById('signInBtn')
-  const profileCircle = document.getElementById('profileCircle')
-  const profileDropdown = document.getElementById('profileDropdown')
-
-  // Toggle profile dropdown
-  profileCircle.addEventListener('click', () => {
-    profileDropdown.style.display = profileDropdown.style.display === 'block' ? 'none' : 'block'
-  })
-
-  async function updateHeaderProfile() {
-    const { data } = await supabase.auth.getUser()
-    const user = data.user
-
-    if(user){
-      // Hide Sign In, show profile circle
-      signInBtn.style.display='none'
-      profileCircle.style.display='block'
-
-      // Load profile info
-      const { data: profileData } = await supabase.from('profiles').select('*').eq('id', user.id).single()
-      document.getElementById('profileFullName').textContent = profileData.full_name || 'Full Name'
-      document.getElementById('profileUsername').textContent = '@' + (profileData.username || 'username')
-      document.getElementById('profileEmail').textContent = user.email
-      document.getElementById('profilePhone').textContent = profileData.phone || ''
-      // profile picture
-      // For now black placeholder
-      document.getElementById('profilePic').style.background = profileData.avatar_url || 'black'
-    } else {
-      // Show Sign In, hide profile circle
-      signInBtn.style.display='block'
-      profileCircle.style.display='none'
-      profileDropdown.style.display='none'
-    }
-  }
-
-  // Call on page load and after sign in
-  updateHeaderProfile()
-
-  // Override sign in to update header
-  async function signIn() {
-    const email = document.getElementById('auth-email').value.trim()
-    const password = document.getElementById('auth-password').value
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
-    if(error){ document.getElementById('auth-status').textContent = error.message; return }
-    document.getElementById('auth-status').textContent = `Signed in as ${data.user.email}`
-    closeAuthModal()
-    updateHeaderProfile()
-  }
-
-  async function signOut() {
-    await supabase.auth.signOut()
-    document.getElementById('auth-status').textContent='Signed out'
-    updateHeaderProfile()
-  }
-</script>
 </body>
 </html>
