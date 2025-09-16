@@ -512,12 +512,28 @@ html {
     const m = document.getElementById('authModal'); m.style.display = 'none'; m.setAttribute('aria-hidden','true')
   }
 
-  // AUTH: sign up, sign in, sign out
   async function signUp() {
-    const email = document.getElementById('auth-email').value.trim()
-    const password = document.getElementById('auth-password').value
-    const { data, error } = await supabaseClient.auth.signUp({ email, password })
-    document.getElementById('auth-status').textContent = error ? error.message : 'Check your email to confirm signup'
+  const email = document.getElementById('email').value
+  const password = document.getElementById('password').value
+  const username = document.getElementById('username').value
+  const phone = document.getElementById('phone').value
+
+  const { data: authData, error: authError } = await supabase.auth.signUp({ email, password })
+  
+  if (authError) {
+    document.getElementById('auth-status').textContent = authError.message
+    return
+  }
+
+  // insert extra info into profiles table
+  if (authData.user) {
+    const { error: profileError } = await supabase.from('profiles').insert([
+      { id: authData.user.id, username, phone }
+    ])
+    document.getElementById('auth-status').textContent = profileError ? profileError.message : 'Check your email to confirm signup'
+  }
+}
+
   }
 
   async function signIn() {
