@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Shipping Experts — Final Fix</title>
+<title>Shipping Experts — Account Edit Force-Fix</title>
 <style>
   :root{--accent:#FF6700}
   *{box-sizing:border-box}
@@ -17,7 +17,7 @@
   .profile-circle img{width:100%;height:100%;object-fit:cover;display:block}
   .hidden{display:none !important}
 
-  /* overlay modals: use display controlled inline for reliability */
+  /* overlays: controlled inline for reliability */
   .popup { position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,0.45); pointer-events:auto; }
   .modal { width:360px; background:#fff; border-radius:10px; padding:18px; box-shadow:0 10px 30px rgba(0,0,0,0.18); display:flex; flex-direction:column; gap:10px; position:relative; max-height:90vh; overflow:auto }
   .modal h2{margin:0;font-size:18px}
@@ -31,7 +31,7 @@
   progress::-webkit-progress-value{background:var(--accent);border-radius:6px}
   .progress-text{min-width:48px;text-align:right;font-size:12px;color:#333}
 
-  /* stacking to ensure edit is on top */
+  /* stacking */
   #auth-popup{z-index:1000}
   #extra-popup{z-index:1010}
   #edit-popup{z-index:1100}
@@ -110,11 +110,11 @@
 
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script>
-/* ---------- CONFIG ---------- */
+/* CONFIG */
 const SUPABASE_URL = "https://gxcbliwbxrnhltdosfuj.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd4Y2JsaXdieHJuaGx0ZG9zZnVqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc5ODE4MDcsImV4cCI6MjA3MzU1NzgwN30.XsQR9vmnIknlcgUT4znIHGYjY_9s2hS8ZNIke9Dn7-E";
 
-/* ---------- ELEMENTS ---------- */
+/* ELEMENTS */
 const debugEl = document.getElementById('debug');
 
 const signinBtn = document.getElementById('signin-btn');
@@ -151,105 +151,106 @@ const editCancelBtn = document.getElementById('edit-cancel');
 const signoutBtn = document.getElementById('signout-btn');
 const editStatus = document.getElementById('edit-status');
 
-/* ---------- HELPERS ---------- */
+/* HELPERS */
 function logDebug(msg){
   console.log('[app]', msg);
   if (debugEl) debugEl.textContent = 'Debug: ' + msg;
 }
-function openModal(el){
-  if(!el) return;
+
+/* STRONG open/close helpers — set inline styles and re-assert them */
+function openModalForce(el, opts = {}) {
+  if (!el) return;
   el.style.display = 'flex';
+  el.style.pointerEvents = 'auto';
+  el.style.zIndex = (opts.z || 1100);
   el.setAttribute('aria-hidden','false');
-  // ensure overlay and modal are on top
-  el.style.zIndex = 1100;
-  // focus first input inside modal if present
-  const first = el.querySelector('input, button, textarea, [tabindex]');
-  if(first) try{ first.focus(); }catch(e){}
+
+  // try to bring modal content into view & focus first input
+  const first = el.querySelector('.modal input, .modal button, .modal [tabindex]');
+  if (first) try { first.focus({preventScroll:true}); } catch(e){}
+
+  // re-assert (in case something else toggles) a couple of times
+  let tries = 0;
+  const id = setInterval(() => {
+    tries++;
+    if (!el) { clearInterval(id); return; }
+    el.style.display = 'flex';
+    el.style.zIndex = (opts.z || 1100) + 10; // bump to ensure top
+    if (tries > 6) clearInterval(id);
+  }, 120);
 }
-function closeModal(el){
-  if(!el) return;
+function closeModalForce(el){
+  if (!el) return;
   el.style.display = 'none';
   el.setAttribute('aria-hidden','true');
 }
-/* click overlay to close */
+
+/* overlay click closes */
 document.querySelectorAll('.popup').forEach(p => {
-  p.addEventListener('click', e => {
-    if (e.target === p) closeModal(p);
-  });
+  p.addEventListener('click', e => { if (e.target === p) closeModalForce(p); });
 });
 
-/* ---------- UI-first handlers (guaranteed) ---------- */
+/* UI-first handlers (guaranteed) */
 signinBtn.addEventListener('click', () => {
   authStatus.textContent = '';
   document.getElementById('auth-email').value = '';
   document.getElementById('auth-password').value = '';
   logDebug('Sign In clicked — UI opened');
-  openModal(authPopup);
+  openModalForce(authPopup, { z: 1000 });
 });
-closeAuth.addEventListener('click', () => closeModal(authPopup));
-closeExtra.addEventListener('click', () => closeModal(extraPopup));
-closeEdit.addEventListener('click', () => closeModal(editPopup));
-document.addEventListener('keydown', e => { if (e.key === 'Escape') document.querySelectorAll('.popup').forEach(p => closeModal(p)); });
+closeAuth.addEventListener('click', () => closeModalForce(authPopup));
+closeExtra.addEventListener('click', () => closeModalForce(extraPopup));
+closeEdit.addEventListener('click', () => closeModalForce(editPopup));
+document.addEventListener('keydown', e => { if (e.key === 'Escape') document.querySelectorAll('.popup').forEach(p => closeModalForce(p)); });
 
-/* ---------- supabase single init ---------- */
+/* Supabase init */
 let supabaseClient = null;
-function initSupabase(){
+function initSupabase() {
   if (supabaseClient) return;
   if (!window.supabase) {
-    logDebug('Supabase lib not loaded yet (UI still works).');
+    logDebug('Supabase lib not loaded yet (UI still works)');
     return;
   }
   supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   logDebug('Supabase client initialized');
-  hookAuthHandlers();
+  wireAuth();
   postInitLoadUser();
 }
 initSupabase();
 window.addEventListener('load', initSupabase);
-setTimeout(initSupabase, 900);
+setTimeout(initSupabase, 800);
 
-/* ---------- auth handlers ---------- */
-function hookAuthHandlers(){
+/* Auth wiring */
+function wireAuth(){
   if (!supabaseClient) return;
 
   signupBtn.addEventListener('click', async () => {
     authStatus.textContent = 'Processing…';
     const email = document.getElementById('auth-email').value.trim();
     const password = document.getElementById('auth-password').value;
-    if (!email || !password) { authStatus.textContent = 'Email and password required.'; return; }
-    logDebug('Signing up ' + email);
-    const { data, error } = await supabaseClient.auth.signUp({ email, password });
-    if (error) { authStatus.textContent = error.message; logDebug('signup error: ' + error.message); return; }
-    if (data?.user?.id) await supabaseClient.from('profiles').insert({ id: data.user.id }).catch(()=>{});
-    authStatus.textContent = '';
-    closeModal(authPopup);
-    document.getElementById('profile-username').value = '';
-    document.getElementById('profile-phone').value = '';
-    avatarUploadInput.value = '';
-    avatarProgressBar.value = 0;
-    avatarProgressText.textContent = '0%';
-    avatarProgressArea.style.display = 'none';
-    openModal(extraPopup);
+    if (!email || !password) { authStatus.textContent = 'Email + pass required'; return; }
+    try {
+      const { data, error } = await supabaseClient.auth.signUp({ email, password });
+      if (error) { authStatus.textContent = error.message; logDebug('signup error: '+error.message); return; }
+      if (data?.user?.id) await supabaseClient.from('profiles').insert({ id: data.user.id }).catch(()=>{});
+      closeModalForce(authPopup);
+      avatarUploadInput.value = '';
+      avatarProgressArea.style.display = 'none';
+      openModalForce(extraPopup, { z: 1010 });
+    } catch(err) { authStatus.textContent = 'Sign up failed'; logDebug(err.message || err); }
   });
 
   loginBtn.addEventListener('click', async () => {
     authStatus.textContent = 'Signing in…';
     const email = document.getElementById('auth-email').value.trim();
     const password = document.getElementById('auth-password').value;
-    if (!email || !password) { authStatus.textContent = 'Email and password required.'; return; }
+    if (!email || !password) { authStatus.textContent = 'Email + pass required'; return; }
     try {
-      logDebug('Signing in ' + email);
       const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-      if (error) { authStatus.textContent = error.message; logDebug('signin error: ' + error.message); return; }
-      authStatus.textContent = '';
-      closeModal(authPopup);
-      if (data?.user) {
-        await updateHeaderAndState(data.user);
-        await loadProfileIntoHeader(data.user.id);
-      }
-    } catch (err) {
-      authStatus.textContent = 'Sign in error: ' + (err?.message || err);
-    }
+      if (error) { authStatus.textContent = error.message; logDebug('signin error: '+error.message); return; }
+      closeModalForce(authPopup);
+      if (data?.user) { await updateHeaderAndState(data.user); await loadProfileIntoHeader(data.user.id); }
+    } catch(err) { authStatus.textContent = 'Sign in failed'; logDebug(err.message || err); }
   });
 
   supabaseClient.auth.onAuthStateChange((event, session) => {
@@ -260,7 +261,7 @@ function hookAuthHandlers(){
   });
 }
 
-/* ---------- upload helper (keep slashes) ---------- */
+/* Keep slashes in path and set content-type */
 function encodePathAllowSlashes(path){
   return path.split('/').map(seg => encodeURIComponent(seg)).join('/');
 }
@@ -275,11 +276,9 @@ function uploadFileWithProgress(file, bucket, path, onProgress){
       if (file && file.type) xhr.setRequestHeader('Content-Type', file.type);
       xhr.setRequestHeader('x-upsert', 'true');
     } catch(e){ /* ignore */ }
-
     xhr.upload.onprogress = ev => {
       if (ev.lengthComputable && typeof onProgress === 'function') {
-        const pct = Math.round((ev.loaded / ev.total) * 100);
-        onProgress(pct);
+        onProgress(Math.round((ev.loaded/ev.total)*100));
       }
     };
     xhr.onload = () => {
@@ -292,13 +291,13 @@ function uploadFileWithProgress(file, bucket, path, onProgress){
   });
 }
 
-/* ---------- EXTRA PROFILE SAVE ---------- */
+/* EXTRA profile save (with progress) */
 saveProfileBtn.addEventListener('click', async () => {
   profileStatus.textContent = '';
-  if (!supabaseClient) { profileStatus.textContent = 'Auth client not ready — try again.'; logDebug('save attempted but client missing'); return; }
+  if (!supabaseClient) { profileStatus.textContent = 'Auth client not ready'; logDebug('save attempted but client missing'); return; }
   const userResp = await supabaseClient.auth.getUser();
   const user = userResp?.data?.user;
-  if (!user) { profileStatus.textContent = 'Sign in first.'; return; }
+  if (!user) { profileStatus.textContent = 'Sign in first'; return; }
 
   const username = document.getElementById('profile-username').value.trim() || null;
   const phone = document.getElementById('profile-phone').value.trim() || null;
@@ -332,16 +331,16 @@ saveProfileBtn.addEventListener('click', async () => {
     logDebug('profile update failed: ' + (e?.message || e));
   }
 
-  closeModal(extraPopup);
+  closeModalForce(extraPopup);
   if (avatarUrl) {
     headerAvatar.src = avatarUrl;
     headerAvatar.style.display = 'block';
   }
   await updateHeaderAndState(user);
 });
-skipProfileBtn.addEventListener('click', () => closeModal(extraPopup));
+skipProfileBtn.addEventListener('click', () => closeModalForce(extraPopup));
 
-/* ---------- HEADER / EDIT flows ---------- */
+/* HEADER / EDIT flows */
 function hideProfileUI(){ signinBtn.style.display = 'inline-block'; profileCircle.style.display = 'none'; headerAvatar.style.display = 'none'; profileCircle.setAttribute('aria-hidden','true'); }
 function showProfileUI(){ signinBtn.style.display = 'none'; profileCircle.style.display = 'flex'; profileCircle.setAttribute('aria-hidden','false'); }
 
@@ -366,26 +365,50 @@ async function updateHeaderAndState(user){
   await loadProfileIntoHeader(user.id);
 }
 
-/* clicking profile circle reliably opens edit modal */
+/* CRITICAL FIX: profile circle click forces edit modal visible (with checks + reassert) */
 profileCircle.addEventListener('click', async () => {
-  logDebug('Profile circle clicked — checking auth & opening edit modal');
+  logDebug('Profile circle clicked — checking auth & forcing edit modal');
+  // If client missing, still open UI to avoid dead state
   if (!supabaseClient) {
-    logDebug('Supabase client missing while opening edit popup; showing UI anyway');
-    openModal(editPopup);
+    logDebug('Supabase client not ready — opening edit UI anyway');
+    openModalForce(editPopup, { z: 1200 });
     return;
   }
-  const resp = await supabaseClient.auth.getUser();
-  const user = resp?.data?.user;
-  if (!user) { openModal(authPopup); return; }
 
-  const { data: profile } = await supabaseClient.from('profiles').select('*').eq('id', user.id).single().catch(()=>({ data:null }));
-  editFullname.value = profile?.full_name || '';
-  editUsername.value = profile?.username || '';
-  editPhone.value = profile?.phone || '';
-  editEmail.value = user.email || '';
-  editAvatarFile.value = '';
-  // Force show: set display and z-index
-  openModal(editPopup);
+  try {
+    const resp = await supabaseClient.auth.getUser();
+    const user = resp?.data?.user;
+    if (!user) { openModalForce(authPopup, { z: 1000 }); return; }
+
+    const { data: profile } = await supabaseClient.from('profiles').select('*').eq('id', user.id).single().catch(()=>({ data:null }));
+    editFullname.value = profile?.full_name || '';
+    editUsername.value = profile?.username || '';
+    editPhone.value = profile?.phone || '';
+    editEmail.value = user.email || '';
+    editAvatarFile.value = '';
+
+    // Force open modal and then check it visibly opened; if not, force again
+    openModalForce(editPopup, { z: 1200 });
+    // verify display; if something hides it, re-assert a few times (race protection)
+    let tries = 0;
+    const checkId = setInterval(() => {
+      tries++;
+      const visible = window.getComputedStyle(editPopup).display !== 'none';
+      logDebug('Edit modal visible? ' + visible + ' (try ' + tries + ')');
+      if (!visible) {
+        // re-force
+        editPopup.style.display = 'flex';
+        editPopup.style.zIndex = 1200 + tries;
+      } else {
+        clearInterval(checkId);
+      }
+      if (tries >= 6) clearInterval(checkId);
+    }, 120);
+  } catch (err) {
+    logDebug('profile click handler error: ' + (err?.message || err));
+    // still attempt to open UI so user can see fields
+    openModalForce(editPopup, { z: 1200 });
+  }
 });
 
 /* edit save */
@@ -433,19 +456,19 @@ editSaveBtn.addEventListener('click', async () => {
     headerAvatar.src = avatarUrl;
     headerAvatar.style.display = 'block';
   }
-  closeModal(editPopup);
+  closeModalForce(editPopup);
   await updateHeaderAndState(user);
 });
 
 /* sign out */
 signoutBtn.addEventListener('click', async () => {
-  if (!supabaseClient) { hideProfileUI(); closeModal(editPopup); return; }
+  if (!supabaseClient) { hideProfileUI(); closeModalForce(editPopup); return; }
   await supabaseClient.auth.signOut();
   hideProfileUI();
-  closeModal(editPopup);
+  closeModalForce(editPopup);
 });
 
-/* ---------- On load: sync auth state ---------- */
+/* INIT: sync auth state & header */
 async function postInitLoadUser(){
   if (!supabaseClient) return;
   try {
