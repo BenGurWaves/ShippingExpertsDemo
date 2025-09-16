@@ -406,17 +406,20 @@
     switchToSignup.addEventListener('click', showSignUpMode)
     switchToSignin.addEventListener('click', showSignInMode)
 
-    // auth actions
-    async function signUp() {
-      const email = document.getElementById('auth-email').value.trim()
-      const password = document.getElementById('auth-password').value
-      const username = document.getElementById('auth-username').value.trim()
-      const phone = document.getElementById('auth-phone').value.trim()
+    async function signIn() {
+  const email = document.getElementById('auth-email').value.trim()
+  const password = document.getElementById('auth-password').value
 
-      if (!email || !password || !username) {
-        document.getElementById('auth-status').textContent = 'Email, password and username are required for signup.'
-        return
-      }
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+  if (error) {
+    document.getElementById('auth-status').textContent = error.message
+  } else {
+    document.getElementById('auth-status').textContent = `Signed in as ${data.user.email}`
+    await ensureProfile(data.user) // <-- insert profile if missing
+    closeAuthModal()
+  }
+}
+
 
       // create auth user
       const { data: signData, error: signError } = await supabase.auth.signUp({ email, password })
@@ -457,7 +460,6 @@
       const { data, error } = await supabase.auth.signInWithPassword({ email, password })
 
       if (error) {
-        // common failure: wrong key / wrong credentials
         document.getElementById('auth-status').textContent = 'Sign in error: ' + error.message
         return
       }
@@ -504,6 +506,26 @@
       headerSignBtn.style.display = 'none'
       signedInArea.style.display = 'flex'
     }
+    async function ensureProfile(user, username = null, phone = null) {
+  // check if profile already exists
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('id', user.id)
+    .single()
+
+  if (!data) {
+    // create profile only if missing
+    const { error: insertError } = await supabase
+      .from('profiles')
+      .insert([{ id: user.id, username, phone }])
+
+    if (insertError) console.error('Profile insert error:', insertError.message)
+  }
+}
+
+
+    
 
     // populate edit profile modal fields
     async function populateEditForm(){
@@ -599,9 +621,6 @@
         closeAuthModal(); closeForm(); closeEditProfile();
       }
     })
-
-    // helper: if someone gets "Invalid API key" it's usually the wrong key.
-    // We can't check that until a request is made; if you see that message, replace SUPABASE_ANON_KEY with the ANON key from Dashboard > Settings > API
   </script>
 </body>
 </html>
