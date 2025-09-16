@@ -223,6 +223,11 @@
     }
   }
 
+  // Open profile modal when clicking avatar circle
+profileCircle.addEventListener("click", () => {
+  editProfileModal.style.display = "flex"; // or "block" depending on your CSS
+});
+
   // On page load
   supabaseClient.auth.getUser().then(async ({ data }) => {
     if (data.user) {
@@ -230,7 +235,10 @@
       loadProfile(data.user.id);
     }
   });
+
+  
 </script>
+  
 
 </body>
 </html>
