@@ -32,20 +32,37 @@
     </div>
   </header>
 
-  <!-- Auth Modal -->
-  <div id="auth-modal">
-    <div class="modal-content">
-      <span class="close-btn" id="auth-close">×</span>
-      <h2>Sign In / Sign Up</h2>
-      <input id="auth-email" type="email" placeholder="Email"><br>
-      <input id="auth-password" type="password" placeholder="Password"><br>
-      <input id="auth-username" type="text" placeholder="Username"><br>
-      <input id="auth-phone" type="text" placeholder="Phone"><br>
-      <button id="signup-submit">Sign Up</button>
-      <button id="signin-submit">Sign In</button>
-      <p id="auth-status"></p>
-    </div>
+  <!-- Auth Popup -->
+<div id="auth-popup" class="popup hidden">
+  <div class="popup-content">
+    <span class="close" id="close-auth">&times;</span>
+    <h2 id="auth-title">Welcome</h2>
+
+    <input type="email" id="auth-email" placeholder="Email" required>
+    <input type="password" id="auth-password" placeholder="Password" required>
+
+    <button id="signup-btn">Sign Up</button>
+    <button id="login-btn">Log In</button>
+    <p id="auth-status"></p>
   </div>
+</div>
+
+  <!-- Extra Profile Popup (after signup) -->
+<div id="extra-profile-popup" class="popup hidden">
+  <div class="popup-content">
+    <span class="close" id="close-extra">&times;</span>
+    <h2>Set up your profile</h2>
+
+    <input type="text" id="profile-username" placeholder="Username (optional)">
+    <input type="text" id="profile-phone" placeholder="Phone number (optional)">
+    <input type="file" id="profile-avatar" accept="image/*">
+
+    <button id="skip-profile">Skip</button>
+    <button id="save-profile">Save</button>
+    <p id="profile-status"></p>
+  </div>
+</div>
+
 
   <!-- Edit Profile Modal -->
   <div id="edit-profile-modal">
@@ -65,175 +82,155 @@
   </div>
 
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-  <script>
-    const SUPABASE_URL = "https://gxcbliwbxrnhltdosfuj.supabase.co"
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd4Y2JsaXdieHJuaGx0ZG9zZnVqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc5ODE4MDcsImV4cCI6MjA3MzU1NzgwN30.XsQR9vmnIknlcgUT4znIHGYjY_9s2hS8ZNIke9Dn7-E"
-    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+<script>
+  const SUPABASE_URL = "https://gxcbliwbxrnhltdosfuj.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd4Y2JsaXdieHJuaGx0ZG9zZnVqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc5ODE4MDcsImV4cCI6MjA3MzU1NzgwN30.XsQR9vmnIknlcgUT4znIHGYjY_9s2hS8ZNIke9Dn7-E";
+  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    const signinBtn = document.getElementById('signin-btn')
-    const profileCircle = document.getElementById('profile-circle')
-    const avatarImg = document.getElementById('profile-avatar')
-    const authModal = document.getElementById('auth-modal')
-    const editProfileModal = document.getElementById('edit-profile-modal')
+  const signinBtn = document.getElementById("signin-btn");
+  const profileCircle = document.getElementById("profile-circle");
+  const avatarImg = document.getElementById("profile-avatar");
 
-    // Open/close modals
-    signinBtn.addEventListener('click', () => authModal.style.display = 'flex')
-    document.getElementById('auth-close').addEventListener('click', () => authModal.style.display = 'none')
-    profileCircle.addEventListener('click', () => editProfileModal.style.display = 'flex')
-    document.getElementById('edit-profile-close').addEventListener('click', () => editProfileModal.style.display = 'none')
-    document.getElementById('edit-profile-cancel').addEventListener('click', () => editProfileModal.style.display = 'none')
+  // Popups
+  const authPopup = document.getElementById("auth-popup");
+  const extraPopup = document.getElementById("extra-profile-popup");
+  const editProfileModal = document.getElementById("edit-profile-modal");
 
-    // Sign up
-    document.getElementById('signup-submit').addEventListener('click', async () => {
-      const email = document.getElementById('auth-email').value
-      const password = document.getElementById('auth-password').value
-      const username = document.getElementById('auth-username').value
-      const phone = document.getElementById('auth-phone').value
+  // Open auth popup
+  signinBtn.addEventListener("click", () => {
+    authPopup.classList.remove("hidden");
+  });
 
-      if(!email || !password || !username || !phone){
-        document.getElementById('auth-status').textContent = 'All fields are required'
-        return
-      }
+  // Close buttons
+  document.getElementById("close-auth").addEventListener("click", () => authPopup.classList.add("hidden"));
+  document.getElementById("close-extra").addEventListener("click", () => extraPopup.classList.add("hidden"));
+  document.getElementById("edit-profile-close").addEventListener("click", () => editProfileModal.style.display = "none");
+  document.getElementById("edit-profile-cancel").addEventListener("click", () => editProfileModal.style.display = "none");
 
-      const { data, error } = await supabaseClient.auth.signUp({
-        email, password,
-        options: { data: { username, phone }, emailRedirectTo: window.location.href }
-      })
+  // ---- SIGN UP ----
+  document.getElementById("signup-btn").addEventListener("click", async () => {
+    const email = document.getElementById("auth-email").value;
+    const password = document.getElementById("auth-password").value;
 
-      if(error){
-        document.getElementById('auth-status').textContent = error.message
-      } else {
-        const { error: profileError } = await supabaseClient.from('profiles').upsert({
-          id: data.user.id, username, phone
-        })
-        document.getElementById('auth-status').textContent = profileError ? profileError.message : 'Signed up successfully! Please confirm email.'
-      }
-    })
-
-    // Sign in
-    document.getElementById('signin-submit').addEventListener('click', async () => {
-      const email = document.getElementById('auth-email').value
-      const password = document.getElementById('auth-password').value
-      const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password })
-
-      if(error){
-        document.getElementById('auth-status').textContent = error.message
-      } else {
-        authModal.style.display = 'none'
-        updateHeaderProfile(data.user)
-
-        // Fetch profile and update circle
-        const { data: profile } = await supabaseClient
-          .from("profiles")
-          .select("*")
-          .eq("id", data.user.id)
-          .single()
-        if(profile) updateProfileCircle(profile)
-      }
-    })
-
-    // Sign out
-    document.getElementById('signout-btn').addEventListener('click', async () => {
-      const { error } = await supabaseClient.auth.signOut()
-      if(error) console.error('Sign out error:', error.message)
-      else {
-        editProfileModal.style.display = 'none'
-        updateHeaderProfile(null)
-      }
-    })
-
-    // Save profile changes
-    document.getElementById('edit-profile-save').addEventListener('click', async () => {
-      const user = (await supabaseClient.auth.getUser()).data.user
-      const fullname = document.getElementById('edit-fullname').value
-      const username = document.getElementById('edit-username').value
-      const phone = document.getElementById('edit-phone').value
-      const newEmail = document.getElementById('edit-email').value
-      const avatarFile = document.getElementById('edit-avatar').files[0]
-
-      // Update profiles table
-      const { error: profileError } = await supabaseClient.from('profiles').upsert({
-        id: user.id, full_name: fullname, username, phone
-      })
-      if(profileError) {
-        document.getElementById('profile-status').textContent = profileError.message
-        return
-      }
-
-      // Update email
-      if(newEmail){
-        const { error: emailError } = await supabaseClient.auth.updateUser({ email: newEmail })
-        if(emailError){
-          document.getElementById('profile-status').textContent = emailError.message
-          return
-        }
-      }
-
-      // Upload avatar
-      if(avatarFile){
-        const { error: avatarError } = await supabaseClient.storage
-          .from('avatars')
-          .upload(`public/${user.id}.png`, avatarFile, { upsert: true })
-
-        if(avatarError){
-          document.getElementById('profile-status').textContent = "Avatar upload error: " + avatarError.message
-          return
-        }
-
-        // Save avatar URL in profile
-        const { data: { publicUrl } } = supabaseClient.storage
-          .from("avatars")
-          .getPublicUrl(`public/${user.id}.png`)
-
-        await supabaseClient.from("profiles").upsert({
-          id: user.id, avatar_url: publicUrl
-        })
-
-        avatarImg.src = publicUrl
-        avatarImg.classList.remove("hidden")
-        profileCircle.classList.remove("bg-black")
-      }
-
-      document.getElementById('profile-status').textContent = 'Profile updated successfully!'
-    })
-
-    // Update header (sign in / profile circle)
-    function updateHeaderProfile(user){
-      if(user){
-        signinBtn.classList.add('hidden')
-        profileCircle.classList.remove('hidden')
-      } else {
-        signinBtn.classList.remove('hidden')
-        profileCircle.classList.add('hidden')
-      }
+    if (!email || !password) {
+      document.getElementById("auth-status").textContent = "Email and password required.";
+      return;
     }
 
-    // Show profile avatar in header
-    function updateProfileCircle(profile) {
-      if (profile && profile.avatar_url) {
-        avatarImg.src = profile.avatar_url
-        avatarImg.classList.remove("hidden")
-        profileCircle.classList.remove("bg-black")
-      } else {
-        avatarImg.classList.add("hidden")
-        profileCircle.classList.add("bg-black")
-      }
-      profileCircle.classList.remove("hidden")
+    const { data, error } = await supabaseClient.auth.signUp({ email, password });
+    if (error) {
+      document.getElementById("auth-status").textContent = error.message;
+      return;
     }
 
-    // On page load, check if logged in
-    supabaseClient.auth.getUser().then(async ({ data }) => {
-      const user = data.user
-      updateHeaderProfile(user)
-      if(user){
-        const { data: profile } = await supabaseClient
-          .from("profiles")
-          .select("*")
-          .eq("id", user.id)
-          .single()
-        if(profile) updateProfileCircle(profile)
+    // Insert base profile row (blank optional fields)
+    await supabaseClient.from("profiles").insert({
+      id: data.user.id,
+    });
+
+    // Switch to extra profile setup
+    authPopup.classList.add("hidden");
+    extraPopup.classList.remove("hidden");
+  });
+
+  // ---- LOG IN ----
+  document.getElementById("login-btn").addEventListener("click", async () => {
+    const email = document.getElementById("auth-email").value;
+    const password = document.getElementById("auth-password").value;
+
+    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+    if (error) {
+      document.getElementById("auth-status").textContent = error.message;
+      return;
+    }
+
+    authPopup.classList.add("hidden");
+    updateHeaderProfile(data.user);
+    loadProfile(data.user.id);
+  });
+
+  // ---- SAVE EXTRA PROFILE ----
+  document.getElementById("save-profile").addEventListener("click", async () => {
+    const user = (await supabaseClient.auth.getUser()).data.user;
+    const username = document.getElementById("profile-username").value;
+    const phone = document.getElementById("profile-phone").value;
+    const avatarFile = document.getElementById("profile-avatar").files[0];
+
+    let avatarUrl = null;
+    if (avatarFile) {
+      const { error: avatarError } = await supabaseClient.storage
+        .from("avatars")
+        .upload(`public/${user.id}.png`, avatarFile, { upsert: true });
+
+      if (avatarError) {
+        document.getElementById("profile-status").textContent = "Avatar upload error: " + avatarError.message;
+        return;
       }
-    })
-  </script>
+
+      const { data: publicUrlData } = supabaseClient.storage
+        .from("avatars")
+        .getPublicUrl(`public/${user.id}.png`);
+      avatarUrl = publicUrlData.publicUrl;
+    }
+
+    await supabaseClient.from("profiles").update({
+      username: username || null,
+      phone: phone || null,
+      avatar_url: avatarUrl || null,
+    }).eq("id", user.id);
+
+    extraPopup.classList.add("hidden");
+    updateHeaderProfile(user);
+    if (avatarUrl) {
+      avatarImg.src = avatarUrl;
+      avatarImg.classList.remove("hidden");
+    }
+  });
+
+  // ---- SKIP EXTRA PROFILE ----
+  document.getElementById("skip-profile").addEventListener("click", () => {
+    extraPopup.classList.add("hidden");
+  });
+
+  // ---- SIGN OUT ----
+  document.getElementById("signout-btn").addEventListener("click", async () => {
+    await supabaseClient.auth.signOut();
+    updateHeaderProfile(null);
+    editProfileModal.style.display = "none";
+  });
+
+  // ---- Helpers ----
+  function updateHeaderProfile(user) {
+    if (user) {
+      signinBtn.classList.add("hidden");
+      profileCircle.classList.remove("hidden");
+    } else {
+      signinBtn.classList.remove("hidden");
+      profileCircle.classList.add("hidden");
+    }
+  }
+
+  async function loadProfile(userId) {
+    const { data: profile } = await supabaseClient
+      .from("profiles")
+      .select("*")
+      .eq("id", userId)
+      .single();
+
+    if (profile && profile.avatar_url) {
+      avatarImg.src = profile.avatar_url;
+      avatarImg.classList.remove("hidden");
+    }
+  }
+
+  // On page load
+  supabaseClient.auth.getUser().then(async ({ data }) => {
+    if (data.user) {
+      updateHeaderProfile(data.user);
+      loadProfile(data.user.id);
+    }
+  });
+</script>
+
 </body>
 </html>
