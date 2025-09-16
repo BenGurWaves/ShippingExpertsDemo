@@ -3,122 +3,49 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Shipping Experts — Account (Scrollable, Header/Footer)</title>
+<title>Shipping Experts — Single-file Account (No Circles)</title>
 <style>
   :root{
     --accent:#FF6700;
     --bg:#f4f6f8;
-    --card:#ffffff;
+    --card:#fff;
     --muted:#666;
-    --max-w:980px;
+    --max-w:1000px;
   }
   *{box-sizing:border-box}
-  body{margin:0;font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;background:var(--bg);color:#111}
-  header{background:var(--accent);color:#fff;padding:12px 20px;display:flex;align-items:center;justify-content:space-between}
-  h1{margin:0;font-weight:600;font-size:18px}
+  body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;background:var(--bg);color:#111}
+  header{background:var(--accent);color:#fff;padding:12px 18px;display:flex;align-items:center;justify-content:space-between}
+  h1{margin:0;font-weight:700;font-size:18px}
   #header-actions{display:flex;gap:12px;align-items:center}
-  button{cursor:pointer;border:0;padding:8px 12px;border-radius:8px;background:#fff;color:#111;font-weight:600}
+  button{cursor:pointer;border:0;padding:8px 12px;border-radius:8px;background:#fff;color:#111;font-weight:700}
   .ghost{background:transparent;color:#fff;border:1px solid rgba(255,255,255,0.18)}
   .profile-circle{width:44px;height:44px;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#000;cursor:pointer;border:2px solid rgba(255,255,255,0.12)}
   .profile-circle img{width:100%;height:100%;object-fit:cover;display:block}
-
-  /* Debug small box */
-  #debug {position:fixed;right:14px;bottom:14px;background:#111;color:#fff;padding:8px 10px;border-radius:8px;font-size:12px;z-index:999999;opacity:0.95}
-
-  /* Full page account overlay */
-  #account-page {
-    position:fixed; inset:0; display:none; align-items:center; justify-content:center;
-    background: rgba(6,9,12,0.55); z-index:99990; padding:24px;
-    -webkit-overflow-scrolling: touch;
-  }
-  .account-shell {
-    width:100%; max-width:var(--max-w); background:var(--card); border-radius:12px; box-shadow:0 20px 60px rgba(2,6,23,0.25);
-    /* allow vertical scrolling inside the shell */
-    max-height: calc(100vh - 80px);
-    display:flex; flex-direction:column; gap:12px; position:relative; overflow:hidden;
-  }
-
-  /* SMALL ORANGE HEADER (sticky) */
-  .account-mini-header {
-    background:var(--accent);
-    color:#fff;
-    padding:8px 14px;
-    border-top-left-radius:12px;
-    border-top-right-radius:12px;
-    font-weight:700;
-    text-align:center;
-    position:sticky;
-    top:0;
-    z-index:5;
-  }
-
-  /* shell content wrapper is scrollable */
-  .account-content {
-    overflow:auto;
-    padding:20px;
-    /* make room at bottom for sticky footer */
-    padding-bottom:84px; 
-  }
-
-  .account-shell .close-full {
-    position:absolute; right:18px; top:10px; background:none; border:0; font-size:20px; cursor:pointer; z-index:6;
-  }
-  .account-title { font-size:20px; font-weight:700; margin:0; text-align:center; }
-  .sections { width:100%; display:flex; flex-direction:column; gap:18px; align-items:center; }
-
-  .section {
-    width:100%; background: #fbfbfd; border-radius:10px; padding:16px; display:flex; flex-direction:column; gap:12px; align-items:center; border:1px solid rgba(10,10,10,0.03);
-  }
-  .section h3 { margin:0; font-size:16px; font-weight:700; text-align:center; }
-  .field-grid { width:100%; display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
-  .field { display:flex; flex-direction:column; gap:6px; }
-  .field label { font-size:13px; color:var(--muted); text-transform:uppercase; letter-spacing:0.6px; }
-  .field input[type="text"], .field input[type="email"], .field input[type="password"], .field input[type="tel"] {
-    padding:10px 12px; border-radius:8px; border:1px solid #e6e9ef; background:#fff; font-size:14px;
-  }
-
-  /* avatar preview */
-  .avatar-wrap { display:flex; gap:12px; align-items:center; justify-content:center; }
-  .avatar-preview { width:96px; height:96px; border-radius:12px; overflow:hidden; background:#eee; display:flex; align-items:center; justify-content:center; border:1px solid rgba(0,0,0,0.06); }
-  .avatar-preview img { width:100%; height:100%; object-fit:cover; display:block; }
-
-  /* small buttons next to each other */
-  .btn-row { display:flex; gap:10px; align-items:center; }
-
-  /* Activity & history placeholders */
-  .history-list { width:100%; display:flex; flex-direction:column; gap:8px; max-height:220px; overflow:auto; padding-right:6px; }
-  .history-item { display:flex; justify-content:space-between; gap:8px; padding:10px; border-radius:8px; background:#fff; border:1px solid rgba(0,0,0,0.03); align-items:center; }
-  .muted-small { color:var(--muted); font-size:13px; }
-
-  /* toggles */
-  .toggle { display:inline-flex; align-items:center; gap:8px; }
-  .switch { width:44px; height:24px; background:#eef2f6; border-radius:16px; position:relative; cursor:pointer; }
-  .switch .dot { width:18px; height:18px; background:#fff; border-radius:50%; position:absolute; top:3px; left:3px; transition:all .18s ease; box-shadow:0 4px 12px rgba(2,6,23,0.08); }
-  .switch.on { background:var(--accent); }
-  .switch.on .dot { left:23px; }
-
-  /* Tabs / Filters */
-  .tabs { display:flex; gap:10px; justify-content:center; align-items:center; flex-wrap:wrap; }
-  .tab { padding:8px 12px; background:#fff; border-radius:999px; border:1px solid rgba(0,0,0,0.04); cursor:pointer; font-weight:600; }
-  .tab.active { background:var(--accent); color:#fff; }
-
-  /* Sticky black footer inside shell */
-  .account-footer {
-    position:sticky; bottom:0; width:100%;
-    background:#000; color:#fff; padding:10px 16px; display:flex; justify-content:center; gap:12px; align-items:center;
-    border-bottom-left-radius:12px; border-bottom-right-radius:12px; z-index:6;
-  }
-  .account-footer button { background:transparent; color:#fff; border:1px solid rgba(255,255,255,0.12); padding:8px 12px; border-radius:8px }
-
+  /* debug box */
+  #debug{position:fixed;right:12px;bottom:12px;background:#111;color:#fff;padding:8px 10px;border-radius:8px;font-size:12px;z-index:999999;opacity:0.95;max-width:320px;white-space:pre-wrap}
+  /* auth popup (simple) */
+  .popup { position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,0.45); z-index:10000 }
+  .modal { width:360px; background:var(--card); border-radius:10px; padding:18px; box-shadow:0 10px 40px rgba(2,6,23,0.18); display:flex; flex-direction:column; gap:10px; }
+  .close { position:absolute; right:12px; top:8px; background:none; border:0; font-size:18px; cursor:pointer }
+  input{padding:8px 10px;border-radius:8px;border:1px solid #e6e9ef;font-size:14px;width:100%}
+  /* full account overlay */
+  #account-page { position:fixed; inset:0; display:none; align-items:center; justify-content:center; background: rgba(6,9,12,0.55); z-index:99990; padding:20px; -webkit-overflow-scrolling:touch; }
+  .account-shell { width:100%; max-width:var(--max-w); background:var(--card); border-radius:12px; box-shadow:0 20px 60px rgba(2,6,23,0.25); max-height:calc(100vh - 80px); display:flex; flex-direction:column; overflow:hidden; position:relative; }
+  .account-mini-header { background:var(--accent); color:#fff; padding:8px 14px; font-weight:800; text-align:center; position:sticky; top:0; z-index:5; border-top-left-radius:12px; border-top-right-radius:12px }
+  .account-content { overflow:auto; padding:20px; padding-bottom:96px; }
+  .account-footer { position:sticky; bottom:0; width:100%; background:#000; color:#fff; padding:10px 16px; display:flex; justify-content:center; gap:12px; align-items:center; border-bottom-left-radius:12px; border-bottom-right-radius:12px; z-index:6 }
+  .sections { display:flex; flex-direction:column; gap:18px; align-items:center; }
+  .section { width:100%; background:#fbfbfd; border-radius:10px; padding:14px; display:flex; flex-direction:column; gap:12px; align-items:center; border:1px solid rgba(0,0,0,0.03) }
+  .field-grid { width:100%; display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .field label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:0.6px}
+  .avatar-wrap{display:flex;gap:12px;align-items:center}
+  .avatar-preview{width:96px;height:96px;border-radius:12px;overflow:hidden;background:#eee;display:flex;align-items:center;justify-content:center;border:1px solid rgba(0,0,0,0.06)}
+  .avatar-preview img{width:100%;height:100%;object-fit:cover}
   /* mini edit modal */
-  .mini-popup { position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,0.45); z-index:100000; }
-  .mini-modal { width:340px; background:#fff; border-radius:10px; padding:18px; box-shadow:0 10px 60px rgba(2,6,23,0.25); display:flex; flex-direction:column; gap:10px; }
-
+  .mini-popup { position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,0.45); z-index:100001; }
+  .mini-modal { width:360px; background:var(--card); border-radius:10px; padding:16px; box-shadow:0 12px 40px rgba(2,6,23,0.18); display:flex; flex-direction:column; gap:8px; }
   /* responsive */
-  @media (max-width:880px) {
-    .field-grid { grid-template-columns: 1fr; }
-    .account-shell { max-width:calc(100% - 24px); }
-  }
+  @media (max-width:880px){ .field-grid{grid-template-columns:1fr} .account-shell{max-width:calc(100% - 24px)} }
 </style>
 </head>
 <body>
@@ -132,29 +59,39 @@
   </div>
 </header>
 
-<!-- DEBUG -->
+<!-- debug box -->
 <div id="debug">Debug: ready</div>
 
-<!-- FULL ACCOUNT PAGE (overlay, centered) -->
+<!-- AUTH POPUP -->
+<div id="auth-popup" class="popup" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true" aria-label="Sign In">
+    <button class="close" id="close-auth">✕</button>
+    <h2 style="margin:0">Sign In / Sign Up</h2>
+    <input id="auth-email" type="email" placeholder="Email">
+    <input id="auth-password" type="password" placeholder="Password">
+    <div style="display:flex;gap:8px">
+      <button id="signup-btn">Sign Up</button>
+      <button id="login-btn" class="ghost">Log In</button>
+    </div>
+    <p id="auth-status" style="color:#666;margin:0;font-size:13px"></p>
+  </div>
+</div>
+
+<!-- FULL ACCOUNT PAGE -->
 <div id="account-page" aria-hidden="true">
-  <div class="account-shell" role="dialog" aria-modal="true" aria-label="Account page">
-    <!-- small orange header (sticky) -->
+  <div class="account-shell" role="dialog" aria-modal="true" aria-label="Account Page">
     <div class="account-mini-header">Your Account</div>
-
-    <!-- close button sits above header (absolute) -->
-    <button class="close-full" id="close-account">✕</button>
-
-    <!-- CONTENT (scrollable) -->
+    <button class="close" id="close-account" title="Close" style="right:16px;top:10px;position:absolute;z-index:9">✕</button>
     <div class="account-content">
-      <div class="account-title" style="text-align:center">Account Settings</div>
+      <div style="text-align:center;font-weight:800;font-size:20px;margin-bottom:8px">Account Settings</div>
 
       <div class="sections">
-        <!-- ACCOUNT SECTION -->
-        <section class="section" id="section-account" style="max-width:880px">
-          <h3>ACCOUNT</h3>
+        <!-- ACCOUNT -->
+        <section class="section" id="section-account" style="max-width:900px">
+          <h3 style="margin:0">ACCOUNT</h3>
           <div class="field-grid">
             <div class="field">
-              <label>Full Name</label>
+              <label>Full name</label>
               <input id="acc-fullname" type="text" placeholder="Full name">
             </div>
             <div class="field">
@@ -176,7 +113,7 @@
               <input id="acc-password" type="password" placeholder="••••••••">
             </div>
             <div class="field">
-              <label>Profile Image</label>
+              <label>Profile image</label>
               <div class="avatar-wrap">
                 <div class="avatar-preview" id="acc-avatar-preview"><img id="acc-avatar-img" src="" alt="" style="display:none"></div>
                 <div style="display:flex;flex-direction:column;gap:8px">
@@ -187,44 +124,40 @@
                   </div>
                 </div>
               </div>
+              <p id="acc-upload-status" style="color:#666;margin:6px 0 0 0;font-size:13px"></p>
             </div>
           </div>
         </section>
 
         <!-- ACTIVITY & HISTORY -->
-        <section class="section" id="section-history" style="max-width:880px">
-          <h3>ACTIVITY &amp; HISTORY</h3>
-          <div style="width:100%; display:flex; gap:12px; flex-direction:column; align-items:center;">
-            <div style="width:100%; display:flex; gap:12px; flex-wrap:wrap; justify-content:center;">
-              <div style="min-width:200px; padding:12px; border-radius:8px; background:#fff; text-align:center; border:1px solid rgba(0,0,0,0.03)">
-                <div style="font-weight:700">Order History</div>
-                <div class="muted-small">Past bookings & statuses</div>
+        <section class="section" id="section-history" style="max-width:900px">
+          <h3 style="margin:0">ACTIVITY &amp; HISTORY</h3>
+          <div style="width:100%;display:flex;flex-direction:column;gap:10px;align-items:center">
+            <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;width:100%">
+              <div style="min-width:200px;padding:12px;border-radius:8px;background:#fff;border:1px solid rgba(0,0,0,0.03);text-align:center">
+                <div style="font-weight:700">Order History</div><div style="color:var(--muted)">Past bookings</div>
               </div>
-              <div style="min-width:200px; padding:12px; border-radius:8px; background:#fff; text-align:center; border:1px solid rgba(0,0,0,0.03)">
-                <div style="font-weight:700">Tracking</div>
-                <div class="muted-small">Active shipments snapshot</div>
+              <div style="min-width:200px;padding:12px;border-radius:8px;background:#fff;border:1px solid rgba(0,0,0,0.03);text-align:center">
+                <div style="font-weight:700">Tracking</div><div style="color:var(--muted)">Active shipments</div>
               </div>
-              <div style="min-width:200px; padding:12px; border-radius:8px; background:#fff; text-align:center; border:1px solid rgba(0,0,0,0.03)">
-                <div style="font-weight:700">Invoices</div>
-                <div class="muted-small">PDF receipts</div>
+              <div style="min-width:200px;padding:12px;border-radius:8px;background:#fff;border:1px solid rgba(0,0,0,0.03);text-align:center">
+                <div style="font-weight:700">Invoices</div><div style="color:var(--muted)">PDF receipts</div>
               </div>
             </div>
 
-            <div style="width:100%; display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
-              <div style="flex:1; min-width:260px">
-                <div style="font-weight:700; margin-bottom:8px">Order/Shipment History</div>
-                <div class="history-list" id="history-list">
-                  <div class="history-item"><div><strong>#A1234</strong><div class="muted-small">Delivered</div></div><div class="muted-small">Oct 1</div></div>
-                  <div class="history-item"><div><strong>#B897</strong><div class="muted-small">In transit</div></div><div class="muted-small">Oct 7</div></div>
-                  <div class="history-item"><div><strong>#C551</strong><div class="muted-small">Pickup scheduled</div></div><div class="muted-small">Oct 10</div></div>
+            <div style="width:100%;display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
+              <div style="flex:1;min-width:260px">
+                <div style="font-weight:700;margin-bottom:8px">Order/Shipment History</div>
+                <div style="max-height:220px;overflow:auto;display:flex;flex-direction:column;gap:8px;padding-right:6px">
+                  <div style="padding:10px;border-radius:8px;background:#fff;border:1px solid rgba(0,0,0,0.03);display:flex;justify-content:space-between"><div><strong>#A1234</strong><div style="color:var(--muted)">Delivered</div></div><div style="color:var(--muted)">Oct 1</div></div>
+                  <div style="padding:10px;border-radius:8px;background:#fff;border:1px solid rgba(0,0,0,0.03);display:flex;justify-content:space-between"><div><strong>#B897</strong><div style="color:var(--muted)">In transit</div></div><div style="color:var(--muted)">Oct 7</div></div>
                 </div>
               </div>
 
-              <div style="flex:1; min-width:260px">
-                <div style="font-weight:700; margin-bottom:8px">Invoices / Billing</div>
-                <div class="history-list">
-                  <div class="history-item"><div>#INV-001</div><div><button class="ghost" onclick="alert('Download placeholder')">Download PDF</button></div></div>
-                  <div class="history-item"><div>#INV-002</div><div><button class="ghost" onclick="alert('Download placeholder')">Download PDF</button></div></div>
+              <div style="flex:1;min-width:260px">
+                <div style="font-weight:700;margin-bottom:8px">Invoices / Billing</div>
+                <div style="max-height:220px;overflow:auto;display:flex;flex-direction:column;gap:8px;padding-right:6px">
+                  <div style="padding:10px;border-radius:8px;background:#fff;border:1px solid rgba(0,0,0,0.03);display:flex;justify-content:space-between"><div>#INV-001</div><div><button class="ghost" onclick="alert('Download placeholder')">Download</button></div></div>
                 </div>
               </div>
             </div>
@@ -232,122 +165,88 @@
         </section>
 
         <!-- NOTIFICATIONS & SECURITY -->
-        <section class="section" id="section-security" style="max-width:880px">
-          <h3>NOTIFICATIONS &amp; SECURITY</h3>
-
-          <div style="width:100%;display:flex;gap:12px;flex-direction:column;align-items:center;">
-            <div style="width:100%;display:flex;justify-content:center;">
-              <div style="width:640px;display:flex;flex-direction:column;gap:12px;">
-                <div style="display:flex;justify-content:space-between;align-items:center;padding:10px;background:#fff;border-radius:8px;border:1px solid rgba(0,0,0,0.03)">
-                  <div>
-                    <div style="font-weight:700">Password & Login</div>
-                    <div class="muted-small">Change password and setup 2FA</div>
-                  </div>
-                  <div>
-                    <button class="ghost" onclick="document.getElementById('acc-password').focus()">Change</button>
-                  </div>
-                </div>
-
-                <div style="display:flex;justify-content:space-between;align-items:center;padding:10px;background:#fff;border-radius:8px;border:1px solid rgba(0,0,0,0.03)">
-                  <div>
-                    <div style="font-weight:700">Communication Preferences</div>
-                    <div class="muted-small">Email / SMS notifications</div>
-                  </div>
-                  <div class="toggle">
-                    <div id="pref-toggle" class="switch"><div class="dot"></div></div>
-                  </div>
-                </div>
-
-                <div style="display:flex;justify-content:space-between;align-items:center;padding:10px;background:#fff;border-radius:8px;border:1px solid rgba(0,0,0,0.03)">
-                  <div>
-                    <div style="font-weight:700">Login Activity / Devices</div>
-                    <div class="muted-small">Recent devices & locations</div>
-                  </div>
-                  <div><button class="ghost" onclick="alert('Showing login activity (placeholder)')">View</button></div>
-                </div>
-
-                <div style="padding:8px; display:flex; gap:8px; align-items:center; justify-content:center; flex-wrap:wrap;">
-                  <div class="tabs" id="tabs">
-                    <div class="tab active" data-filter="all">All</div>
-                    <div class="tab" data-filter="shipments">Shipments</div>
-                    <div class="tab" data-filter="messages">Messages</div>
-                    <div class="tab" data-filter="promos">Promos</div>
-                    <div class="tab" data-filter="system">System</div>
-                  </div>
-                </div>
-
-                <div style="background:#fff;border-radius:8px;border:1px solid rgba(0,0,0,0.03);padding:12px;">
-                  <div style="font-weight:700">Inbox (Unread at top)</div>
-                  <div id="inbox-list" style="margin-top:8px;display:flex;flex-direction:column;gap:8px;">
-                    <div style="padding:8px;border-radius:8px;background:#fff;border:1px solid rgba(0,0,0,0.03)"><strong>New tracking update</strong><div class="muted-small">Shipment #B897 — Arriving tomorrow</div></div>
-                    <div style="padding:8px;border-radius:8px;background:#fff;border:1px solid rgba(0,0,0,0.03)"><div class="muted-small">Promo: Save 10% on your next booking</div></div>
-                  </div>
-                </div>
-
+        <section class="section" id="section-security" style="max-width:900px">
+          <h3 style="margin:0">NOTIFICATIONS &amp; SECURITY</h3>
+          <div style="width:100%;display:flex;flex-direction:column;gap:10px;align-items:center">
+            <div style="width:100%;max-width:640px;display:flex;flex-direction:column;gap:10px">
+              <div style="display:flex;justify-content:space-between;padding:10px;background:#fff;border-radius:8px;border:1px solid rgba(0,0,0,0.03);align-items:center">
+                <div><div style="font-weight:700">Password & Login</div><div style="color:var(--muted)">Change password / 2FA</div></div><div><button class="ghost" onclick="document.getElementById('acc-password').focus()">Change</button></div>
               </div>
+
+              <div style="display:flex;justify-content:space-between;padding:10px;background:#fff;border-radius:8px;border:1px solid rgba(0,0,0,0.03);align-items:center">
+                <div><div style="font-weight:700">Communication Preferences</div><div style="color:var(--muted)">Email / SMS</div></div>
+                <div><label class="switch" id="pref-toggle"><div class="dot"></div></label></div>
+              </div>
+
+              <div style="display:flex;justify-content:space-between;padding:10px;background:#fff;border-radius:8px;border:1px solid rgba(0,0,0,0.03);align-items:center">
+                <div><div style="font-weight:700">Login Activity</div><div style="color:var(--muted)">Recent devices</div></div><div><button class="ghost" onclick="alert('Login activity placeholder')">View</button></div>
+              </div>
+
+              <div style="background:#fff;border-radius:8px;border:1px solid rgba(0,0,0,0.03);padding:10px">
+                <div style="font-weight:700">Inbox (Unread at top)</div>
+                <div style="margin-top:8px;display:flex;flex-direction:column;gap:8px">
+                  <div style="padding:8px;border-radius:8px;background:#fff;border:1px solid rgba(0,0,0,0.03)"><strong>New tracking update</strong><div style="color:var(--muted)">Shipment #B897 — Arriving tomorrow</div></div>
+                </div>
+              </div>
+
             </div>
           </div>
         </section>
 
-      </div> <!-- /sections -->
-    </div> <!-- /account-content -->
-
-    <!-- sticky black footer inside panel -->
-    <div class="account-footer">
-      <div style="display:flex;gap:10px;align-items:center">
-        <button id="cancel-save" onclick="document.getElementById('close-account').click()">Cancel</button>
-        <button id="confirm-save" style="background:var(--accent); border:none; color:#fff; padding:8px 14px; border-radius:8px">Save</button>
       </div>
+    </div> <!-- account-content -->
+
+    <div class="account-footer">
+      <button id="cancel-save" class="ghost">Cancel</button>
+      <button id="confirm-save" style="background:var(--accent);color:#fff;border:0;padding:8px 14px;border-radius:8px">Save</button>
     </div>
 
   </div>
 </div>
 
-<!-- small edit modal (mini) -->
-<div id="mini-edit" class="mini-popup" style="display:none" aria-hidden="true">
+<!-- MINI EDIT modal -->
+<div id="mini-edit" class="mini-popup" aria-hidden="true">
   <div class="mini-modal">
     <button class="close" id="mini-close">✕</button>
-    <h3>Edit Profile (Quick)</h3>
+    <h3 style="margin:0">Edit Profile (Quick)</h3>
     <input id="mini-fullname" type="text" placeholder="Full name">
     <input id="mini-username" type="text" placeholder="Username">
     <input id="mini-phone" type="text" placeholder="Phone">
     <input id="mini-email" type="email" placeholder="Email">
     <input id="mini-avatar-file" type="file" accept="image/*">
-    <div style="display:flex;gap:8px;justify-content:flex-end;">
+    <div style="display:flex;justify-content:flex-end;gap:8px">
       <button id="mini-save">Save</button>
       <button id="mini-cancel" class="ghost">Cancel</button>
     </div>
-    <p id="mini-status" class="muted-small"></p>
+    <p id="mini-status" style="color:var(--muted);font-size:13px;margin:0"></p>
   </div>
 </div>
 
-<!-- Include Supabase JS -->
+<!-- Supabase library -->
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script>
-/* CONFIG */
+/* ====================
+   CONFIG - your keys
+   ==================== */
 const SUPABASE_URL = "https://gxcbliwbxrnhltdosfuj.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd4Y2JsaXdieHJuaGx0ZG9zZnVqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc5ODE4MDcsImV4cCI6MjA3MzU1NzgwN30.XsQR9vmnIknlcgUT4znIHGYjY_9s2hS8ZNIke9Dn7-E";
 
-let supabaseClient = null;
-function initSupabase(){
-  if (supabaseClient) return;
-  if (!window.supabase) {
-    debug('Supabase lib not loaded yet — UI still works');
-    return;
-  }
-  supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  debug('Supabase client initialized');
-  bindAuthHandlers();
-  postInitLoadUser();
-}
-setTimeout(initSupabase, 300);
-window.addEventListener('load', initSupabase);
-
-/* Elements */
+/* ====================
+   ELEMENTS
+   ==================== */
 const debugEl = document.getElementById('debug');
+
 const signinBtn = document.getElementById('signin-btn');
 const profileCircle = document.getElementById('profile-circle');
 const headerAvatar = document.getElementById('header-avatar');
+
+const authPopup = document.getElementById('auth-popup');
+const closeAuth = document.getElementById('close-auth');
+const signupBtn = document.getElementById('signup-btn');
+const loginBtn = document.getElementById('login-btn');
+const authEmail = document.getElementById('auth-email');
+const authPassword = document.getElementById('auth-password');
+const authStatus = document.getElementById('auth-status');
 
 const accountPage = document.getElementById('account-page');
 const closeAccount = document.getElementById('close-account');
@@ -361,13 +260,13 @@ const accPhone = document.getElementById('acc-phone');
 const accPassword = document.getElementById('acc-password');
 const accAvatarInput = document.getElementById('acc-avatar-input');
 const accAvatarImg = document.getElementById('acc-avatar-img');
+const accUploadStatus = document.getElementById('acc-upload-status');
 
 const openEditMiniBtn = document.getElementById('open-edit-mini');
 const miniPopup = document.getElementById('mini-edit');
 const miniClose = document.getElementById('mini-close');
 const miniCancel = document.getElementById('mini-cancel');
 const miniSave = document.getElementById('mini-save');
-
 const miniFull = document.getElementById('mini-fullname');
 const miniUser = document.getElementById('mini-username');
 const miniPhone = document.getElementById('mini-phone');
@@ -377,79 +276,224 @@ const miniStatus = document.getElementById('mini-status');
 
 const signoutPageBtn = document.getElementById('signout-page');
 
-/* Helpers */
-function debug(msg){ console.log('[app]', msg); if (debugEl) debugEl.textContent = 'Debug: ' + msg; }
-
-/* Open/close account page; lock background scroll and ensure internal scrolling */
-function showAccountPage(){
-  accountPage.style.display = 'flex';
-  accountPage.setAttribute('aria-hidden','false');
-  // prevent background scroll
-  document.body.style.overflow = 'hidden';
-  // make sure account content starts at top
-  const content = accountPage.querySelector('.account-content');
-  if (content) content.scrollTop = 0;
-}
-function hideAccountPage(){
-  accountPage.style.display = 'none';
-  accountPage.setAttribute('aria-hidden','true');
-  document.body.style.overflow = '';
+/* ====================
+   DEBUG helper
+   ==================== */
+function debug(msg){
+  console.log('[app]', msg);
+  if (debugEl) debugEl.textContent = 'Debug: ' + msg;
 }
 
-/* UI-first handlers */
-signinBtn.addEventListener('click', () => { showAuthUI(); debug('Sign In clicked — opening auth UI'); });
+/* ====================
+   UI helpers (UI-first)
+   ==================== */
+function openPopup(el){
+  if(!el) return;
+  el.style.display = 'flex';
+  el.setAttribute('aria-hidden','false');
+  // focus first control
+  const first = el.querySelector('input,button,[tabindex]');
+  if(first) try { first.focus(); } catch(e) {}
+}
+function closePopup(el){
+  if(!el) return;
+  el.style.display = 'none';
+  el.setAttribute('aria-hidden','true');
+}
 
+/* Auth popup wiring (UI-first) */
+signinBtn.addEventListener('click', () => {
+  authStatus.textContent = '';
+  authEmail.value = '';
+  authPassword.value = '';
+  debug('Sign In clicked — UI opened');
+  openPopup(authPopup);
+});
+closeAuth.addEventListener('click', () => closePopup(authPopup));
+
+/* ====================
+   Supabase init (single)
+   ==================== */
+let supabaseClient = null;
+function initSupabaseOnce(){
+  if (supabaseClient) return;
+  if (!window.supabase) { debug('Supabase lib not loaded yet — UI works'); return; }
+  supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  debug('Supabase initiated');
+  bindAuthHandlers(); // attach handlers that require the client
+  postInitLoadUser();
+}
+setTimeout(initSupabaseOnce, 300);
+window.addEventListener('load', initSupabaseOnce);
+setTimeout(initSupabaseOnce, 1200);
+
+/* ====================
+   Auth handlers (need client)
+   ==================== */
+function bindAuthHandlers(){
+  if(!supabaseClient) return;
+
+  signupBtn.addEventListener('click', async () => {
+    authStatus.textContent = 'Processing…';
+    const email = authEmail.value.trim();
+    const password = authPassword.value;
+    if (!email || !password) { authStatus.textContent = 'Email + password required'; return; }
+    try {
+      const { data, error } = await supabaseClient.auth.signUp({ email, password });
+      if (error) { authStatus.textContent = error.message; debug('signup error: ' + error.message); return; }
+      // create base profile row for this user id (safe for RLS if policy allows auth.uid() = id)
+      if (data?.user?.id) {
+        const insertRes = await supabaseClient.from('profiles').insert({ id: data.user.id }).select().maybeSingle();
+        if (insertRes?.error) debug('profiles insert error after signup: ' + insertRes.error.message);
+      }
+      authStatus.textContent = '';
+      closePopup(authPopup);
+      openPopup(extraPopupFallback()); // fallback to ask for extra profile (we use mini editor as fallback)
+      debug('Sign up success — opened extra profile area');
+    } catch (err) {
+      authStatus.textContent = 'Sign up failed: ' + (err?.message || err);
+    }
+  });
+
+  loginBtn.addEventListener('click', async () => {
+    authStatus.textContent = 'Signing in…';
+    const email = authEmail.value.trim();
+    const password = authPassword.value;
+    if (!email || !password) { authStatus.textContent = 'Email + password required'; return; }
+    try {
+      const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+      if (error) { authStatus.textContent = error.message; debug('signin error: ' + error.message); return; }
+      authStatus.textContent = '';
+      closePopup(authPopup);
+      if (data?.user) {
+        await updateHeaderAndState(data.user);
+        await loadProfileIntoHeader(data.user.id);
+      }
+    } catch (err) {
+      authStatus.textContent = 'Sign in failed: ' + (err?.message || err);
+    }
+  });
+
+  // listen to auth events (optional)
+  supabaseClient.auth.onAuthStateChange((event, session) => {
+    debug('auth event: ' + event);
+    const u = session?.user ?? null;
+    if (u) updateHeaderAndState(u);
+    else hideProfileUI();
+  });
+}
+
+/* extra-profile fallback (small mini modal) */
+function extraPopupFallback(){
+  // we reuse mini editor as "extra profile" fallback UI because it's already in the file
+  return miniPopup;
+}
+
+/* ====================
+   Safe DB helpers (use maybeSingle)
+   ==================== */
+async function loadProfileIntoHeader(userId){
+  if (!supabaseClient) { debug('Cannot load profile — client missing'); return; }
+  try {
+    const { data: profile, error } = await supabaseClient.from('profiles').select('*').eq('id', userId).maybeSingle();
+    if (error) { debug('load profile returned error: ' + (error.message || error)); }
+    if (profile?.avatar_url) {
+      headerAvatar.src = profile.avatar_url; headerAvatar.style.display = 'block';
+    } else {
+      headerAvatar.style.display = 'none';
+    }
+    profileCircle.style.display = 'flex';
+    signinBtn.style.display = 'none';
+  } catch (err) {
+    debug('loadProfile error: ' + (err?.message || err));
+  }
+}
+
+function hideProfileUI(){ signinBtn.style.display = 'inline-block'; profileCircle.style.display = 'none'; headerAvatar.style.display = 'none'; }
+function showProfileUI(){ signinBtn.style.display = 'none'; profileCircle.style.display = 'flex'; }
+
+/* update header state after sign-in */
+async function updateHeaderAndState(user){
+  if (!supabaseClient || !user) { hideProfileUI(); return; }
+  await loadProfileIntoHeader(user.id);
+}
+
+/* ====================
+   Upload helper (XHR with progress) - keeps slashes, sets Content-Type
+   ==================== */
+function encodePathAllowSlashes(path){
+  return path.split('/').map(seg => encodeURIComponent(seg)).join('/');
+}
+
+function uploadFileWithProgress(file, bucket, path, onProgress){
+  const encodedPath = encodePathAllowSlashes(path);
+  const url = `${SUPABASE_URL}/storage/v1/object/${bucket}/${encodedPath}`;
+  return new Promise((resolve,reject)=>{
+    const xhr = new XMLHttpRequest();
+    xhr.open('PUT', url);
+    try {
+      xhr.setRequestHeader('Authorization', `Bearer ${SUPABASE_ANON_KEY}`);
+      if (file && file.type) xhr.setRequestHeader('Content-Type', file.type);
+      xhr.setRequestHeader('x-upsert', 'true');
+    } catch(e){}
+    xhr.upload.onprogress = ev => { if (ev.lengthComputable && typeof onProgress === 'function') onProgress(Math.round((ev.loaded/ev.total)*100)); };
+    xhr.onload = () => {
+      const body = xhr.responseText || '';
+      if (xhr.status >= 200 && xhr.status < 300) resolve({ status: xhr.status, body });
+      else reject(new Error(`Upload failed (${xhr.status}): ${body || xhr.statusText}`));
+    };
+    xhr.onerror = () => reject(new Error('Network error during upload'));
+    xhr.send(file);
+  });
+}
+
+/* ====================
+   Profile click -> open account page (robust)
+   ==================== */
 profileCircle.addEventListener('click', async () => {
   debug('Profile circle clicked — opening account page');
-  if (!supabaseClient) {
-    debug('Supabase client missing — showing account UI anyway');
-    showAccountPage(); return;
-  }
+  if (!supabaseClient) { debug('Supabase not ready — opening UI anyway'); openAccountPageUI(); return; }
+
   try {
     const { data: userData } = await supabaseClient.auth.getUser();
     const user = userData?.user;
-    if (!user) { debug('No signed-in user — opening sign-in'); showAuthUI(); return; }
+    if (!user) { debug('not signed in — opening sign-in'); openPopup(authPopup); return; }
 
-    // safe load profile
-    try {
-      const res = await supabaseClient.from('profiles').select('*').eq('id', user.id).single();
-      if (res.error) {
-        debug('load profile returned error: ' + (res.error.message || res.error));
-      }
-      const profile = res.data || {};
-      accFullname.value = profile.full_name || '';
-      accUsername.value = profile.username || '';
-      accEmail.value = user.email || '';
-      accPhone.value = profile.phone || '';
-      if (profile.avatar_url) {
-        accAvatarImg.src = profile.avatar_url; accAvatarImg.style.display = 'block';
-      } else {
-        accAvatarImg.style.display = 'none';
-      }
-    } catch (qerr) {
-      debug('profile query error: ' + (qerr.message || qerr));
-    }
+    // load profile using maybeSingle (safe)
+    const { data: profile, error } = await supabaseClient.from('profiles').select('*').eq('id', user.id).maybeSingle();
+    if (error) debug('load profile returned error: ' + (error.message || error));
+    accFullname.value = profile?.full_name || '';
+    accUsername.value = profile?.username || '';
+    accEmail.value = user.email || '';
+    accPhone.value = profile?.phone || '';
+    if (profile?.avatar_url) { accAvatarImg.src = profile.avatar_url; accAvatarImg.style.display = 'block'; } else { accAvatarImg.style.display = 'none'; }
 
-    showAccountPage();
+    openAccountPageUI();
   } catch (err) {
     debug('profile click handler error: ' + (err?.message || err));
-    showAccountPage();
+    openAccountPageUI();
   }
 });
 
-/* close actions */
-closeAccount.addEventListener('click', () => { hideAccountPage(); debug('Account closed'); });
-window.addEventListener('keydown', e => { if (e.key === 'Escape') { if (accountPage.style.display === 'flex') { hideAccountPage(); } } });
+function openAccountPageUI(){
+  accountPage.style.display = 'flex';
+  accountPage.setAttribute('aria-hidden','false');
+  // lock background scroll:
+  document.body.style.overflow = 'hidden';
+  // reset scroll to top
+  const c = document.querySelector('.account-content'); if (c) c.scrollTop = 0;
+}
+closeAccount.addEventListener('click', () => { accountPage.style.display='none'; document.body.style.overflow=''; debug('Account closed'); });
 
-/* avatar preview handling */
-accAvatarInput.addEventListener('change', (e) => {
+/* ACCOUNT avatar preview */
+accAvatarInput.addEventListener('change', e => {
   const f = e.target.files[0];
   if (!f) return;
   const url = URL.createObjectURL(f);
   accAvatarImg.src = url; accAvatarImg.style.display = 'block';
 });
 
-/* open mini editor */
+/* open mini editor from account page */
 openEditMiniBtn.addEventListener('click', () => {
   miniFull.value = accFullname.value || '';
   miniUser.value = accUsername.value || '';
@@ -458,126 +502,139 @@ openEditMiniBtn.addEventListener('click', () => {
   miniStatus.textContent = '';
   miniPopup.style.display = 'flex';
 });
-miniClose.addEventListener('click', () => miniPopup.style.display = 'none');
-miniCancel.addEventListener('click', () => miniPopup.style.display = 'none');
+miniClose.addEventListener('click', () => miniPopup.style.display='none');
+miniCancel.addEventListener('click', () => miniPopup.style.display='none');
 
-/* mini save (uploads & update) */
+/* ====================
+   Mini Save (safe update with RLS hint)
+   ==================== */
 miniSave.addEventListener('click', async () => {
   miniStatus.textContent = '';
-  if (!supabaseClient) { miniStatus.textContent = 'Auth client not ready'; return; }
+  if (!supabaseClient) { miniStatus.textContent = 'Client not ready'; return; }
   const { data: userData } = await supabaseClient.auth.getUser();
   const user = userData?.user;
   if (!user) { miniStatus.textContent = 'Not signed in'; return; }
+
   const fullname = miniFull.value.trim() || null;
   const username = miniUser.value.trim() || null;
   const phone = miniPhone.value.trim() || null;
   const file = miniAvatarFile.files[0] || null;
+
   let avatarUrl = null;
   if (file) {
     miniStatus.textContent = 'Uploading avatar…';
     try {
-      const path = `public/${user.id}.png`;
-      await uploadFileWithProgress(file, 'avatars', path, pct => { miniStatus.textContent = 'Uploading: ' + pct + '%'; });
-      const { data: pub } = await supabaseClient.storage.from('avatars').getPublicUrl(path);
-      avatarUrl = pub?.publicUrl || `${SUPABASE_URL}/storage/v1/object/public/avatars/${encodeURIComponent(path)}`;
+      await uploadFileWithProgress(file, 'avatars', `public/${user.id}.png`, pct => miniStatus.textContent = 'Uploading: ' + pct + '%');
+      const { data: pub } = await supabaseClient.storage.from('avatars').getPublicUrl(`public/${user.id}.png`);
+      avatarUrl = pub?.publicUrl || `${SUPABASE_URL}/storage/v1/object/public/avatars/${encodeURIComponent(`public/${user.id}.png`)}`;
     } catch (err) {
       miniStatus.textContent = 'Upload failed: ' + (err?.message || err);
-      debug('mini avatar upload failed: ' + (err?.message || err)); return;
+      debug('mini avatar upload failed: ' + (err?.message || err));
+      return;
     }
   }
+
+  // robust update: capture error and show RLS hint
   try {
-    const updateRes = await supabaseClient.from('profiles').update({
+    const { data: updateData, error: updateError } = await supabaseClient.from('profiles').update({
       full_name: fullname, username, phone, avatar_url: avatarUrl || undefined
     }).eq('id', user.id);
-    if (updateRes.error) {
-      miniStatus.textContent = 'Save failed: ' + updateRes.error.message;
-      debug('mini profile update error: ' + updateRes.error.message);
-      if ((updateRes.error.message || '').toLowerCase().includes('row-level')) {
-        miniStatus.textContent += ' — row-level security prevented update. Ensure policy auth.uid() = id.';
+
+    if (updateError) {
+      miniStatus.textContent = 'Save failed: ' + updateError.message;
+      debug('mini profile update error: ' + updateError.message);
+      if ((updateError.message || '').toLowerCase().includes('row-level') || (updateError.message || '').toLowerCase().includes('violates row-level')) {
+        miniStatus.textContent += ' — blocked by row-level security. Run the SQL policy (see debug box).';
       }
       return;
     }
   } catch (e) {
-    miniStatus.textContent = 'Save failed: ' + (e?.message || e); debug('mini profile update thrown: ' + (e?.message || e)); return;
+    miniStatus.textContent = 'Save failed: ' + (e?.message || e);
+    debug('mini profile update thrown: ' + (e?.message || e));
+    return;
   }
+
   miniStatus.textContent = 'Saved';
   miniPopup.style.display = 'none';
   await postInitLoadUser();
 });
 
-/* full page save: uses same upload + profile update flow */
+/* ====================
+   Full page Save (confirm-save)
+   ==================== */
 confirmSaveBtn.addEventListener('click', async () => {
-  if (!supabaseClient) { alert('Auth client not ready'); return; }
+  if (!supabaseClient) { alert('Client not ready'); return; }
   const { data: userData } = await supabaseClient.auth.getUser();
   const user = userData?.user;
-  if (!user) { alert('Please sign in first'); return; }
+  if (!user) { alert('Sign in first'); return; }
+
   confirmSaveBtn.disabled = true; confirmSaveBtn.textContent = 'Saving…';
   const fullname = accFullname.value.trim() || null;
   const username = accUsername.value.trim() || null;
   const phone = accPhone.value.trim() || null;
   const file = accAvatarInput.files[0] || null;
+
   let avatarUrl = null;
   if (file) {
-    debug('Uploading avatar (full page)');
+    accUploadStatus.textContent = 'Uploading avatar...';
     try {
-      const path = `public/${user.id}.png`;
-      await uploadFileWithProgress(file, 'avatars', path, pct => { debug('Upload: ' + pct + '%'); });
-      const { data: pub } = await supabaseClient.storage.from('avatars').getPublicUrl(path);
-      avatarUrl = pub?.publicUrl || `${SUPABASE_URL}/storage/v1/object/public/avatars/${encodeURIComponent(path)}`;
+      await uploadFileWithProgress(file, 'avatars', `public/${user.id}.png`, pct => accUploadStatus.textContent = 'Uploading: ' + pct + '%');
+      const { data: pub } = await supabaseClient.storage.from('avatars').getPublicUrl(`public/${user.id}.png`);
+      avatarUrl = pub?.publicUrl || `${SUPABASE_URL}/storage/v1/object/public/avatars/${encodeURIComponent(`public/${user.id}.png`)}`;
     } catch (err) {
       alert('Upload failed: ' + (err?.message || err));
-      confirmSaveBtn.disabled = false; confirmSaveBtn.textContent = 'Save'; return;
+      debug('Full upload failed: ' + (err?.message || err));
+      confirmSaveBtn.disabled = false; confirmSaveBtn.textContent = 'Save';
+      accUploadStatus.textContent = '';
+      return;
     }
+    accUploadStatus.textContent = '';
   }
+
+  // update profile with RLS-aware handling
   try {
-    const updateRes = await supabaseClient.from('profiles').update({
+    const { data: updateData, error: updateError } = await supabaseClient.from('profiles').update({
       full_name: fullname, username, phone, avatar_url: avatarUrl || undefined
     }).eq('id', user.id);
-    if (updateRes.error) {
-      let msg = updateRes.error.message || JSON.stringify(updateRes.error);
-      if (msg.toLowerCase().includes('row-level') || msg.toLowerCase().includes('violates row-level')) {
-        alert('Profile update failed due to row-level security policy: update blocked. Fix: allow authenticated users to update their profile row (policy: auth.uid() = id).');
+
+    if (updateError) {
+      debug('Profile update error: ' + updateError.message);
+      // friendly alert
+      if ((updateError.message || '').toLowerCase().includes('row-level') || (updateError.message || '').toLowerCase().includes('violates row-level')) {
+        alert('Profile update blocked by row-level security (RLS). Fix is simple: run the SQL policy provided in the debug box / below.');
       } else {
-        alert('Profile update failed: ' + msg);
+        alert('Profile update failed: ' + updateError.message);
       }
-      debug('Profile update error: ' + msg);
-      confirmSaveBtn.disabled = false; confirmSaveBtn.textContent = 'Save'; return;
+      confirmSaveBtn.disabled = false; confirmSaveBtn.textContent = 'Save';
+      return;
     }
   } catch (e) {
-    alert('Profile update failed: ' + (e?.message || e));
+    alert('Profile update thrown: ' + (e?.message || e));
     debug('Profile update thrown: ' + (e?.message || e));
-    confirmSaveBtn.disabled = false; confirmSaveBtn.textContent = 'Save'; return;
+    confirmSaveBtn.disabled = false; confirmSaveBtn.textContent = 'Save';
+    return;
   }
+
+  // success
   confirmSaveBtn.disabled = false; confirmSaveBtn.textContent = 'Save';
-  hideAccountPage(); await postInitLoadUser(); debug('Profile saved (full page)');
+  accountPage.style.display = 'none'; document.body.style.overflow = '';
+  await postInitLoadUser();
+  debug('Profile saved successfully');
 });
 
-/* sign out from page: sign out and refresh to index.html */
-signoutPageBtn.addEventListener('click', async () => {
+/* Cancel button */
+cancelSaveBtn.addEventListener('click', () => { closeAccount.click(); });
+
+/* Sign out button from account page */
+document.getElementById('signout-page').addEventListener('click', async () => {
   if (supabaseClient) await supabaseClient.auth.signOut();
+  // mimic page refresh to home
   window.location.href = 'index.html';
 });
 
-/* upload helper (keep slashes, set content-type, progress) */
-function encodePathAllowSlashes(path){ return path.split('/').map(seg => encodeURIComponent(seg)).join('/'); }
-function uploadFileWithProgress(file, bucket, path, onProgress){
-  const encodedPath = encodePathAllowSlashes(path);
-  const url = `${SUPABASE_URL}/storage/v1/object/${bucket}/${encodedPath}`;
-  return new Promise((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-    xhr.open('PUT', url);
-    try { xhr.setRequestHeader('Authorization', `Bearer ${SUPABASE_ANON_KEY}`); if (file && file.type) xhr.setRequestHeader('Content-Type', file.type); xhr.setRequestHeader('x-upsert','true'); } catch(e){}
-    xhr.upload.onprogress = ev => { if (ev.lengthComputable && typeof onProgress === 'function') onProgress(Math.round((ev.loaded/ev.total)*100)); };
-    xhr.onload = () => { const body = xhr.responseText || ''; if (xhr.status>=200 && xhr.status<300) resolve({ status: xhr.status, body }); else reject(new Error(`Upload failed (${xhr.status}): ${body || xhr.statusText}`)); };
-    xhr.onerror = () => reject(new Error('Network error during upload'));
-    xhr.send(file);
-  });
-}
-
-/* Auth shim & post-init */
-function showAuthUI(){ alert('Open your Sign In UI (debug). Use the Sign In control in header if present.'); }
-function bindAuthHandlers(){ /* placeholder - sign-in flows are handled elsewhere in your app */ }
-
+/* ====================
+   Helper: postInitLoadUser
+   ==================== */
 async function postInitLoadUser(){
   if (!supabaseClient) return;
   try {
@@ -585,34 +642,79 @@ async function postInitLoadUser(){
     const user = data?.user;
     if (user) {
       debug('Signed in as ' + (user.email || user.id));
-      const res = await supabaseClient.from('profiles').select('avatar_url').eq('id', user.id).single();
-      if (!res.error && res.data?.avatar_url) {
-        headerAvatar.src = res.data.avatar_url; headerAvatar.style.display = 'block'; profileCircle.style.display = 'flex';
+      // load avatar only (safe)
+      const { data: profile, error } = await supabaseClient.from('profiles').select('avatar_url').eq('id', user.id).maybeSingle();
+      if (error) debug('load profile returned error: ' + (error.message || error));
+      if (profile?.avatar_url) {
+        headerAvatar.src = profile.avatar_url; headerAvatar.style.display = 'block';
+        profileCircle.style.display = 'flex';
       } else {
-        profileCircle.style.display = 'flex'; headerAvatar.style.display = 'none';
+        headerAvatar.style.display = 'none'; profileCircle.style.display = 'flex';
       }
       signinBtn.style.display = 'none';
     } else {
-      debug('No signed-in user'); signinBtn.style.display = 'inline-block'; profileCircle.style.display = 'none'; headerAvatar.style.display = 'none';
+      debug('No signed-in user');
+      signinBtn.style.display = 'inline-block';
+      profileCircle.style.display = 'none';
+      headerAvatar.style.display = 'none';
     }
-  } catch (e) { debug('postInitLoadUser error: ' + (e?.message || e)); }
+  } catch (e) {
+    debug('postInitLoadUser error: ' + (e?.message || e));
+  }
 }
 
-  // safer load - won't throw if 0 or >1 rows; handle error explicitly
-const { data: profile, error } = await supabaseClient
-  .from('profiles')
-  .select('*')
-  .eq('id', user.id)
-  .maybeSingle();
+/* ====================
+   MINI: quick "extra profile" fallback (for signup flow)
+   ==================== */
+// We reuse the mini modal for quick profile editing
+// miniSave already wired above
 
-if (error) {
-  debug('load profile returned error: ' + (error.message || error));
-} 
-// profile may be undefined if no row; handle that downstream
+/* ====================
+   RLS SQL snippet helper (shows policy SQL you can paste into Supabase SQL editor)
+   ==================== */
+function showRlsSqlHint(){
+  const sql = `-- Paste these into Supabase SQL editor (Database -> SQL Editor)
+ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 
-  
-/* init attempt */
-setTimeout(initSupabase, 800);
+CREATE POLICY "Select own profile"
+  ON public.profiles
+  FOR SELECT
+  TO authenticated
+  USING (auth.uid() = id);
+
+CREATE POLICY "Insert own profile"
+  ON public.profiles
+  FOR INSERT
+  TO authenticated
+  WITH CHECK (auth.uid() = id);
+
+CREATE POLICY "Update own profile"
+  ON public.profiles
+  FOR UPDATE
+  TO authenticated
+  USING (auth.uid() = id)
+  WITH CHECK (auth.uid() = id);`;
+  // show short hint in debug box and console
+  debug('If you see "violates row-level security", run this SQL in Supabase SQL editor. (Collapsed in console)');
+  console.groupCollapsed('RLS SQL to paste into Supabase (open DB -> SQL editor)');
+  console.log(sql);
+  console.groupEnd();
+}
+
+/* call it so the user sees it if needed */
+showRlsSqlHint();
+
+/* ====================
+   Small helper: open auth UI if supabase not ready (fallback)
+   ==================== */
+function openAuthedPopupFallback(){
+  alert('Sign-in UI: supabase not yet ready. Wait a second and try signing in using the form.');
+}
+
+/* ====================
+   Init attempt
+   ==================== */
+setTimeout(initSupabaseOnce, 1000);
 </script>
 </body>
 </html>
