@@ -598,6 +598,19 @@ async function postInitLoadUser(){
   } catch (e) { debug('postInitLoadUser error: ' + (e?.message || e)); }
 }
 
+  // safer load - won't throw if 0 or >1 rows; handle error explicitly
+const { data: profile, error } = await supabaseClient
+  .from('profiles')
+  .select('*')
+  .eq('id', user.id)
+  .maybeSingle();
+
+if (error) {
+  debug('load profile returned error: ' + (error.message || error));
+} 
+// profile may be undefined if no row; handle that downstream
+
+  
 /* init attempt */
 setTimeout(initSupabase, 800);
 </script>
