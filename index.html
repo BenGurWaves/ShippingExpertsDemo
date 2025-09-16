@@ -415,24 +415,22 @@ html {
   <section class="form-section">
     <h2>Shipping Experts Form</h2>
     <form>
-      <input type="text" placeholder="VIN">
-      <input type="text" placeholder="Vehicle Year/Make/Model">
-      <input type="text" placeholder="Vehicle Color">
-      <input type="text" placeholder="Vehicle Type">
-      <input type="text" placeholder="Inoperable Vehicle">
-      <input type="text" placeholder="Additional Vehicle(s)">
-      <input type="text" placeholder="Pickup Name - Residence, Business, Auction">
-      <input type="text" placeholder="Pickup Address">
-      <input type="text" placeholder="Pickup Contact Name(s)">
-      <input type="text" placeholder="Pickup Contact Phone(s)">
-      <input type="text" placeholder="Scheduled Pickup Dates">
-      <textarea placeholder="Pickup Notes"></textarea>
-      <input type="text" placeholder="Delivery Name - Residence, Business, Auction">
-      <input type="text" placeholder="Delivery Address">
-      <input type="text" placeholder="Delivery Contact Name(s)">
-      <input type="text" placeholder="Delivery Contact Phone(s)">
-      <input type="text" placeholder="Scheduled Delivery Dates">
-      <textarea placeholder="Delivery Notes"></textarea>
+      <input type="text" placeholder="VIN" name="vin">
+      <input type="text" placeholder="Vehicle Year/Make/Model" name="vehicle_year_make_model">
+      <input type="text" placeholder="Vehicle Color" name="vehicle_color">
+      <input type="text" placeholder="Vehicle Type" name="vehicle_type">
+      <input type="text" placeholder="Inoperable Vehicle" name="inoperable">
+      <input type="text" placeholder="Additional Vehicle(s)" name="additional_vehicles">
+      <input type="text" placeholder="Pickup Name - Residence, Business, Auction" name="pickup_name">
+      <input type="text" placeholder="Pickup Address" name="pickup_address">
+      <input type="text" placeholder="Pickup Contact Name(s)" name="pickup_contacts">
+      <input type="text" placeholder="Scheduled Pickup Dates" name="pickup_dates">
+      <textarea placeholder="Pickup Notes" name="pickup_notes"></textarea>
+      <input type="text" placeholder="Delivery Name - Residence, Business, Auction" name="delivery_name">
+      <input type="text" placeholder="Delivery Address" name="delivery_address">
+      <input type="text" placeholder="Delivery Contact Name(s)" name="delivery_contacts">
+      <input type="text" placeholder="Scheduled Delivery Dates" name="delivery_dates">
+      <textarea placeholder="Delivery Notes" name="delivery_notes"></textarea>
       <label><input type="checkbox"> I agree to and authorize transport...</label>
       <div>
         <button type="submit">Submit Form</button>
@@ -594,7 +592,52 @@ html {
     const f = document.getElementById('quoteForm')
     if (f) f.addEventListener('submit', submitQuote)
   })
+
+  const quoteForm = document.querySelector('#quoteModal form')
+
+quoteForm.addEventListener('submit', async (e) => {
+  e.preventDefault()
+
+  const { data: userData } = await supabase.auth.getUser()
+  if (!userData.user) {
+    alert('Please sign in first')
+    return
+  }
+
+  const formData = new FormData(quoteForm)
+  const data = {
+    user_id: userData.user.id,
+    vin: formData.get('vin'),
+    vehicle_year_make_model: formData.get('vehicle_year_make_model'),
+    vehicle_color: formData.get('vehicle_color'),
+    vehicle_type: formData.get('vehicle_type'),
+    inoperable: formData.get('inoperable'),
+    additional_vehicles: formData.get('additional_vehicles'),
+    pickup_name: formData.get('pickup_name'),
+    pickup_address: formData.get('pickup_address'),
+    pickup_contacts: formData.get('pickup_contacts'),
+    pickup_dates: formData.get('pickup_dates'),
+    pickup_notes: formData.get('pickup_notes'),
+    delivery_name: formData.get('delivery_name'),
+    delivery_address: formData.get('delivery_address'),
+    delivery_contacts: formData.get('delivery_contacts'),
+    delivery_dates: formData.get('delivery_dates'),
+    delivery_notes: formData.get('delivery_notes')
+  }
+
+  const { error } = await supabase.from('quotes').insert([data])
+  if (error) {
+    alert('Error saving quote: ' + error.message)
+  } else {
+    alert('Quote submitted successfully!')
+    quoteForm.reset()
+    closeForm()
+  }
+})
+
 </script>
+
+  
   
 </body>
 </html> 
