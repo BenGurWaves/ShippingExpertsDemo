@@ -267,7 +267,8 @@ html {
 </style>
 
 </head>
-  <!-- 1) Load Supabase client -->
+<body>
+   <!-- 1) Load Supabase client -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <!-- 2) Small Auth modal & a "Sign In" button (paste into your header or where you want it) -->
@@ -293,8 +294,9 @@ html {
 <!-- 3) Replace your modal quote form inputs with IDs, or keep the modal but add IDs so this JS can read them.
      Example: give your quote modal inputs ids like q-vin, q-pickup-address, etc. -->
 
+  <input id="username" type="text" placeholder="Username" />
+<input id="phone" type="text" placeholder="Phone Number" />
 
-<body>
   <header>
     <img src="Logo.png" alt="Shipping Experts Logo" />
     <nav>
