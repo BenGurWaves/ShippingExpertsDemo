@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Shipping Experts — Avatar Upload Fix</title>
+<title>Shipping Experts — Fixed Single File</title>
 <style>
   :root{--accent:#FF6700}
   *{box-sizing:border-box}
   body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f6f7f8;color:#111}
-  header{background:var(--accent);color:#fff;padding:10px 16px;display:flex;justify-content:space-between;align-items:center;z-index:10;position:relative}
+  header{background:var(--accent);color:#fff;padding:10px 16px;display:flex;justify-content:space-between;align-items:center;position:relative;z-index:10}
   h1{margin:0;font-size:18px}
   #header-actions{display:flex;gap:12px;align-items:center}
   button{background:#fff;border:0;padding:8px 10px;border-radius:6px;cursor:pointer}
@@ -17,8 +17,8 @@
   .hidden{display:none!important}
   .profile-circle img{width:100%;height:100%;object-fit:cover;display:block}
 
-  /* popup overlay */
-  .popup{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);z-index:9999}
+  /* popups: default display:flex; hidden class hides them */
+  .popup{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);pointer-events:auto}
   .modal{width:360px;background:#fff;border-radius:10px;padding:18px;box-shadow:0 10px 30px rgba(0,0,0,0.18);display:flex;flex-direction:column;gap:10px;position:relative}
   .modal h2{margin:0;font-size:18px}
   .close{position:absolute;right:12px;top:10px;font-size:18px;cursor:pointer;border:none;background:none}
@@ -32,7 +32,11 @@
   progress::-webkit-progress-value{background:var(--accent);border-radius:6px}
   .progress-text{min-width:48px;text-align:right;font-size:12px;color:#333}
   /* debug */
-  #debug {position:fixed;right:12px;bottom:12px;background:#111;color:#fff;padding:8px;border-radius:8px;font-size:12px;z-index:10000;opacity:0.95}
+  #debug {position:fixed;right:12px;bottom:12px;background:#111;color:#fff;padding:8px;border-radius:8px;font-size:12px;z-index:10001;opacity:0.95}
+  /* explicit z-index stacking: higher means on top */
+  #auth-popup{z-index:1000}
+  #extra-popup{z-index:1010}
+  #edit-popup{z-index:1020}
   @media (max-width:420px){.modal{width:92%}}
 </style>
 </head>
@@ -104,10 +108,11 @@
 
 <div id="debug">Debug: ready</div>
 
+<!-- Supabase lib -->
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script>
 /* -------------------------
-   CONFIG - keep your keys here
+   CONFIG (your keys)
    ------------------------- */
 const SUPABASE_URL = "https://gxcbliwbxrnhltdosfuj.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd4Y2JsaXdieHJuaGx0ZG9zZnVqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc5ODE4MDcsImV4cCI6MjA3MzU1NzgwN30.XsQR9vmnIknlcgUT4znIHGYjY_9s2hS8ZNIke9Dn7-E";
@@ -116,6 +121,7 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
    ELEMENTS
    ------------------------- */
 const debugEl = document.getElementById('debug');
+
 const signinBtn = document.getElementById('signin-btn');
 const profileCircle = document.getElementById('profile-circle');
 const headerAvatar = document.getElementById('header-avatar');
@@ -151,17 +157,28 @@ const signoutBtn = document.getElementById('signout-btn');
 const editStatus = document.getElementById('edit-status');
 
 /* -------------------------
-   DEBUG / UI helpers
+   DEBUG helpers
    ------------------------- */
 function logDebug(msg){
   console.log('[app]', msg);
   if (debugEl) debugEl.textContent = 'Debug: ' + msg;
 }
-function openModal(el){ if(!el) return; el.classList.remove('hidden'); el.setAttribute('aria-hidden','false'); }
-function closeModal(el){ if(!el) return; el.classList.add('hidden'); el.setAttribute('aria-hidden','true'); }
+function openModal(el){
+  if(!el) return;
+  el.classList.remove('hidden');
+  el.setAttribute('aria-hidden', 'false');
+}
+function closeModal(el){
+  if(!el) return;
+  el.classList.add('hidden');
+  el.setAttribute('aria-hidden', 'true');
+}
+/* close when clicking overlay */
 document.querySelectorAll('.popup').forEach(p => p.addEventListener('click', e => { if (e.target === p) closeModal(p); }));
 
-/* Attach UI handlers first so Sign In always opens */
+/* -------------------------
+   UI-first handlers (guaranteed)
+   ------------------------- */
 signinBtn.addEventListener('click', () => {
   authStatus.textContent = '';
   document.getElementById('auth-email').value = '';
@@ -175,24 +192,24 @@ closeEdit.addEventListener('click', () => closeModal(editPopup));
 document.addEventListener('keydown', e => { if (e.key === 'Escape') document.querySelectorAll('.popup').forEach(p=>closeModal(p)); });
 
 /* -------------------------
-   Supabase client init
+   Supabase client (single init)
    ------------------------- */
 let supabaseClient = null;
-function initSupabase(){
-  try {
-    if (window.supabase && !supabaseClient) {
-      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-      logDebug('Supabase client initialized');
-      hookAuthHandlers();
-      postInitLoadUser();
-    } else if (!window.supabase) {
-      logDebug('Supabase lib not loaded yet (UI still works)');
-    }
-  } catch (err) { logDebug('initSupabase error: ' + (err.message || err)); }
+function initSupabaseOnce(){
+  if (supabaseClient) return;
+  if (!window.supabase) {
+    logDebug('Supabase lib not loaded yet (UI works).');
+    return;
+  }
+  supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  logDebug('Supabase client initialized');
+  hookAuthHandlers();
+  postInitLoadUser();
 }
-initSupabase();
-setTimeout(initSupabase, 800);
-window.addEventListener('load', initSupabase);
+initSupabaseOnce();
+window.addEventListener('load', initSupabaseOnce);
+setTimeout(initSupabaseOnce, 800);
+setTimeout(initSupabaseOnce, 2000);
 
 /* -------------------------
    Hook auth handlers that require client
@@ -205,13 +222,23 @@ function hookAuthHandlers(){
     const email = document.getElementById('auth-email').value.trim();
     const password = document.getElementById('auth-password').value;
     if (!email || !password) { authStatus.textContent = 'Email and password required.'; return; }
-    logDebug('Signing up ' + email);
-    const { data, error } = await supabaseClient.auth.signUp({ email, password });
-    if (error) { authStatus.textContent = error.message; logDebug('signup error: ' + error.message); return; }
-    if (data?.user?.id) await supabaseClient.from('profiles').insert({ id: data.user.id }).catch(()=>{});
-    authStatus.textContent = '';
-    closeModal(authPopup);
-    openModal(extraPopup);
+    try {
+      logDebug('Signing up ' + email);
+      const { data, error } = await supabaseClient.auth.signUp({ email, password });
+      if (error) { authStatus.textContent = error.message; logDebug('signup error: ' + error.message); return; }
+      if (data?.user?.id) await supabaseClient.from('profiles').insert({ id: data.user.id }).catch(()=>{});
+      authStatus.textContent = '';
+      closeModal(authPopup);
+      document.getElementById('profile-username').value = '';
+      document.getElementById('profile-phone').value = '';
+      avatarUploadInput.value = '';
+      avatarProgressBar.value = 0;
+      avatarProgressText.textContent = '0%';
+      avatarProgressArea.classList.add('hidden');
+      openModal(extraPopup);
+    } catch (err) {
+      authStatus.textContent = 'Sign up error: ' + (err?.message || err);
+    }
   });
 
   loginBtn.addEventListener('click', async () => {
@@ -219,31 +246,34 @@ function hookAuthHandlers(){
     const email = document.getElementById('auth-email').value.trim();
     const password = document.getElementById('auth-password').value;
     if (!email || !password) { authStatus.textContent = 'Email and password required.'; return; }
-    logDebug('Signing in ' + email);
-    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-    if (error) { authStatus.textContent = error.message; logDebug('signin error: ' + error.message); return; }
-    authStatus.textContent = '';
-    closeModal(authPopup);
-    if (data?.user) {
-      await updateHeaderAndState(data.user);
-      await loadProfileIntoHeader(data.user.id);
+    try {
+      logDebug('Signing in ' + email);
+      const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+      if (error) { authStatus.textContent = error.message; logDebug('signin error: ' + error.message); return; }
+      authStatus.textContent = '';
+      closeModal(authPopup);
+      if (data?.user) {
+        await updateHeaderAndState(data.user);
+        await loadProfileIntoHeader(data.user.id);
+      }
+    } catch (err) {
+      authStatus.textContent = 'Sign in error: ' + (err?.message || err);
     }
   });
 
   supabaseClient.auth.onAuthStateChange((event, session) => {
     logDebug('auth event: ' + event);
-    const u = session?.user ?? null;
-    if (u) updateHeaderAndState(u);
+    const user = session?.user ?? null;
+    if (user) updateHeaderAndState(user);
     else hideProfileUI();
   });
 }
 
 /* -------------------------
-   Upload helper — FIXED: keep slashes, set Content-Type, improved errors
+   Upload helper — keep slashes, set Content-Type, verbose errors
    ------------------------- */
 function encodePathAllowSlashes(path){
-  // encode each segment but keep slash separators
-  return path.split('/').map(s => encodeURIComponent(s)).join('/');
+  return path.split('/').map(seg => encodeURIComponent(seg)).join('/');
 }
 
 function uploadFileWithProgress(file, bucket, path, onProgress){
@@ -256,9 +286,7 @@ function uploadFileWithProgress(file, bucket, path, onProgress){
       xhr.setRequestHeader('Authorization', `Bearer ${SUPABASE_ANON_KEY}`);
       if (file && file.type) xhr.setRequestHeader('Content-Type', file.type);
       xhr.setRequestHeader('x-upsert', 'true');
-    } catch (e) {
-      // ignore header set errors in some environments
-    }
+    } catch(e){ /* ignore header errors */ }
 
     xhr.upload.onprogress = ev => {
       if (ev.lengthComputable && typeof onProgress === 'function') {
@@ -268,28 +296,24 @@ function uploadFileWithProgress(file, bucket, path, onProgress){
     };
 
     xhr.onload = () => {
-      if (xhr.status >= 200 && xhr.status < 300) {
-        resolve({ status: xhr.status, response: xhr.responseText });
-      } else {
-        const body = xhr.responseText || xhr.statusText || `Status ${xhr.status}`;
-        reject(new Error(`Upload failed (${xhr.status}): ${body}`));
-      }
+      // return full response text for debugging
+      const body = xhr.responseText || '';
+      if (xhr.status >= 200 && xhr.status < 300) resolve({ status: xhr.status, body });
+      else reject(new Error(`Upload failed (${xhr.status}): ${body || xhr.statusText}`));
     };
 
-    xhr.onerror = () => {
-      reject(new Error('Network error during upload'));
-    };
-
+    xhr.onerror = () => reject(new Error('Network error during upload'));
     xhr.send(file);
   });
 }
 
 /* -------------------------
-   Extra profile: save with progress & better error reporting
+   EXTRA PROFILE SAVE (with progress)
    ------------------------- */
 saveProfileBtn.addEventListener('click', async () => {
   profileStatus.textContent = '';
-  if (!supabaseClient) { profileStatus.textContent = 'Auth client not ready. Try again a moment.'; logDebug('save attempted but client missing'); return; }
+  if (!supabaseClient) { profileStatus.textContent = 'Auth client not ready — try again a moment.'; logDebug('save attempted but supabaseClient missing'); return; }
+
   const userResp = await supabaseClient.auth.getUser();
   const user = userResp?.data?.user;
   if (!user) { profileStatus.textContent = 'Sign in first.'; return; }
@@ -313,7 +337,6 @@ saveProfileBtn.addEventListener('click', async () => {
       const { data: pub } = await supabaseClient.storage.from('avatars').getPublicUrl(path);
       avatarUrl = pub?.publicUrl || `${SUPABASE_URL}/storage/v1/object/public/avatars/${encodeURIComponent(path)}`;
     } catch (err) {
-      // show more context
       const msg = err?.message || err;
       profileStatus.textContent = 'Upload failed: ' + msg;
       logDebug('avatar upload failed: ' + msg);
@@ -321,11 +344,13 @@ saveProfileBtn.addEventListener('click', async () => {
     }
   }
 
-  // update profile row
-  await supabaseClient.from('profiles').update({ username, phone, avatar_url: avatarUrl || null }).eq('id', user.id).catch(e => {
+  // update profile
+  try {
+    await supabaseClient.from('profiles').update({ username, phone, avatar_url: avatarUrl || null }).eq('id', user.id);
+  } catch (e) {
     profileStatus.textContent = 'Profile save failed: ' + (e?.message || e);
     logDebug('profile update failed: ' + (e?.message || e));
-  });
+  }
 
   closeModal(extraPopup);
   if (avatarUrl) {
@@ -335,8 +360,11 @@ saveProfileBtn.addEventListener('click', async () => {
   await updateHeaderAndState(user);
 });
 
+/* skip */
+skipProfileBtn.addEventListener('click', () => closeModal(extraPopup));
+
 /* -------------------------
-   Header/edit flows
+   HEADER / EDIT PROFILE flows
    ------------------------- */
 function hideProfileUI(){ signinBtn.classList.remove('hidden'); profileCircle.classList.add('hidden'); headerAvatar.classList.add('hidden'); }
 function showProfileUI(){ signinBtn.classList.add('hidden'); profileCircle.classList.remove('hidden'); }
@@ -348,10 +376,12 @@ async function loadProfileIntoHeader(userId){
     if (profile?.avatar_url) {
       headerAvatar.src = profile.avatar_url;
       headerAvatar.classList.remove('hidden');
+    } else {
+      headerAvatar.classList.add('hidden');
     }
     showProfileUI();
   } catch (err) {
-    logDebug('loadProfile error: ' + (err.message || err));
+    logDebug('loadProfile error: ' + (err?.message || err));
   }
 }
 
@@ -360,11 +390,12 @@ async function updateHeaderAndState(user){
   await loadProfileIntoHeader(user.id);
 }
 
-/* profile circle: open edit modal, prefill fields */
+/* clicking profile circle opens edit modal reliably */
 profileCircle.addEventListener('click', async () => {
-  logDebug('Profile circle clicked — checking auth');
+  logDebug('Profile circle clicked — checking auth & opening edit modal');
   if (!supabaseClient) {
-    // if client missing, still open UI to avoid dead state
+    // if client missing, still open the edit UI so user can see fields — but warn
+    logDebug('Supabase client missing while opening edit popup');
     openModal(editPopup);
     return;
   }
@@ -372,7 +403,8 @@ profileCircle.addEventListener('click', async () => {
   const user = resp?.data?.user;
   if (!user) { openModal(authPopup); return; }
 
-  const { data: profile } = await supabaseClient.from('profiles').select('*').eq('id', user.id).single().catch(()=>({ data:null }));
+  // load profile fields
+  const { data: profile } = await supabaseClient.from('profiles').select('*').eq('id', user.id).single().catch(()=>({ data: null }));
   editFullname.value = profile?.full_name || '';
   editUsername.value = profile?.username || '';
   editPhone.value = profile?.phone || '';
@@ -381,7 +413,7 @@ profileCircle.addEventListener('click', async () => {
   openModal(editPopup);
 });
 
-/* edit modal save */
+/* edit save */
 editSaveBtn.addEventListener('click', async () => {
   editStatus.textContent = '';
   if (!supabaseClient) { editStatus.textContent = 'Auth client not ready.'; return; }
@@ -408,16 +440,20 @@ editSaveBtn.addEventListener('click', async () => {
       const { data: pub } = await supabaseClient.storage.from('avatars').getPublicUrl(path);
       avatarUrl = pub?.publicUrl || `${SUPABASE_URL}/storage/v1/object/public/avatars/${encodeURIComponent(path)}`;
     } catch (err) {
-      editStatus.textContent = 'Upload failed: ' + (err?.message || err);
-      logDebug('edit avatar upload failed: ' + (err?.message || err));
+      const msg = err?.message || err;
+      editStatus.textContent = 'Upload failed: ' + msg;
+      logDebug('edit avatar upload failed: ' + msg);
       return;
     }
   }
 
-  await supabaseClient.from('profiles').update({ full_name: fullname, username, phone, avatar_url: avatarUrl || undefined }).eq('id', user.id).catch(e => {
+  // update row
+  try {
+    await supabaseClient.from('profiles').update({ full_name: fullname, username, phone, avatar_url: avatarUrl || undefined }).eq('id', user.id);
+  } catch (e) {
     editStatus.textContent = 'Save failed: ' + (e?.message || e);
     logDebug('profile update failed: ' + (e?.message || e));
-  });
+  }
 
   if (avatarUrl) {
     headerAvatar.src = avatarUrl;
@@ -454,10 +490,6 @@ async function postInitLoadUser(){
     logDebug('postInit load user error: ' + (err?.message || err));
   }
 }
-
-/* Try init a couple times in case external script is slow */
-setTimeout(initSupabase, 1000);
-setTimeout(initSupabase, 2500);
 
 </script>
 </body>
