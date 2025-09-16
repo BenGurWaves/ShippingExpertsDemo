@@ -267,6 +267,33 @@ html {
 </style>
 
 </head>
+  <!-- 1) Load Supabase client -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!-- 2) Small Auth modal & a "Sign In" button (paste into your header or where you want it) -->
+<button class="cta-btn" onclick="openAuthModal()">Sign In</button>
+
+<div id="authModal" class="modal" aria-hidden="true">
+  <div class="modal-content">
+    <span class="close" onclick="closeAuthModal()">&times;</span>
+    <h2>Account</h2>
+    <form id="authForm" onsubmit="return false;">
+      <input id="auth-email" type="email" placeholder="Email" required />
+      <input id="auth-password" type="password" placeholder="Password" required />
+      <div style="margin-top:0.6rem;">
+        <button type="button" onclick="signUp()">Sign Up</button>
+        <button type="button" onclick="signIn()">Sign In</button>
+        <button type="button" onclick="signOut()">Sign Out</button>
+      </div>
+      <div id="auth-status" style="margin-top:0.6rem;color:#333;font-weight:600"></div>
+    </form>
+  </div>
+</div>
+
+<!-- 3) Replace your modal quote form inputs with IDs, or keep the modal but add IDs so this JS can read them.
+     Example: give your quote modal inputs ids like q-vin, q-pickup-address, etc. -->
+
+
 <body>
   <header>
     <img src="Logo.png" alt="Shipping Experts Logo" />
@@ -462,6 +489,93 @@ html {
       }
       v.src = "https://cdn.voiceflow.com/widget-next/bundle.mjs"; v.type = "text/javascript"; s.parentNode.insertBefore(v, s);
   })(document, 'script');
+</script>
+
+  
+<script>
+  // ---------- CONFIG: paste your values here ----------
+  const SUPABASE_URL = 'https://gxcbliwbxrnhltdosfuj.supabase.co'   // <-- replace
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd4Y2JsaXdieHJuaGx0ZG9zZnVqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc5ODE4MDcsImV4cCI6MjA3MzU1NzgwN30.XsQR9vmnIknlcgUT4znIHGYjY_9s2hS8ZNIke9Dn7-E'            // <-- replace
+  // ----------------------------------------------------
+
+  // create the client
+  const { createClient } = supabase
+  const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+
+  // Modal helpers (re-uses your .modal CSS)
+  function openAuthModal() {
+    const m = document.getElementById('authModal'); m.style.display = 'block'; m.setAttribute('aria-hidden','false')
+  }
+  function closeAuthModal() {
+    const m = document.getElementById('authModal'); m.style.display = 'none'; m.setAttribute('aria-hidden','true')
+  }
+
+  // AUTH: sign up, sign in, sign out
+  async function signUp() {
+    const email = document.getElementById('auth-email').value.trim()
+    const password = document.getElementById('auth-password').value
+    const { data, error } = await supabaseClient.auth.signUp({ email, password })
+    document.getElementById('auth-status').textContent = error ? error.message : 'Check your email to confirm signup'
+  }
+
+  async function signIn() {
+    const email = document.getElementById('auth-email').value.trim()
+    const password = document.getElementById('auth-password').value
+    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password })
+    if (error) document.getElementById('auth-status').textContent = error.message
+    else {
+      document.getElementById('auth-status').textContent = `Signed in as ${data.user.email}`
+      closeAuthModal()
+    }
+  }
+
+  async function signOut() {
+    await supabaseClient.auth.signOut()
+    document.getElementById('auth-status').textContent = 'Signed out'
+  }
+
+  // Keep UI in sync with auth state
+  supabaseClient.auth.onAuthStateChange((event, session) => {
+    if (event === 'SIGNED_IN') {
+      // you could fetch a profile or update the header here
+      console.log('SIGNED_IN', session)
+    } else if (event === 'SIGNED_OUT') {
+      console.log('SIGNED_OUT')
+    }
+  })
+
+  // EXAMPLE: submit the quote form into a "quotes" table
+  // Make sure your quote <form> uses id="quoteForm" and inputs have the ids shown below.
+  async function submitQuote(e) {
+    e && e.preventDefault && e.preventDefault()
+    const { data: userData } = await supabaseClient.auth.getUser()
+    const user = userData?.user ?? null
+    if (!user) { alert('Please sign in first'); return }
+
+    const payload = {
+      user_id: user.id,
+      vin: document.getElementById('q-vin')?.value || null,
+      vehicle_year_make_model: document.getElementById('q-yearmake')?.value || null,
+      vehicle_color: document.getElementById('q-color')?.value || null,
+      vehicle_type: document.getElementById('q-type')?.value || null,
+      pickup_address: document.getElementById('q-pickup-address')?.value || null,
+      delivery_address: document.getElementById('q-delivery-address')?.value || null,
+      pickup_notes: document.getElementById('q-pickup-notes')?.value || null,
+      delivery_notes: document.getElementById('q-delivery-notes')?.value || null,
+      created_at: new Date().toISOString()
+    }
+
+    const { data, error } = await supabaseClient.from('quotes').insert([payload])
+    if (error) return alert('Error: ' + error.message)
+    alert('Quote saved — nice!')
+    document.getElementById('quoteForm')?.reset()
+  }
+
+  // Hook the form submit (if you name your form "quoteForm")
+  document.addEventListener('DOMContentLoaded', () => {
+    const f = document.getElementById('quoteForm')
+    if (f) f.addEventListener('submit', submitQuote)
+  })
 </script>
   
 </body>
