@@ -1,244 +1,260 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Shipping Experts</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body { margin:0; font-family:Arial,sans-serif; }
-    header { background:#FF6700; padding:10px 20px; display:flex; justify-content:space-between; align-items:center; color:#fff; }
-    .profile-circle { width:40px; height:40px; border-radius:50%; background:#000; cursor:pointer; overflow:hidden; }
-    .hidden { display:none; }
-    #auth-modal, #edit-profile-modal {
-      display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5);
-      justify-content:center; align-items:center;
-    }
-    .modal-content {
-      background:#fff; padding:20px; border-radius:8px; width:300px; position:relative;
-    }
-    .close-btn { position:absolute; top:10px; right:10px; cursor:pointer; }
-    #profile-avatar { width:100%; height:100%; object-cover; }
-  </style>
+<meta charset="UTF-8">
+<title>Shipping Experts</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  body { margin:0; font-family:Arial,sans-serif; }
+  header { background:#FF6700; padding:10px 20px; display:flex; justify-content:space-between; align-items:center; color:#fff; }
+  .profile-circle { width:40px; height:40px; border-radius:50%; background:#000; cursor:pointer; overflow:hidden; display:flex; align-items:center; justify-content:center; }
+  .hidden { display:none !important; }
+  img { width:100%; height:100%; object-fit:cover; border-radius:50%; }
+  .popup, #edit-profile-modal {
+    display:none; position:fixed; top:0; left:0; width:100%; height:100%; 
+    background:rgba(0,0,0,0.5); justify-content:center; align-items:center;
+  }
+  .modal-content {
+    background:#fff; padding:20px; border-radius:8px; width:300px; position:relative;
+    display:flex; flex-direction:column; gap:10px;
+  }
+  .close-btn, .close { position:absolute; top:10px; right:10px; cursor:pointer; font-size:18px; }
+  button { cursor:pointer; padding:5px 10px; }
+  input { padding:5px; width:100%; box-sizing:border-box; }
+  #avatar-progress { font-size:12px; color:#555; }
+</style>
 </head>
 <body>
-  <header>
-    <h1>Shipping Experts</h1>
-    <div id="header-actions">
-      <button id="signin-btn">Sign In</button>
-      <!-- Profile Circle -->
-      <div id="profile-circle" class="profile-circle hidden">
-        <img id="profile-avatar" src="" alt="Profile" class="hidden">
-      </div>
+<header>
+  <h1>Shipping Experts</h1>
+  <div id="header-actions">
+    <button id="signin-btn">Sign In</button>
+    <div id="profile-circle" class="profile-circle hidden">
+      <img id="header-avatar" src="" alt="Profile" class="hidden">
     </div>
-  </header>
+  </div>
+</header>
 
-  <!-- Auth Popup -->
+<!-- Auth Popup -->
 <div id="auth-popup" class="popup hidden">
-  <div class="popup-content">
+  <div class="modal-content">
     <span class="close" id="close-auth">&times;</span>
-    <h2 id="auth-title">Welcome</h2>
-
+    <h2>Welcome</h2>
     <input type="email" id="auth-email" placeholder="Email" required>
     <input type="password" id="auth-password" placeholder="Password" required>
-
     <button id="signup-btn">Sign Up</button>
     <button id="login-btn">Log In</button>
     <p id="auth-status"></p>
   </div>
 </div>
 
-  <!-- Extra Profile Popup (after signup) -->
+<!-- Extra Profile Popup -->
 <div id="extra-profile-popup" class="popup hidden">
-  <div class="popup-content">
+  <div class="modal-content">
     <span class="close" id="close-extra">&times;</span>
     <h2>Set up your profile</h2>
-
     <input type="text" id="profile-username" placeholder="Username (optional)">
     <input type="text" id="profile-phone" placeholder="Phone number (optional)">
-    <input type="file" id="profile-avatar" accept="image/*">
-
-    <button id="skip-profile">Skip</button>
-    <button id="save-profile">Save</button>
+    <input type="file" id="profile-avatar-upload" accept="image/*">
+    <p id="avatar-progress"></p>
+    <div style="display:flex; justify-content:space-between;">
+      <button id="skip-profile">Skip</button>
+      <button id="save-profile">Save</button>
+    </div>
     <p id="profile-status"></p>
   </div>
 </div>
 
-
-  <!-- Edit Profile Modal -->
-  <div id="edit-profile-modal">
-    <div class="modal-content">
-      <span class="close-btn" id="edit-profile-close">×</span>
-      <h2>Edit Profile</h2>
-      <input id="edit-fullname" type="text" placeholder="Full Name"><br>
-      <input id="edit-username" type="text" placeholder="Username"><br>
-      <input id="edit-phone" type="text" placeholder="Phone"><br>
-      <input id="edit-email" type="email" placeholder="Email"><br>
-      <input id="edit-avatar" type="file"><br>
+<!-- Edit Profile Modal -->
+<div id="edit-profile-modal" class="popup hidden">
+  <div class="modal-content">
+    <span class="close-btn" id="edit-profile-close">×</span>
+    <h2>Edit Profile</h2>
+    <input id="edit-fullname" type="text" placeholder="Full Name">
+    <input id="edit-username" type="text" placeholder="Username">
+    <input id="edit-phone" type="text" placeholder="Phone">
+    <input id="edit-email" type="email" placeholder="Email">
+    <input id="edit-avatar" type="file">
+    <div style="display:flex; justify-content:space-between;">
       <button id="edit-profile-save">Save</button>
       <button id="edit-profile-cancel">Cancel</button>
-      <button id="signout-btn">Sign Out</button>
-      <p id="profile-status"></p>
     </div>
+    <button id="signout-btn">Sign Out</button>
+    <p id="edit-profile-status"></p>
   </div>
+</div>
 
-  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script>
-  const SUPABASE_URL = "https://gxcbliwbxrnhltdosfuj.supabase.co";
-  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd4Y2JsaXdieHJuaGx0ZG9zZnVqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc5ODE4MDcsImV4cCI6MjA3MzU1NzgwN30.XsQR9vmnIknlcgUT4znIHGYjY_9s2hS8ZNIke9Dn7-E";
-  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const SUPABASE_URL = "https://gxcbliwbxrnhltdosfuj.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd4Y2JsaXdieHJuaGx0ZG9zZnVqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc5ODE4MDcsImV4cCI6MjA3MzU1NzgwN30.XsQR9vmnIknlcgUT4znIHGYjY_9s2hS8ZNIke9Dn7-E";
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  const signinBtn = document.getElementById("signin-btn");
-  const profileCircle = document.getElementById("profile-circle");
-  const avatarImg = document.getElementById("profile-avatar");
+const signinBtn = document.getElementById("signin-btn");
+const profileCircle = document.getElementById("profile-circle");
+const avatarImg = document.getElementById("header-avatar");
 
-  // Popups
-  const authPopup = document.getElementById("auth-popup");
-  const extraPopup = document.getElementById("extra-profile-popup");
-  const editProfileModal = document.getElementById("edit-profile-modal");
+const authPopup = document.getElementById("auth-popup");
+const extraPopup = document.getElementById("extra-profile-popup");
+const editProfileModal = document.getElementById("edit-profile-modal");
 
-  // Open auth popup
-  signinBtn.addEventListener("click", () => {
-    authPopup.classList.remove("hidden");
-  });
+// Open auth popup
+signinBtn.addEventListener("click", () => authPopup.classList.remove("hidden"));
 
-  // Close buttons
-  document.getElementById("close-auth").addEventListener("click", () => authPopup.classList.add("hidden"));
-  document.getElementById("close-extra").addEventListener("click", () => extraPopup.classList.add("hidden"));
-  document.getElementById("edit-profile-close").addEventListener("click", () => editProfileModal.style.display = "none");
-  document.getElementById("edit-profile-cancel").addEventListener("click", () => editProfileModal.style.display = "none");
+// Close buttons
+document.getElementById("close-auth").addEventListener("click", () => authPopup.classList.add("hidden"));
+document.getElementById("close-extra").addEventListener("click", () => extraPopup.classList.add("hidden"));
+document.getElementById("edit-profile-close").addEventListener("click", () => editProfileModal.classList.add("hidden"));
+document.getElementById("edit-profile-cancel").addEventListener("click", () => editProfileModal.classList.add("hidden"));
 
-  // ---- SIGN UP ----
-  document.getElementById("signup-btn").addEventListener("click", async () => {
-    const email = document.getElementById("auth-email").value;
-    const password = document.getElementById("auth-password").value;
+// ---- SIGN UP ----
+document.getElementById("signup-btn").addEventListener("click", async () => {
+  const email = document.getElementById("auth-email").value;
+  const password = document.getElementById("auth-password").value;
+  const statusEl = document.getElementById("auth-status");
+  statusEl.textContent = "";
 
-    if (!email || !password) {
-      document.getElementById("auth-status").textContent = "Email and password required.";
-      return;
-    }
+  if (!email || !password) { statusEl.textContent = "Email and password required."; return; }
 
-    const { data, error } = await supabaseClient.auth.signUp({ email, password });
-    if (error) {
-      document.getElementById("auth-status").textContent = error.message;
-      return;
-    }
+  const { data, error } = await supabaseClient.auth.signUp({ email, password });
+  if (error) { statusEl.textContent = error.message; return; }
 
-    // Insert base profile row (blank optional fields)
-    await supabaseClient.from("profiles").insert({
-      id: data.user.id,
-    });
+  await supabaseClient.from("profiles").insert({ id: data.user.id });
 
-    // Switch to extra profile setup
-    authPopup.classList.add("hidden");
-    extraPopup.classList.remove("hidden");
-  });
-
-  // ---- LOG IN ----
-  document.getElementById("login-btn").addEventListener("click", async () => {
-    const email = document.getElementById("auth-email").value;
-    const password = document.getElementById("auth-password").value;
-
-    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-    if (error) {
-      document.getElementById("auth-status").textContent = error.message;
-      return;
-    }
-
-    authPopup.classList.add("hidden");
-    updateHeaderProfile(data.user);
-    loadProfile(data.user.id);
-  });
-
-  // ---- SAVE EXTRA PROFILE ----
-  document.getElementById("save-profile").addEventListener("click", async () => {
-    const user = (await supabaseClient.auth.getUser()).data.user;
-    const username = document.getElementById("profile-username").value;
-    const phone = document.getElementById("profile-phone").value;
-    const avatarFile = document.getElementById("profile-avatar").files[0];
-
-    let avatarUrl = null;
-    if (avatarFile) {
-      const { error: avatarError } = await supabaseClient.storage
-        .from("avatars")
-        .upload(`public/${user.id}.png`, avatarFile, { upsert: true });
-
-      if (avatarError) {
-        document.getElementById("profile-status").textContent = "Avatar upload error: " + avatarError.message;
-        return;
-      }
-
-      const { data: publicUrlData } = supabaseClient.storage
-        .from("avatars")
-        .getPublicUrl(`public/${user.id}.png`);
-      avatarUrl = publicUrlData.publicUrl;
-    }
-
-    await supabaseClient.from("profiles").update({
-      username: username || null,
-      phone: phone || null,
-      avatar_url: avatarUrl || null,
-    }).eq("id", user.id);
-
-    extraPopup.classList.add("hidden");
-    updateHeaderProfile(user);
-    if (avatarUrl) {
-      avatarImg.src = avatarUrl;
-      avatarImg.classList.remove("hidden");
-    }
-  });
-
-  // ---- SKIP EXTRA PROFILE ----
-  document.getElementById("skip-profile").addEventListener("click", () => {
-    extraPopup.classList.add("hidden");
-  });
-
-  // ---- SIGN OUT ----
-  document.getElementById("signout-btn").addEventListener("click", async () => {
-    await supabaseClient.auth.signOut();
-    updateHeaderProfile(null);
-    editProfileModal.style.display = "none";
-  });
-
-  // ---- Helpers ----
-  function updateHeaderProfile(user) {
-    if (user) {
-      signinBtn.classList.add("hidden");
-      profileCircle.classList.remove("hidden");
-    } else {
-      signinBtn.classList.remove("hidden");
-      profileCircle.classList.add("hidden");
-    }
-  }
-
-  async function loadProfile(userId) {
-    const { data: profile } = await supabaseClient
-      .from("profiles")
-      .select("*")
-      .eq("id", userId)
-      .single();
-
-    if (profile && profile.avatar_url) {
-      avatarImg.src = profile.avatar_url;
-      avatarImg.classList.remove("hidden");
-    }
-  }
-
-  // Open profile modal when clicking avatar circle
-profileCircle.addEventListener("click", () => {
-  editProfileModal.style.display = "flex"; // or "block" depending on your CSS
+  authPopup.classList.add("hidden");
+  extraPopup.classList.remove("hidden");
 });
 
-  // On page load
-  supabaseClient.auth.getUser().then(async ({ data }) => {
-    if (data.user) {
-      updateHeaderProfile(data.user);
-      loadProfile(data.user.id);
-    }
+// ---- LOG IN ----
+document.getElementById("login-btn").addEventListener("click", async () => {
+  const email = document.getElementById("auth-email").value;
+  const password = document.getElementById("auth-password").value;
+  const statusEl = document.getElementById("auth-status");
+  statusEl.textContent = "";
+
+  const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+  if (error) { statusEl.textContent = error.message; return; }
+
+  authPopup.classList.add("hidden");
+  updateHeaderProfile(data.user);
+  loadProfile(data.user.id);
+});
+
+// ---- REAL AVATAR UPLOAD WITH PROGRESS ----
+async function uploadAvatarWithProgress(file, userId, progressCallback) {
+  const url = `https://gxcbliwbxrnhltdosfuj.supabase.co/storage/v1/object/public/avatars/public/${userId}.png`;
+  const token = SUPABASE_ANON_KEY;
+
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open("PUT", url);
+    xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+    xhr.setRequestHeader("x-upsert", "true");
+
+    xhr.upload.onprogress = (event) => {
+      if (event.lengthComputable) {
+        const percent = Math.round((event.loaded / event.total) * 100);
+        progressCallback(percent);
+      }
+    };
+
+    xhr.onload = () => {
+      if (xhr.status === 200 || xhr.status === 201) resolve(url);
+      else reject(new Error("Upload failed: " + xhr.statusText));
+    };
+    xhr.onerror = () => reject(new Error("Network error during upload"));
+
+    xhr.send(file);
   });
+}
 
-  
+// ---- SAVE EXTRA PROFILE ----
+document.getElementById("save-profile").addEventListener("click", async () => {
+  const user = (await supabaseClient.auth.getUser()).data.user;
+  const username = document.getElementById("profile-username").value;
+  const phone = document.getElementById("profile-phone").value;
+  const avatarFile = document.getElementById("profile-avatar-upload").files[0];
+  const statusEl = document.getElementById("profile-status");
+  const progressEl = document.getElementById("avatar-progress");
+  statusEl.textContent = "";
+  progressEl.textContent = "";
+
+  let avatarUrl = null;
+  if (avatarFile) {
+    try {
+      avatarUrl = await uploadAvatarWithProgress(avatarFile, user.id, (percent) => {
+        progressEl.textContent = `Uploading: ${percent}%`;
+      });
+    } catch (err) {
+      statusEl.textContent = "Avatar upload error: " + err.message;
+      return;
+    }
+  }
+
+  await supabaseClient.from("profiles").update({
+    username: username || null,
+    phone: phone || null,
+    avatar_url: avatarUrl || null,
+  }).eq("id", user.id);
+
+  extraPopup.classList.add("hidden");
+  updateHeaderProfile(user, avatarUrl);
+});
+
+// ---- SKIP EXTRA PROFILE ----
+document.getElementById("skip-profile").addEventListener("click", () => {
+  extraPopup.classList.add("hidden");
+});
+
+// ---- SIGN OUT ----
+document.getElementById("signout-btn").addEventListener("click", async () => {
+  await supabaseClient.auth.signOut();
+  updateHeaderProfile(null);
+  editProfileModal.classList.add("hidden");
+});
+
+// ---- HELPERS ----
+function updateHeaderProfile(user, avatarUrl = null) {
+  if (user) {
+    signinBtn.classList.add("hidden");
+    profileCircle.classList.remove("hidden");
+    if (avatarUrl) { avatarImg.src = avatarUrl; avatarImg.classList.remove("hidden"); }
+  } else {
+    signinBtn.classList.remove("hidden");
+    profileCircle.classList.add("hidden");
+    avatarImg.classList.add("hidden");
+  }
+}
+
+async function loadProfile(userId) {
+  const { data: profile } = await supabaseClient.from("profiles").select("*").eq("id", userId).single();
+  if (profile && profile.avatar_url) {
+    avatarImg.src = profile.avatar_url;
+    avatarImg.classList.remove("hidden");
+  }
+}
+
+// Prefill and open edit modal
+async function openEditModal() {
+  const { data: { user } } = await supabaseClient.auth.getUser();
+  const { data: profile } = await supabaseClient.from("profiles").select("*").eq("id", user.id).single();
+
+  document.getElementById("edit-fullname").value = profile.full_name || "";
+  document.getElementById("edit-username").value = profile.username || "";
+  document.getElementById("edit-phone").value = profile.phone || "";
+  document.getElementById("edit-email").value = user.email || "";
+  editProfileModal.classList.remove("hidden");
+}
+
+profileCircle.addEventListener("click", openEditModal);
+
+// On page load, check if user is logged in
+supabaseClient.auth.getUser().then(async ({ data }) => {
+  if (data.user) {
+    updateHeaderProfile(data.user);
+    loadProfile(data.user.id);
+  }
+});
 </script>
-  
-
 </body>
 </html>
